@@ -1,5 +1,6 @@
 import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument } from 'mongoose';
+import mongoose, { HydratedDocument, Types } from 'mongoose';
+import { SRS } from './Srs.schema';
 
 @Schema({ timestamps: true })
 export class FlashCard {
@@ -9,11 +10,8 @@ export class FlashCard {
     @Prop({ required: true, type: mongoose.Schema.Types.Mixed })
     back: any;
 
-    @Prop({ type: Date })
-    lastPreview: Date;
-
-    @Prop({ type: Number })
-    nextPreviewIn: number;
+    @Prop({ type: SRS })
+    SRS: SRS;
 }
 
 export type FlashCardDocument = HydratedDocument<FlashCard>;

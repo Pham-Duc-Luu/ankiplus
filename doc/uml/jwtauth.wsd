@@ -1,0 +1,40 @@
+@startuml
+
+class User {
+  +userId: UUID
+  +email: String
+  +passwordHash: String
+  +signUp(email: String, password: String): void
+  +isValidPassword(password: String): boolean
+}
+
+class AuthService {
+  +signUp(email: String, password: String): User
+  +signIn(email: String, password: String): Tokens
+  +logOut(refreshToken: String): void
+}
+
+class JWTManager {
+  +generateAccessToken(user: User): String
+  +verifyAccessToken(token: String): boolean
+  +refreshAccessToken(refreshToken: String): Tokens
+}
+
+class RefreshTokenManager {
+  +generateRefreshToken(user: User): String
+  +isValidRefreshToken(refreshToken: String): boolean
+  +invalidateRefreshToken(refreshToken: String): void
+}
+
+class Tokens {
+  +accessToken: String
+  +refreshToken: String
+}
+
+AuthService --> User
+AuthService --> JWTManager
+AuthService --> RefreshTokenManager
+JWTManager --> Tokens
+RefreshTokenManager --> Tokens
+
+@enduml

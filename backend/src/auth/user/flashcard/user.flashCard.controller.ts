@@ -17,9 +17,9 @@ import { Model } from 'mongoose';
 import { Collection } from 'schemas/collection.schema';
 import { FlashCard } from 'schemas/flashCard.schema';
 import { User } from 'schemas/user.schema';
-import { UtilService } from 'src/app.service';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { WinstonLoggerService } from 'src/logger/logger.service';
+import { UtilService } from 'src/util/util.service';
 
 @Controller('users')
 @UseGuards(AuthGuard)
@@ -39,7 +39,7 @@ export class UserFlashCardController {
      * TODO: 1. check if the flash card is ever been study or not
      */
     @ApiOperation({ summary: 'Study a flash card' })
-    @Get('/collections/:collectionId/flashcards/:flashCardId?')
+    @Get('/collections/:collectionId/flashcards/:flashCardId/review')
     async studyFlashCard(
         @Request() req: { user: jwtPayloadDto },
         @Param()

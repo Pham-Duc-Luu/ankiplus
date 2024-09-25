@@ -13,14 +13,11 @@ export class Collection {
     @Prop({ type: Boolean, default: true })
     isPublic: boolean = true;
 
-    @Prop({ type: [{ type: Types.ObjectId, ref: 'FlashCard' }] })
-    newFlashCards: (FlashCard | string)[];
+    @Prop({ type: String, default: 'en' })
+    language: string;
 
     @Prop({ type: [{ type: Types.ObjectId, ref: 'FlashCard' }] })
-    waitedFlashCards: (FlashCard | string)[];
-
-    @Prop({ type: [{ type: Types.ObjectId, ref: 'FlashCard' }] })
-    previewingFlashCards: (FlashCard | string)[];
+    cards: (FlashCard | string)[];
 
     @Prop({ type: Types.ObjectId, ref: 'User', required: true }) // Add reference to User
     owner: User; // Reference to the User schema

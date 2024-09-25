@@ -12,6 +12,7 @@ import {
     Param,
     Put,
     Patch,
+    HttpException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
@@ -25,9 +26,9 @@ import { Model } from 'mongoose';
 import { Collection } from 'schemas/collection.schema';
 import { FlashCard } from 'schemas/flashCard.schema';
 import { User } from 'schemas/user.schema';
-import { UtilService } from 'src/app.service';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { WinstonLoggerService } from 'src/logger/logger.service';
+import { UtilService } from 'src/util/util.service';
 
 @ApiTags('users/collections')
 @UseGuards(AuthGuard)
@@ -68,9 +69,7 @@ export class UserCollectionController {
             if (param.id) {
                 return await this.collectionModel
                     .findOne({ $and: [{ _id: param.id }, { owner: sub }] })
-                    .populate({ path: 'newFlashCards', model: FlashCard.name })
-                    .populate({ path: 'waitedFlashCards', model: FlashCard.name })
-                    .populate({ path: 'previewingFlashCards', model: FlashCard.name })
+                    .populate({ path: 'cards', model: FlashCard.name })
 
                     .populate('owner', 'id email name')
                     .sort({ name: query.order === 'asc' ? 1 : -1 })
@@ -81,7 +80,7 @@ export class UserCollectionController {
 
             return await this.collectionModel
                 .find({ owner: sub })
-                .populate({ path: 'newFlashCards', select: 'id front', model: FlashCard.name })
+                .populate({ path: 'cards', select: 'id front', model: FlashCard.name })
                 .populate('owner', 'id email name')
                 .sort({ name: query.order === 'asc' ? 1 : -1 })
                 .limit(query.limit || 30)
@@ -192,7 +191,7 @@ export class UserCollectionController {
         try {
             const newFlashCards = await this.flashCardModel.create([...body]);
             const updataCollection = await this.collectionModel.findById(param.id);
-            updataCollection.newFlashCards.push(...newFlashCards);
+            updataCollection.cards.push(...newFlashCards);
             await updataCollection.save();
         } catch (error) {
             this.logger.error(error.message, error.stack);
@@ -200,5 +199,37 @@ export class UserCollectionController {
         }
 
         return 'Add flash cards successfully';
+    }
+
+    @ApiOperation({ summary: 'get list of flashcards that  need to be reviewed' })
+    @Get(':id/flashcards/review')
+    async getReviewList(@Request() req: { user: jwtPayloadDto }, @Param() param: { id: string }) {
+        try {
+            const user = await this.userModel.findById(req.user.sub);
+
+            if (!user.collections.find((c) => c === param.id)) {
+                throw new BadRequestException('Cannot find collection');
+            }
+
+            const collection = await this.collectionModel
+                .findById(param.id)
+                .populate({ path: 'cards', model: FlashCard.name })
+                .exec();
+
+            const reviewCard = collection.cards.filter((cards) => {
+                return typeof cards !== 'string';
+            });
+
+            console.debug(reviewCard);
+            return reviewCard.filter((card) => new Date(card.SRS.nextReviewDate).getTime() <= new Date().getTime());
+        } catch (error) {
+            this.logger.error(error);
+            if (error instanceof HttpException) {
+                throw error;
+            }
+
+            throw new InternalServerErrorException();
+        }
+        return;
     }
 }

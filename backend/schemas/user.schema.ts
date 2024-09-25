@@ -14,7 +14,7 @@ export class User {
     username: string;
 
     @Prop({ type: [{ type: Types.ObjectId, ref: 'Collection' }] })
-    collections: Collection[]; // Array of ObjectId references to Collection
+    collections: (Collection | string)[]; // Array of ObjectId references to Collection
 }
 
 export type UserDocument = HydratedDocument<User>;

@@ -1,0 +1,69 @@
+{
+  "auth": {
+    "sign in": {
+      "label": "Sign in your account",
+      "email": {
+        "label": "Email",
+        "placeholder": "example@example.com"
+      },
+      "password": { "label": "Password", "placeholder": "**********" },
+      "action": "Sign in"
+    },
+    "sign up": {
+      "label": "Sign up your account",
+      "email": {
+        "label": "Email",
+        "placeholder": "Enter your email address"
+      },
+      "password": { "label": "Password", "placeholder": "**********" },
+      "re password": {
+        "label": "Confirm password",
+        "placeholder": "**********"
+      },
+
+      "username": {
+        "label": "Username",
+        "placeholder": "Enter your username"
+      },
+      "action": "Sign up"
+    },
+    "forgotPassword": {
+      "label": "Forgot Password",
+      "email": {
+        "label": "Email",
+        "placeholder": "Enter your email"
+      },
+      "action": "Forgot Password"
+    }
+  },
+  "dashboard": {
+    "my collection": {
+      "title": "Your collections",
+      "create": "Create a new collection"
+    }
+  },
+  "collection": {
+    "create": {
+      "title": "Create a new collection",
+      "form": {
+        "title": "Give new collection a title",
+        "description": "Give new collection a description"
+      },
+      "function": {
+        "create": "Create"
+      },
+      "card": {
+        "front": {
+          "title": "Terminology"
+        },
+        "back": {
+          "title": "Definition"
+        },
+        "picture": {
+          "title": "Add a picture"
+        },
+        "add": "Add card"
+      }
+    }
+  }
+}

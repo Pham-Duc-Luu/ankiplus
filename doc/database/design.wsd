@@ -1,0 +1,53 @@
+@startuml
+entity "Users" {
+    * user_id : UUID
+    --
+    email : String
+    password_hash : String
+}
+
+entity "Collections" {
+    * collection_id : UUID
+    --
+    user_id : UUID
+    name : String
+    language : String
+}
+
+entity "Flashcards" {
+    * card_id : UUID
+    --
+    collection_id : UUID
+    front : String
+    back : String
+    example : String
+    image_url : String
+    audio_url : String
+}
+
+entity "SRS" {
+    * srs_id : UUID
+    --
+    user_id : UUID
+    card_id : UUID
+    interval : Integer
+    efactor : Float
+    next_review_date : Date
+}
+
+entity "ReviewHistory" {
+    * review_id : UUID
+    --
+    user_id : UUID
+    card_id : UUID
+    review_date : Date
+    quality : Integer
+}
+
+Users ||--o{ Collections : "owns"
+Collections ||--o{ Flashcards : "contains"
+Users ||--o{ SRS : "studies"
+Flashcards ||--o{ SRS : "has"
+Users ||--o{ ReviewHistory : "logs"
+Flashcards ||--o{ ReviewHistory : "tracked in"
+@enduml

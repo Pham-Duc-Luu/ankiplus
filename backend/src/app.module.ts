@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { AppService, UtilService } from './app.service';
+import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -10,6 +10,7 @@ import { CollectionModule } from './collection/collection.module';
 import { UserModule } from './user/user.module';
 import { HttpExceptionFilter } from './middleware/http-exception.filter';
 import { LoggerModule } from './logger/logger.module';
+import { UtilModule } from './util/util.module';
 
 @Module({
     imports: [
@@ -39,9 +40,10 @@ import { LoggerModule } from './logger/logger.module';
         CollectionModule,
         UserModule,
         LoggerModule,
+        UtilModule,
     ],
     controllers: [AppController],
-    providers: [AppService, UtilService],
-    exports: [UtilService],
+    providers: [AppService],
+    exports: [],
 })
 export class AppModule {}

@@ -1,0 +1,34 @@
+@startuml
+class User {
+  +userId: UUID
+  +email: String
+  +passwordHash: String
+  +signUp(email: String, password: String): void
+  +isValidPassword(password: String): boolean
+}
+
+class AuthService {
+  +signUp(email: String, password: String): User
+  +signIn(email: String, password: String): Session
+  +logOut(sessionId: UUID): void
+}
+
+class SessionManager {
+  +key: String
+  +session: session[]
+  +createSession(user: User): Session
+  +invalidateSession(sessionId: UUID): void
+  +isSessionValid(sessionId: UUID): boolean
+}
+
+class Session {
+  +sessionId: UUID
+  +user: User
+  +createdAt: Date
+  +expiresAt: Date
+}
+
+AuthService --> User
+AuthService --> SessionManager
+SessionManager --> Session
+@enduml

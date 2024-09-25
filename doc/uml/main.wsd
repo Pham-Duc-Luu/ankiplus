@@ -1,0 +1,50 @@
+@startuml
+class User {
+  +userId: UUID
+  +email: String
+  +passwordHash: String
+  +createCollection(name: String): Collection
+  +reviewCollection(collectionId: UUID): ReviewSession
+  +getProgress(): Progress
+}
+
+class Collection {
+  +collectionId: UUID
+  +name: String
+  +language: String
+  +cards: List<Flashcard>
+  +getReviewList() : List<Flashcard>
+  +addCard(front: String, back: String, example: String): Flashcard
+  +removeCard(cardId: UUID)
+  +editCard(cardId: UUID, front: String, back: String, example: String)
+}
+
+class Flashcard {
+  +cardId: UUID
+  +front: String
+  +back: String
+  +example: String
+  +imageUrl: String
+  +audioUrl: String
+  +srs: SRS
+  +updateSRS(quality: int)
+}
+
+class SRS {
+  +nextReviewDate: Date
+  +interval: int
+  +efactor: float
+  +calculateNextReview(quality: int): void
+}
+
+
+class StudyProgress {
+  +totalCardsReviewed: int
+  +correctAnswers: int
+  +getAccuracy(): float
+}
+
+User "1" --> "many" Collection
+Collection "1" --> "many" Flashcard
+Flashcard "1" --> "1" SRS
+@enduml

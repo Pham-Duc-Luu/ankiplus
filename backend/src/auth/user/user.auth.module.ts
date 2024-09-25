@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { UserAuthController } from './user.auth.controller';
-import { UtilService } from 'src/app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from 'schemas/user.schema';
 import { Collection, CollectionSchema } from 'schemas/collection.schema';
@@ -9,6 +8,9 @@ import { UserCollectionController } from './collection/user.collection.controlle
 import { UserFlashCardController } from './flashcard/user.flashCard.controller';
 import { LoggerModule } from 'src/logger/logger.module';
 import { WinstonLoggerService } from 'src/logger/logger.service';
+import { UtilService } from 'src/util/util.service';
+import { UserFlashCardService } from './flashcard/user.flashCard.service';
+import { SRSService } from './flashcard/Srs.flashCard.service';
 
 @Module({
     imports: [
@@ -20,6 +22,6 @@ import { WinstonLoggerService } from 'src/logger/logger.service';
         LoggerModule,
     ],
     controllers: [UserAuthController, UserCollectionController, UserFlashCardController],
-    providers: [UtilService],
+    providers: [UtilService, UserFlashCardService, SRSService],
 })
 export class UserAuthModule {}

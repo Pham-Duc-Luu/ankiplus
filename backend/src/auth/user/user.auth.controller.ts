@@ -13,7 +13,6 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '../auth.guard';
 import { InjectModel } from '@nestjs/mongoose';
-import { UtilService } from 'src/app.service';
 import { JwtService } from '@nestjs/jwt';
 import { User } from 'schemas/user.schema';
 import { Model } from 'mongoose';
@@ -22,6 +21,7 @@ import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateCollectionDto } from 'dto/create-collection.dto';
 import { FlashCard } from 'schemas/flashCard.schema';
 import { Collection } from 'schemas/collection.schema';
+import { UtilService } from 'src/util/util.service';
 
 @ApiTags('Users')
 @UseGuards(AuthGuard)

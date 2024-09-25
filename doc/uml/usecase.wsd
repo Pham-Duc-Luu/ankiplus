@@ -1,0 +1,13 @@
+@startuml
+actor User
+
+rectangle WebApp {
+    User --> (Sign up / Log in / Log out)
+    User --> (Create Flashcard Deck)
+    User --> (Edit / Delete Flashcard Deck)
+    User --> (Create / Edit / Delete Flashcards)
+    User --> (Review Flashcards with SRS)
+    User --> (View Progress)
+}
+
+@enduml 
