@@ -15,8 +15,7 @@ export default function CollectionCard({
   avatar,
   title,
   description,
-}: ICollectionCard) {
-  const [state, setstate] = useState();
+}: Partial<ICollectionCard>) {
   return (
     <>
       <Button className="py-10 m-4 group/collectionCard" variant="ghost">

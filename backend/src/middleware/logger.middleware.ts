@@ -7,6 +7,8 @@ export class LoggerMiddleware implements NestMiddleware {
     use(req: Request, res: Response, next: NextFunction) {
         const logger = new WinstonLogger().addTransportConsole().build();
         logger.info(req.url);
+        console.log(res);
+
         next();
     }
 }

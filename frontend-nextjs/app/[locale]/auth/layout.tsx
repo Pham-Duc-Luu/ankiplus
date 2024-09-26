@@ -37,7 +37,6 @@ const slugs = [
 ];
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
-  useEffect(() => {}, []);
   return (
     <div className=" min-w-full min-h-screen flex items-center justify-center">
       <div className=" flex-1">{children}</div>

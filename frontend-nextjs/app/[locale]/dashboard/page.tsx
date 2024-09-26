@@ -11,12 +11,19 @@ const example: ICollectionCard = {
   title: 'Example title',
   description: 'Example description',
 };
+
 import { IoIosAdd } from 'react-icons/io';
 import { useRouter } from '@/i18n/routing';
+import { useProfileStore } from '@/hooks/useProfile';
 const Page = () => {
-  useEffect(() => {});
+  const { profile } = useProfileStore();
   const t = useTranslations('dashboard.my collection');
   const route = useRouter();
+
+  if (!profile) {
+    route.push('auth/sign-in');
+  }
+
   return (
     <div className=" w-full min-h-screen flex flex-col items-center p-6">
       <Card className=" lg:w-[1200px] w-full">
@@ -39,11 +46,9 @@ const Page = () => {
               </CardBody>
             </CardBody>
           </Button>
-          {Array(10)
-            .fill(example)
-            .map((example, index) => (
-              <CollectionCard key={index} {...example}></CollectionCard>
-            ))}
+          {profile?.collections?.map((item, index) => (
+            <CollectionCard key={index} title={item.name}></CollectionCard>
+          ))}
         </CardBody>
       </Card>
       {/* <Card className="flex-1">
