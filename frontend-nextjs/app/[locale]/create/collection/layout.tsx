@@ -7,6 +7,7 @@ import CreateButton from './Create.button';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const t = useTranslations('collection.create');
+
   return (
     <div className=" ">
       <Navbar

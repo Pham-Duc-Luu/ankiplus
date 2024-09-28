@@ -52,7 +52,7 @@ export default function IconCloudDemo() {
           localStorage.setItem('access_token', response?.refresh_token);
         }
 
-        const fetchProfile = await mutate('get user profile', () =>
+        const fetchProfile = await mutate('get-user-profile', () =>
           axiosApi.userApi.getProfile().then((res) => res.data)
         );
 
@@ -60,8 +60,6 @@ export default function IconCloudDemo() {
           title: 'You have successfully logged in',
           variant: 'success',
         });
-
-        console.log(fetchProfile);
 
         if (fetchProfile) {
           console.debug(fetchProfile);
@@ -72,9 +70,11 @@ export default function IconCloudDemo() {
         }
 
         // Navigate to the dashboard upon successful login
-      } catch (error: any) {
-        console.log(error);
-
+      } catch (error) {
+        console.error(error.stack);
+        // ! this is for development purposes, no api calls
+        router.push('/dashboard');
+        // !
         if (error instanceof AxiosError) {
           if (error.response?.data?.message)
             toast({

@@ -5,45 +5,126 @@ import Header from './Header';
 import Functions from './Functions';
 import CreateCard from '@/components/flashcard.create';
 import { AnimatePresence, Reorder, useDragControls } from 'framer-motion';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { IoMdAdd } from 'react-icons/io';
 import { removeItem } from '@/lib/utils';
 import { MdAddToPhotos } from 'react-icons/md';
+import {
+  CreateCollectionBody,
+  flashCardDto,
+} from '@/lib/api/collection.user.axios';
+import CreateButton from './Create.button';
+import { useCreateCollection } from '@/hooks/useCreateCollection';
+import { v4 } from 'uuid';
+import { log } from 'console';
+
+export interface Card extends Partial<flashCardDto> {
+  id: number | string;
+}
 
 export default function Page() {
   const t = useTranslations('collection.create');
-  const [items, setItems] = useState([0, 1, 2]);
-
+  const [items, setItems] = useState<Card[]>([{ id: v4() }]);
   const add = () => {
-    setItems([...items, items.length]);
+    setItems([...items, { id: v4() }]);
   };
+  const useCreate = useCreateCollection();
+  const [title, settitle] = useState<string>();
+  const [description, setdescription] = useState<string>();
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([null, null]); // Array to store refs for each card
 
   const remove = (position: number) => {
-    setItems(removeItem(items, position));
+    console.log(position);
 
-    // setItems([...items.splice(position, 1)]);
+    const findItem = items.find((item) => item.id === position);
+    if (findItem) setItems(removeItem(items, findItem));
   };
 
+  const handleCardChange = (index: number | string, updatedCard: Card) => {
+    // console.log(updatedCard);
+    const updatedCards = [...items];
+    const card = updatedCards.find((item) => item.id === updatedCard.id);
+
+    // * check if card for adding is existing
+    if (card) {
+      card.front = updatedCard.front;
+      card.back = updatedCard.back;
+    }
+    // console.log(updatedCards);
+
+    setItems(updatedCards);
+  };
+
+  const handleCreateCollcetion = () => {
+    if (!title) {
+      return;
+    }
+    if (!items) {
+    }
+
+    // .map((item) => {
+    //   return { front: item.front, back: item.back };
+    // });
+
+    const createCollectionBody: CreateCollectionBody = {
+      name: title,
+      description: description,
+      flashCards: arr,
+    };
+
+    // console.log(createCollectionBody);
+  };
+
+  useEffect(() => {
+    console.log(items);
+
+    if (title) useCreate.setTitle(title);
+    if (description) useCreate.setDescription(description);
+    if (items)
+      useCreate.addCard(items.filter((item) => item.front && item.back));
+  }, [items, title, description]);
+
+  const ref = useRef<HTMLElement | null>();
+
+  const scrollToListItem = (id: string) => {
+    if (ref.current) {
+      const targetLi = ref.current.querySelector(`[data-item-id="${id}"]`); // Find the li by id
+      if (targetLi) {
+        console.log(targetLi);
+        // targetLi.scrollIntoView({ behavior: 'smooth' }); // Scroll the li into view
+      }
+    }
+  };
   return (
-    <div className=" w-full min-h-screen flex flex-col items-center p-6">
+    <div
+      className=" w-full min-h-screen flex flex-col items-center p-6"
+      ref={(e) => {
+        cardRefs.current[0] = e;
+      }}>
       <div className="lg:w-[1200px] mb-8">
-        <Header></Header>
+        <Header
+          onChange={(a, b) => {
+            settitle(a);
+            setdescription(b);
+          }}></Header>
         {/* <Functions></Functions> */}
         <div>
-          <Reorder.Group axis="y" values={items} onReorder={setItems}>
+          <Reorder.Group axis="y" values={items} onReorder={setItems} ref={ref}>
             {items.map((item, index) => (
               <CreateCard
-                key={item}
-                keyId={item}
+                key={item.id}
+                value={item}
                 order={index}
-                onRemove={remove}
-                index={index}></CreateCard>
+                onChange={(updatedCard: Card) =>
+                  handleCardChange(item.id, updatedCard)
+                }
+                onRemove={remove}></CreateCard>
             ))}
           </Reorder.Group>
         </div>
 
         <div
-          className=" cursor-pointer"
+          className=" cursor-pointer my-4"
           onClick={() => {
             add();
           }}>
@@ -53,13 +134,10 @@ export default function Page() {
           </Card>
         </div>
         <div className="my-4 flex justify-end">
-          <Button
-            color="success"
-            variant="bordered"
-            className="text-xl"
-            startContent={<MdAddToPhotos size={20}></MdAddToPhotos>}>
-            {t('function.create')}
-          </Button>
+          <CreateButton
+            onClick={() => {
+              scrollToListItem(items[0]?.id);
+            }}></CreateButton>
         </div>
       </div>
     </div>

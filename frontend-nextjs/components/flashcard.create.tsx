@@ -3,43 +3,56 @@ import {
   Button,
   Card,
   CardBody,
-  CardFooter,
   CardHeader,
   Divider,
   Input,
-  Link,
 } from '@nextui-org/react';
 import { DragControls, Reorder, useDragControls } from 'framer-motion';
 import { useTranslations } from 'next-intl';
-import React, { HtmlHTMLAttributes } from 'react';
+
 import {
   MdDeleteOutline,
   MdOutlineAddPhotoAlternate,
   MdOutlineDragHandle,
 } from 'react-icons/md';
 import { CiLock } from 'react-icons/ci';
+import { flashCardDto } from '@/lib/api/collection.user.axios';
+import { Card as ICard } from '@/app/[locale]/create/collection/page';
+import { useState } from 'react';
+
+export interface CreateCardProps extends Partial<flashCardDto> {
+  className?: string;
+  value: any;
+  order: number;
+
+  onChange?: (updatedCard: ICard) => void;
+  onRemove: (position: number) => void;
+}
 
 const CreateCard = ({
   className,
   order,
+  onChange,
   onRemove,
-  keyId,
-}: {
-  className?: string;
+  front,
 
-  keyId?: number;
-  order: number;
-  index: number;
-  onRemove: (position: number) => void;
-}) => {
+  value,
+  back,
+}: CreateCardProps) => {
   const t = useTranslations('collection.create.card');
   const controls = useDragControls();
+  const [cardFront, setcardFront] = useState(front);
+  const [cardBack, setcardBack] = useState(back);
+
+  const handleUpdate = () => {
+    if (onChange) onChange({ ...value, front: cardFront, back: cardBack });
+  };
 
   return (
     <Reorder.Item
-      key={keyId}
-      value={keyId}
+      value={value}
       dragListener={false}
+      data-item-id={value.id}
       dragControls={controls}>
       <div className={cn(className, ' my-4')}>
         <Card className="">
@@ -53,7 +66,7 @@ const CreateCard = ({
                 color="warning"
                 variant="faded"
                 className=" flex justify-center items-center"
-                onClick={() => onRemove(order)}>
+                onClick={() => onRemove(value.id)}>
                 <MdDeleteOutline size={20}></MdDeleteOutline>
               </Button>
               <div
@@ -71,11 +84,21 @@ const CreateCard = ({
               variant="underlined"
               labelPlacement="outside"
               label={t('front.title')}
+              onBlur={handleUpdate} // Call onChange when input loses focus
+              onChange={(e) => {
+                setcardFront(e.target.value);
+              }}
+              onClear={() => setcardFront(undefined)}
               isClearable></Input>
             <Input
               isClearable
               variant="underlined"
               labelPlacement="outside"
+              onBlur={handleUpdate} // Call onChange when input loses focus
+              onChange={(e) => {
+                setcardBack(e.target.value);
+              }}
+              onClear={() => setcardBack(undefined)}
               label={t('back.title')}></Input>
             <div>
               <Button

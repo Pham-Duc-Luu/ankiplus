@@ -18,7 +18,7 @@ export const createSelectors = <S extends UseBoundStore<StoreApi<object>>>(
   return store;
 };
 
-export interface card {
+export interface Card {
   front: string;
   back: string;
 }
@@ -26,10 +26,10 @@ export interface card {
 export interface ICreateCollectionState {
   title?: string;
   description?: string;
-  cards?: card[];
+  cards?: Card[];
   setTitle: (value: string) => void;
   setDescription: (value: string) => void;
-  addCard: (value: card) => void;
+  addCard: (value: Card[]) => void;
   createCollection: () => void;
 }
 
@@ -39,10 +39,10 @@ export const useCreateCollectionStore = create<ICreateCollectionState>(
     setTitle: (value) => set((state) => ({ ...state, title: value })),
     setDescription: (value) =>
       set((state) => ({ ...state, description: value })),
-    addCard: (value) => set((state) => ({ ...state, card: value })),
+    addCard: (value) => set((state) => ({ ...state, cards: value })),
     createCollection: () =>
       set((state) => {
-        console.log(state.title);
+        console.log(state.cards);
 
         return state;
       }),
