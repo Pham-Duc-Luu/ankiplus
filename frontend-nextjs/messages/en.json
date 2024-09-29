@@ -64,6 +64,14 @@
         },
         "add": "Add card"
       }
+    },
+    "info": {
+      "function": {
+        "review": "review",
+
+        "study": "study",
+        "test": "test"
+      }
     }
   }
 }
