@@ -9,19 +9,34 @@ export interface Card {
 }
 
 export interface ICollection {
-  id?: string;
-  title?: string;
+  id?: string | number;
+  name?: string;
   description?: string;
   cards?: Card[];
 }
-export interface ICollectionStore {
-  title?: string;
+export interface ICollectionStore extends ICollection {
+  name?: string;
   description?: string;
   cards?: Card[];
 }
 
+export interface ICollections {
+  collections: ICollection[];
+}
+
+export interface ICollectionsStore extends ICollections {}
+export const useColletionsStore = create<ICollectionsStore>((set) => ({
+  collections: [
+    { id: 1, title: "Example title 1" },
+    { id: 2, title: "Example title 2" },
+    { id: 3, title: "Example title 3" },
+  ],
+}));
+
 export const useCollectionStore = create<ICollectionStore>((set) => ({
-  title: "Example title",
+  title: "Example title 1",
+
+  id: 1,
   cards: [
     { front: "Example front 1", back: "Example back 1" },
     { front: "Example front 2", back: "Example back 2" },

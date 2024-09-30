@@ -1,7 +1,15 @@
-import { Avatar, Button, Card, CardBody, Divider } from '@nextui-org/react';
-import React, { useState } from 'react';
-import { MdOutlineNavigateNext } from 'react-icons/md';
-import { IoIosAddCircleOutline } from 'react-icons/io';
+import {
+  Avatar,
+  Button,
+  ButtonProps,
+  Card,
+  CardBody,
+  CardProps,
+  Divider,
+} from "@nextui-org/react";
+import React, { useState } from "react";
+import { MdOutlineNavigateNext } from "react-icons/md";
+import { IoIosAddCircleOutline } from "react-icons/io";
 
 export interface ICollectionCard {
   avatar: string;
@@ -9,16 +17,24 @@ export interface ICollectionCard {
   description: string;
   className?: string;
 }
-import { IoShareOutline } from 'react-icons/io5';
-import { MdOutlineDeleteOutline } from 'react-icons/md';
+import { IoShareOutline } from "react-icons/io5";
+import { MdOutlineDeleteOutline } from "react-icons/md";
+export interface CollectionCardProps
+  extends ButtonProps,
+    Partial<ICollectionCard> {}
 export default function CollectionCard({
   avatar,
   title,
   description,
-}: Partial<ICollectionCard>) {
+  ...props
+}: CollectionCardProps) {
   return (
     <>
-      <Button className="py-10 m-4 group/collectionCard" variant="ghost">
+      <Button
+        {...props}
+        className="py-10 m-4 group/collectionCard"
+        variant="ghost"
+      >
         <CardBody className=" flex flex-row items-center justify-center">
           <Avatar
             isBordered

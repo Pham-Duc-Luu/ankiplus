@@ -1,43 +1,56 @@
-import { motion } from "framer-motion";
-import { useState } from "react";
+import React, { useState } from "react";
+import ReactCardFlip from "react-card-flip";
 
-export default function FlipCard() {
-  console.log(motion);
-  const [flip, setFlip] = useState(true);
+import {
+  Card,
+  CardHeader,
+  CardBody,
+  Image,
+  CardProps,
+  Button,
+} from "@nextui-org/react";
+import { MdOutlineModeEdit } from "react-icons/md";
+import { PiStarThin } from "react-icons/pi";
+export interface FlipCardProps extends CardProps {
+  front?: string;
+  back?: string;
+  text?: string;
+}
+
+export const ExtendCard = ({ text }: FlipCardProps) => {
+  return (
+    <Card className="py-4 min-w-[800px] min-h-80">
+      <CardHeader className=" flex justify-end gap-3">
+        <Button isIconOnly>
+          <MdOutlineModeEdit size={28} size="lg" />
+        </Button>
+        <Button isIconOnly size="lg">
+          <PiStarThin size={28} />
+        </Button>
+      </CardHeader>
+      <CardBody className="overflow-visible py-2 flex justify-center items-center text-2xl ">
+        {text}
+      </CardBody>
+    </Card>
+  );
+};
+
+const FlipCard = ({ front, back }: FlipCardProps) => {
+  const [isFlipped, setIsFlipped] = useState(false);
+  const handleClick = () => {
+    setIsFlipped(!isFlipped);
+  };
 
   return (
-    <div className="App">
-      <motion.div
-        style={{ width: "20rem", height: "10rem" }}
-        transition={{ duration: 0.7 }}
-        animate={{ rotateY: flip ? 0 : 180 }}
-      >
-        <motion.div
-          transition={{ duration: 0.7 }}
-          animate={{ rotateY: flip ? 0 : 180 }}
-          className="Card"
-        >
-          <motion.div
-            transition={{ duration: 0.7 }}
-            animate={{ rotateY: flip ? 0 : 180 }}
-            className="front"
-          >
-            Front Side
-          </motion.div>
-          <motion.div
-            initial={{ rotateY: 180 }}
-            animate={{ rotateY: flip ? 180 : 0 }}
-            // style={{ display: flip ? "none" : "block" }}
-            transition={{ duration: 0.7 }}
-            className="back"
-          >
-            Back Side
-          </motion.div>
-          <button onClick={() => setFlip((prevState) => !prevState)}>
-            Click me
-          </button>
-        </motion.div>
-      </motion.div>
-    </div>
+    <ReactCardFlip isFlipped={isFlipped} flipDirection="vertical">
+      <div className="front" onClick={() => handleClick()}>
+        <ExtendCard text={front}></ExtendCard>
+      </div>
+      <div className="back" onClick={() => handleClick()}>
+        <ExtendCard text={back}></ExtendCard>
+      </div>
+    </ReactCardFlip>
   );
-}
+};
+
+export default FlipCard;

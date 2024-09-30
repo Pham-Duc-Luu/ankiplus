@@ -28,7 +28,7 @@ const Page = () => {
     //   route.push("/auth/sign-in");
     // }
   }, []);
-  
+
   return (
     <div className=" w-full min-h-screen flex flex-col items-center p-6">
       <Card className=" lg:w-[1200px] w-full">
@@ -54,7 +54,13 @@ const Page = () => {
             </CardBody>
           </Button>
           {profile?.collections?.map((item, index) => (
-            <CollectionCard key={index} title={item.name}></CollectionCard>
+            <CollectionCard
+              onClick={() => {
+                route.push(`/collection/${item._id}`);
+              }}
+              key={index}
+              title={item.name}
+            ></CollectionCard>
           ))}
         </CardBody>
       </Card>
