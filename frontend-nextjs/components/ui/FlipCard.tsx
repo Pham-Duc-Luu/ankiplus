@@ -11,15 +11,20 @@ import {
 } from "@nextui-org/react";
 import { MdOutlineModeEdit } from "react-icons/md";
 import { PiStarThin } from "react-icons/pi";
+import { cn } from "@/lib/utils";
 export interface FlipCardProps extends CardProps {
   front?: string;
   back?: string;
+  CustomCard?: {
+    FrontCard?: React.JSX.Element;
+    BackCard?: React.JSX.Element;
+  };
   text?: string;
 }
 
-export const ExtendCard = ({ text }: FlipCardProps) => {
+export const ExtendCard = ({ text, className }: FlipCardProps) => {
   return (
-    <Card className="py-4 min-w-[800px] min-h-80">
+    <Card className={cn("py-4 min-w-[800px] min-h-80", className)}>
       <CardHeader className=" flex justify-end gap-3">
         <Button isIconOnly>
           <MdOutlineModeEdit size={28} size="lg" />
@@ -35,19 +40,29 @@ export const ExtendCard = ({ text }: FlipCardProps) => {
   );
 };
 
-const FlipCard = ({ front, back }: FlipCardProps) => {
+const FlipCard = ({ front, back, className, CustomCard }: FlipCardProps) => {
   const [isFlipped, setIsFlipped] = useState(false);
   const handleClick = () => {
     setIsFlipped(!isFlipped);
   };
+  if (CustomCard) {
+    <ReactCardFlip isFlipped={isFlipped} flipDirection="vertical">
+      <div className="front" onClick={() => handleClick()}>
+        <CustomCard.FrontCard></CustomCard.FrontCard>
+      </div>
+      <div className="back" onClick={() => handleClick()}>
+        <CustomCard.BackCard></CustomCard.BackCard>
+      </div>
+    </ReactCardFlip>;
+  }
 
   return (
     <ReactCardFlip isFlipped={isFlipped} flipDirection="vertical">
       <div className="front" onClick={() => handleClick()}>
-        <ExtendCard text={front}></ExtendCard>
+        <ExtendCard className={cn(className)} text={front}></ExtendCard>
       </div>
       <div className="back" onClick={() => handleClick()}>
-        <ExtendCard text={back}></ExtendCard>
+        <ExtendCard className={cn(className)} text={back}></ExtendCard>
       </div>
     </ReactCardFlip>
   );

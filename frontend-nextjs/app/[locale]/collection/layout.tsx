@@ -3,7 +3,7 @@ import SideBar from "@/components/SideBar";
 
 export default function layout({ children }: { children: React.ReactNode }) {
   return (
-    <div className=" relative">
+    <div className=" min-h-screen relative">
       <Navbar></Navbar>
       <div>
         <SideBar></SideBar>
