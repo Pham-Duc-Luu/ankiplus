@@ -4,7 +4,7 @@ import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import configuration from 'config/configuration';
+import configuration from ' config/configuration';
 import { JwtModule } from '@nestjs/jwt';
 import { CollectionModule } from './collection/collection.module';
 import { UserModule } from './user/user.module';

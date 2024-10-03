@@ -1,9 +1,10 @@
 import { configureStore } from "@reduxjs/toolkit";
 import collection from "./collectionSlice";
-
+import reviewCard from "./reviewCardSlice";
 export const store = configureStore({
   reducer: {
     collection,
+    reviewCard,
   },
 });
 

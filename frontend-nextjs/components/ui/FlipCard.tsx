@@ -26,8 +26,8 @@ export const ExtendCard = ({ text, className }: FlipCardProps) => {
   return (
     <Card className={cn("py-4 min-w-[800px] min-h-80", className)}>
       <CardHeader className=" flex justify-end gap-3">
-        <Button isIconOnly>
-          <MdOutlineModeEdit size={28} size="lg" />
+        <Button isIconOnly size="lg">
+          <MdOutlineModeEdit size={28} />
         </Button>
         <Button isIconOnly size="lg">
           <PiStarThin size={28} />
