@@ -4,7 +4,13 @@ export default () => ({
         mongodb: { url: process.env.MONGODBURL || 'mongodb://localhost:27017' },
     },
     jwtConstant: {
-        secret: process.env.JWT_SECRET || 'your-secret-key',
-        expiresIn: '1h',
+        secret: {
+            key: process.env.JWT_SECRET_KEY || 'your-secret-key',
+            expiresIn: process.env.JWT_SECRET_EXPIRATION || '1h',
+        },
+        public: {
+            key: process.env.JWT_PUBLIC_KEY || 'your-secret-key',
+            expiresIn: process.env.JWT_PUBLIC_KEY_EXPIRATION || '1h',
+        },
     },
 });

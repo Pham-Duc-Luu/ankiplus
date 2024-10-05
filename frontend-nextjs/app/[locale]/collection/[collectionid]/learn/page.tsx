@@ -8,6 +8,9 @@ import Proccess from "./LearningProgress";
 import { useDispatch } from "react-redux";
 import { startReview } from "@/store/collectionSlice";
 import { initReviewCard } from "@/store/reviewCardSlice";
+import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/routing";
+import { Button } from "@nextui-org/react";
 
 const Page = () => {
   const { collection, reviewCard } = useAppSelector((state) => state);
@@ -23,6 +26,16 @@ const Page = () => {
     if (collection.cards)
       dispatch(initReviewCard(collection.cards[collection.reviewCard.index]));
   }, [collection.reviewCard]);
+  const t = useTranslations("review");
+
+  const route = useRouter();
+
+  /**
+   * triggers when all of the cards have been studied
+   */
+  const finish = () => {
+    route.push("finish");
+  };
 
   return (
     <div className="w-full flex flex-col items-center">
@@ -49,6 +62,7 @@ const Page = () => {
         <></>
         <ReviewTimeOption className=""></ReviewTimeOption>
       </div>
+      <Button onClick={() => finish()}>{t("function.finish")}</Button>
     </div>
   );
 };

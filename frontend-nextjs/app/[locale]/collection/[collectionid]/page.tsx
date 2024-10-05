@@ -1,5 +1,4 @@
 "use client";
-import { useCollection } from "@/hooks/useCollection";
 import { Button, CardFooter } from "@nextui-org/react";
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
@@ -22,6 +21,7 @@ import { useRouter } from "@/i18n/routing";
 
 const page = () => {
   const t = useTranslations("collection.info");
+  const t1 = useTranslations("review");
   const { collection } = useAppSelector((state) => state);
   const dispatch = useAppDispatch();
   const route = useRouter();

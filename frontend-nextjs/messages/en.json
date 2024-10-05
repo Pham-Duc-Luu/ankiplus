@@ -73,5 +73,25 @@
         "test": "test"
       }
     }
+  },
+  "review": {
+    "your proccess": "your proccess",
+    "finished": "finished",
+    "congratulate": {
+      "title": "Congratulations! You have reviewed all the cards.",
+      "more con": "We encourage you to congratulate yourself with the icon next to it."
+    },
+    "left": "left",
+    "function": {
+      "finish": "finish"
+    },
+    "next": {
+      "title": "next step",
+      "function": {
+        "study": "Starting your study",
+        "restart": "Restarting your review",
+        "test": "Test your memory"
+      }
+    }
   }
 }

@@ -26,12 +26,14 @@ import { User } from 'schemas/user.schema';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { WinstonLoggerService } from 'src/logger/logger.service';
 import { UtilService } from 'src/util/util.service';
+import { UserService } from './user.service';
 
 @Controller('')
 export class UserController {
     constructor(
         private readonly logger: WinstonLoggerService,
         private util: UtilService,
+        private userService: UserService,
         private jwtService: JwtService,
         @InjectModel(User.name) private userModel: Model<User>,
     ) {}
@@ -66,8 +68,19 @@ export class UserController {
             username,
             password: this.util.hashSync(password),
         });
+        const payload: jwtPayloadDto = {
+            sub: newUser.id,
+            email: newUser.email,
+        };
 
-        return 'new user created';
+        /**
+         * * with the jwt
+         * @returns {access_token, refresh_token}
+         */
+        return {
+            access_token: await this.userService.getAccessToken(payload),
+            refresh_token: await this.userService.getRefreshToken(payload),
+        };
     }
 
     @ApiTags('Authentications')
@@ -92,8 +105,13 @@ export class UserController {
             email: user.email,
         };
 
+        /**
+         * * with the jwt
+         * @returns {access_token, refresh_token}
+         */
         return {
-            access_token: await this.jwtService.signAsync(payload),
+            access_token: await this.userService.getAccessToken(payload),
+            refresh_token: await this.userService.getRefreshToken(payload),
         };
     }
 }

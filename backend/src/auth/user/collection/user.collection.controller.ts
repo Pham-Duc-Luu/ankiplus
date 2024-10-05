@@ -129,7 +129,7 @@ export class UserCollectionController {
     @ApiOperation({ summary: 'create a new collection' })
     @Post('')
     async createCollections(@Request() req: { user: jwtPayloadDto }, @Body() body: CreateCollectionDto) {
-        const { name, flashCards } = body;
+        const { name, flashCards, description, isPublic, thumnail, language, icon } = body;
         const { sub } = req.user;
 
         const user = await this.userModel.findById(sub);
@@ -141,22 +141,28 @@ export class UserCollectionController {
             throw new BadRequestException('You must provide a name');
         }
 
-        if (!flashCards || !Array.isArray(flashCards) || flashCards.length <= 0) {
-            throw new BadRequestException('You must provide a flash card');
-        }
+        // if (!flashCards || !Array.isArray(flashCards) || flashCards.length <= 0) {
+        //     throw new BadRequestException('You must provide a flash card');
+        // }
 
         if (await this.collectionModel.findOne({ name })) {
             throw new BadRequestException('Collection name already exists');
         }
 
         try {
-            const createFlashCard = await this.flashCardModel.create(flashCards);
             const collection = await this.collectionModel.create({
                 name,
+                description,
+                thumnail,
+                isPublic,
+                language,
                 owner: sub,
-                newFlashCards: createFlashCard.map((item) => item.id),
             });
 
+            if (flashCards?.length > 0) {
+                const createFlashCard = await this.flashCardModel.create(flashCards);
+                collection.cards.push(...createFlashCard.map((card) => card._id.toString()));
+            }
             const updateUserCollection = await this.userModel
                 .findByIdAndUpdate(
                     sub,

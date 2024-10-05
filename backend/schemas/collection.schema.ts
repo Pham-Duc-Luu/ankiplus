@@ -10,6 +10,15 @@ export class Collection {
     @Prop({ required: true, unique: true })
     name: string;
 
+    @Prop({})
+    description: string;
+
+    @Prop({})
+    thumnail: string;
+
+    @Prop({ default: 'Icon' })
+    icon: string;
+
     @Prop({ type: Boolean, default: true })
     isPublic: boolean = true;
 
