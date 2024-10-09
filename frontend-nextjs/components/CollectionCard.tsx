@@ -4,6 +4,7 @@ import {
   ButtonProps,
   Card,
   CardBody,
+  CardFooter,
   CardProps,
   Divider,
 } from "@nextui-org/react";
@@ -14,37 +15,45 @@ import { IoIosAddCircleOutline } from "react-icons/io";
 export interface ICollectionCard {
   avatar: string;
   title: string;
+  _id: string | number;
   description: string;
   className?: string;
 }
 import { IoShareOutline } from "react-icons/io5";
 import { MdOutlineDeleteOutline } from "react-icons/md";
+import { useRouter } from "@/i18n/routing";
+import { FaUser } from "react-icons/fa";
 export interface CollectionCardProps
-  extends ButtonProps,
+  extends CardProps,
     Partial<ICollectionCard> {}
 export default function CollectionCard({
   avatar,
   title,
   description,
+  _id,
   ...props
 }: CollectionCardProps) {
+  const route = useRouter();
   return (
-    <>
-      <Button
-        {...props}
-        className="py-10 m-4 group/collectionCard"
-        variant="ghost"
+    <Card className="group/collectionCard cursor-pointer" {...props}>
+      <CardBody
+        onClick={() => {
+          route.push(`/collection/${_id}`);
+        }}
+        className="  p-4  w-full  flex items-center  flex-row gap-4"
       >
-        <CardBody className=" flex flex-row items-center justify-center">
+        <div>
           <Avatar
             isBordered
             color="default"
+            radius="full"
+            fallback={<FaUser size={40} />}
             src="https://i.pravatar.cc/150?u=a042581f4e29026024d"
           />
-          <CardBody>
-            <h4 className="font-bold text-large">{title}</h4>
-            <small className="text-default-500">{description}</small>
-          </CardBody>
+        </div>
+        <CardBody>
+          <h4 className="font-bold text-large">{title}</h4>
+          <small className="text-default-500">{description}</small>
         </CardBody>
         <div className="flex gap-4 group-hover/collectionCard:visible invisible">
           <Button isIconOnly variant="light">
@@ -57,11 +66,20 @@ export default function CollectionCard({
             <MdOutlineDeleteOutline size={24} />
           </Button>
         </div>
-        <Button isIconOnly variant="light">
+        <Button
+          isIconOnly
+          variant="light"
+          onClick={() => {
+            route.push(`/collection/${_id}`);
+          }}
+        >
           <MdOutlineNavigateNext size={24} />
         </Button>
-      </Button>
+      </CardBody>
+
+      {/* </Button> */}
       {/* <Divider className="my-4" /> */}
-    </>
+      <CardFooter className="h-1 m-0 p-0 bg-[hsl(var(--primary))] group-hover/collectionCard:visible invisible"></CardFooter>
+    </Card>
   );
 }

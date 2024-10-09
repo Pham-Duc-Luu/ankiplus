@@ -40,6 +40,10 @@
     "my collection": {
       "title": "Your collections",
       "create": "Create a new collection"
+    },
+    "view options": {
+      "latest": "Latest",
+      "created": "Created"
     }
   },
   "collection": {
@@ -92,6 +96,20 @@
         "restart": "Restarting your review",
         "test": "Test your memory"
       }
+    }
+  },
+  "navbar": {
+    "drop drow options": {
+      "theme": {
+        "dark": "Dark",
+        "light": "Light"
+      },
+      "profile": "Your Profile",
+      "log out": "Log out",
+      "settings": "Settings",
+      "help": "Help",
+      "about": "About",
+      "response": "Response"
     }
   }
 }

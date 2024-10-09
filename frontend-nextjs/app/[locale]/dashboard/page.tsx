@@ -2,7 +2,7 @@
 import CollectionCard, { ICollectionCard } from "@/components/CollectionCard";
 import { Avatar, Button, Card, CardBody, CardHeader } from "@nextui-org/react";
 import { useTranslations } from "next-intl";
-import React, { useEffect } from "react";
+import React, { useEffect, useLayoutEffect } from "react";
 import { MdOutlineNavigateNext } from "react-icons/md";
 import { MdAddCircleOutline } from "react-icons/md";
 
@@ -27,6 +27,14 @@ const Page = () => {
     // if (!profile) {
     //   route.push("/auth/sign-in");
     // }
+  }, []);
+
+  /**
+   * ! Move to v2 page of dashboard
+   */
+
+  useLayoutEffect(() => {
+    route.push("dashboard/v2");
   }, []);
 
   return (
