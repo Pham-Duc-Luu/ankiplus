@@ -1,10 +1,14 @@
 import { configureStore } from "@reduxjs/toolkit";
 import collection from "./collectionSlice";
 import reviewCard from "./reviewCardSlice";
+import user from "./userSlice";
+import model from "./modalSlice";
 export const store = configureStore({
   reducer: {
     collection,
     reviewCard,
+    user,
+    model,
   },
 });
 

@@ -111,5 +111,17 @@
       "about": "About",
       "response": "Response"
     }
+  },
+  "settings": {
+    "title": "Settings",
+    "personal": {
+      "change avatar": "Avatar"
+    }
+  },
+  "utils": {
+    "edit": "edit",
+    "email": "email",
+    "password": "password",
+    "username": "username"
   }
 }

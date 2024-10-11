@@ -6,20 +6,27 @@ async function add_random_users() {
    */
 
   const batch_size = 10;
+  const batch_size_count = 0;
+  let index = 0;
   const total_amount = 1000;
   const users: IUser[] = [];
+  const list: number[] = [];
 
-  for (let i = 0; i < 1000; i++) {
-    console.log(i);
+  while (index < total_amount) {
+    for (let i = 0; i < batch_size; i++) {
+      users.push({
+        email: `example_user_${index}@example.com`,
+        password: await bcrypt.hash(`example_user_${index}`, 10),
+        username: `example_user_${index}`,
+      });
+      index++;
+    }
 
-    users.push({
-      email: `random_user_${i}@example.com`,
-      password: await bcrypt.hash(`random_user_${i}@example.com`, 10),
-      username: `random_user_${i}`,
-    });
+    User.create(users);
+    users.length = 0;
+
+    process.exit();
   }
-
-  console.log(users, users.length);
 }
 
 export default add_random_users;

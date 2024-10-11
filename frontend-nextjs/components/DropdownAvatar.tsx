@@ -14,9 +14,11 @@ import { useTranslations } from "next-intl";
 import { CgProfile } from "react-icons/cg";
 import { IoMdHelpCircleOutline } from "react-icons/io";
 import { TiMessageTyping } from "react-icons/ti";
+import { useRouter } from "@/i18n/routing";
 const DropdownAvatar = () => {
   const { theme, setTheme } = useTheme();
   const t = useTranslations("navbar");
+  const route = useRouter();
   return (
     <div>
       <Dropdown>
@@ -30,7 +32,13 @@ const DropdownAvatar = () => {
         </DropdownTrigger>
         <DropdownMenu variant="faded" aria-label="Dropdown menu with icons">
           <DropdownSection showDivider>
-            <DropdownItem key="profile" startContent={<CgProfile size={28} />}>
+            <DropdownItem
+              key="profile"
+              onClick={() => {
+                route.push("/setting");
+              }}
+              startContent={<CgProfile size={28} />}
+            >
               {t("drop drow options.profile")}
             </DropdownItem>
             <DropdownItem
@@ -38,7 +46,6 @@ const DropdownAvatar = () => {
               onClick={() => {
                 setTheme(theme === "dark" ? "light" : "dark");
               }}
-              onClose={() => {}}
               key="new"
               startContent={
                 theme === "light" ? <CiDark size={28} /> : <CiLight size={28} />
