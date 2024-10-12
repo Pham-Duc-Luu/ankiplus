@@ -24,9 +24,12 @@ import { useTheme } from "next-themes";
 import ThemSwitch from "./ThemSwitch";
 import { useTranslations } from "next-intl";
 import DropdownAvatar from "./DropdownAvatar";
+import { useAppSelector } from "@/store/hooks";
 const MainNavbar = (navbarProps: NavbarProps) => {
   const router = useRouter();
   const t = useTranslations("dashboard.my collection");
+  const { auth } = useAppSelector((state) => state);
+  const Tutils = useTranslations("utils");
   return (
     <Navbar
       isBordered
@@ -72,9 +75,20 @@ const MainNavbar = (navbarProps: NavbarProps) => {
           </NavbarItem>
         </NavbarContent>
         <NavbarContent className="hidden sm:flex gap-3" justify="end">
-          <DropdownAvatar></DropdownAvatar>
+          {auth?.access_token ? (
+            <DropdownAvatar></DropdownAvatar>
+          ) : (
+            <Button
+              size="lg"
+              variant="bordered"
+              onClick={() => {
+                router.push("/auth/sign-in");
+              }}
+            >
+              {Tutils("sign in")}
+            </Button>
+          )}
         </NavbarContent>
-        <ThemSwitch></ThemSwitch>
       </NavbarContent>
     </Navbar>
   );

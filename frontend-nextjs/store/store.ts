@@ -1,19 +1,67 @@
-import { configureStore } from "@reduxjs/toolkit";
+import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import collection from "./collectionSlice";
 import reviewCard from "./reviewCardSlice";
 import user from "./userSlice";
 import model from "./modalSlice";
-export const store = configureStore({
-  reducer: {
-    collection,
-    reviewCard,
-    user,
-    model,
-  },
+import storage from "redux-persist/lib/storage"; // defaults to localStorage for web
+import { PersistGate } from "redux-persist/integration/react";
+import { PersistConfig } from "redux-persist/es/types"; // Import the PersistConfig type
+import { persistReducer, persistStore } from "redux-persist";
+import auth from "./authSilce";
+// Or from '@reduxjs/toolkit/query/react'
+import { setupListeners } from "@reduxjs/toolkit/query";
+import {
+  FLUSH,
+  REHYDRATE,
+  PAUSE,
+  PERSIST,
+  PURGE,
+  REGISTER,
+} from "redux-persist";
+import { authApi } from "./RTK-query/authApi";
+import { userApi } from "./RTK-query/userApi";
+const rootReducer = combineReducers({
+  collection,
+  reviewCard,
+  user,
+  model,
+  auth,
 });
 
+const persistConfig: PersistConfig<RootState> = {
+  key: "root",
+  whitelist: ["auth"], // Specify which reducers should be persisted
+  storage, // You can use other storages like sessionStorage, AsyncStorage (for React Native), etc.
+};
+const persistedReducer = persistReducer(persistConfig, rootReducer);
+
+// const apiReducer = combineReducers({
+//   [authApi.reducerPath]: authApi.reducer,
+// });
+
+export const store = configureStore({
+  reducer: {
+    persistedReducer,
+    // apiReducer,
+    [authApi.reducerPath]: authApi.reducer,
+    [userApi.reducerPath]: userApi.reducer,
+  },
+  // devTools: process.env.NODE_ENV !== "production",
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+      },
+    }).concat(authApi.middleware, userApi.middleware),
+});
+
+// see `setupListeners` docs - takes an optional callback as the 2nd arg for customization
+setupListeners(store.dispatch);
+
 // Infer the `RootState`,  `AppDispatch`, and `AppStore` types from the store itself
-export type RootState = ReturnType<typeof store.getState>;
 // Inferred type: {posts: PostsState, comments: CommentsState, users: UsersState}
+export type RootState = ReturnType<typeof rootReducer>;
 export type AppDispatch = typeof store.dispatch;
 export type AppStore = typeof store;
+
+export const persistor = persistStore(store);

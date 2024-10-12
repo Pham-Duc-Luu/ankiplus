@@ -122,6 +122,7 @@
     "edit": "edit",
     "email": "email",
     "password": "password",
-    "username": "username"
+    "username": "username",
+    "sign in": "sign in"
   }
 }

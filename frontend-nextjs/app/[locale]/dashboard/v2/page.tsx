@@ -110,10 +110,12 @@ import { IoIosAdd, IoMdArrowDropdown, IoMdArrowDropup } from "react-icons/io";
 import { useRouter } from "@/i18n/routing";
 import { useProfileStore } from "@/hooks/useProfile";
 import { CiSearch } from "react-icons/ci";
+import { useGetProfileQuery } from "@/store/RTK-query/userApi";
 const Page = () => {
   const { profile } = useProfileStore();
   const t = useTranslations("dashboard.my collection");
   const route = useRouter();
+  const { data } = useGetProfileQuery("");
 
   useEffect(() => {
     /**

@@ -1,5 +1,5 @@
-import axios from 'axios';
-import { UserAxios } from './user.axios';
+import axios from "axios";
+import { UserAxios } from "./user.axios";
 
 export interface ISignInBody {
   email: string;
@@ -12,7 +12,7 @@ export interface JWTToken {
 }
 
 export class AxiosApi {
-  private baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'localhost';
+  private baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || "localhost";
   private axiosInstance = axios.create({
     baseURL: this.baseURL, // Change base URL accordingly
     timeout: 5000, // Optional timeout
@@ -20,7 +20,7 @@ export class AxiosApi {
 
   public userApi = new UserAxios(this.baseURL);
   async signIn(data: ISignInBody) {
-    return this.axiosInstance.post<JWTToken>('sign-in', data);
+    return this.axiosInstance.post<JWTToken>("sign-in", data);
   }
 }
 

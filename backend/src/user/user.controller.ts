@@ -27,6 +27,9 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { WinstonLoggerService } from 'src/logger/logger.service';
 import { UtilService } from 'src/util/util.service';
 import { UserService } from './user.service';
+import { JWTTokenDto } from 'dto/jwt-token';
+import { ConfigService } from '@nestjs/config';
+import { Token } from 'schemas/token.schema';
 
 @Controller('')
 export class UserController {
@@ -35,7 +38,10 @@ export class UserController {
         private util: UtilService,
         private userService: UserService,
         private jwtService: JwtService,
+        private configService: ConfigService,
+
         @InjectModel(User.name) private userModel: Model<User>,
+        @InjectModel(Token.name) private tokenModel: Model<Token>,
     ) {}
 
     @ApiTags('Authentications')
@@ -73,13 +79,24 @@ export class UserController {
             email: newUser.email,
         };
 
+        const refresh_token = await this.userService.getRefreshToken(payload);
+        const access_token = await this.userService.getAccessToken(payload);
+
+        /**
+         * * save the token
+         */
+
+        const new_token = await this.tokenModel.create({ token: refresh_token, user_token: newUser._id });
+        newUser.Tokens.push(new_token);
+        await newUser.save();
+
         /**
          * * with the jwt
          * @returns {access_token, refresh_token}
          */
         return {
-            access_token: await this.userService.getAccessToken(payload),
-            refresh_token: await this.userService.getRefreshToken(payload),
+            access_token,
+            refresh_token,
         };
     }
 
@@ -105,13 +122,66 @@ export class UserController {
             email: user.email,
         };
 
+        const refresh_token = await this.userService.getRefreshToken(payload);
+        const access_token = await this.userService.getAccessToken(payload);
+
+        /**
+         * * save the token
+         */
+
+        const new_token = await this.tokenModel.create({ token: refresh_token, user_token: user._id });
+        user.Tokens.push(new_token);
+        await user.save();
         /**
          * * with the jwt
          * @returns {access_token, refresh_token}
          */
         return {
-            access_token: await this.userService.getAccessToken(payload),
-            refresh_token: await this.userService.getRefreshToken(payload),
+            access_token,
+            refresh_token,
         };
+    }
+
+    @ApiTags('Authentications')
+    @Post('/refresh-token')
+    async refreshToken(@Body() { access_token, refresh_token }: JWTTokenDto) {
+        if (!access_token || !refresh_token) {
+            throw new BadRequestException('Missing token');
+        }
+
+        try {
+            const accessPayload = await this.jwtService.verify(access_token, {
+                secret: this.configService.get('jwtConstant.public.key'),
+                ignoreExpiration: true,
+            });
+
+            const existToken = await this.tokenModel.find({ user_token: '67073f5e9eb07f7cfb44af4c' }).exec();
+            return existToken;
+
+            // if (existToken.find((token) => token.token === refresh_token).user_token === accessPayload.sub) {
+            //     const payload: jwtPayloadDto = {
+            //         sub: accessPayload.sub,
+            //         email: accessPayload.email,
+            //     };
+
+            //     console.log(refresh_token);
+
+            //     const newAccessToken = await this.userService.getAccessToken(payload);
+
+            //     /**
+            //      * * with the jwt
+            //      * @returns {access_token, refresh_token}
+            //      */
+            //     return {
+            //         access_token: newAccessToken,
+            //         refresh_token,
+            //     };
+            // }
+
+            throw new UnauthorizedException('Invalid refresh token');
+        } catch (error) {
+            Logger.error(error);
+            throw new UnauthorizedException();
+        }
     }
 }

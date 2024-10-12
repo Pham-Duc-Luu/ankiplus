@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument, Types } from 'mongoose';
 import { Collection } from './collection.schema';
+import { Token } from './token.schema';
 
 @Schema()
 export class User {
@@ -15,6 +16,9 @@ export class User {
 
     @Prop({ type: [{ type: Types.ObjectId, ref: 'Collection' }] })
     collections: (Collection | string)[]; // Array of ObjectId references to Collection
+
+    @Prop({ type: [{ type: Types.ObjectId, ref: 'Token' }] })
+    Tokens?: (Token | string)[]; // Array of ObjectId references to Collection
 }
 
 export type UserDocument = HydratedDocument<User>;

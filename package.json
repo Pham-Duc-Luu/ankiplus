@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "redux-persist": "^6.0.0"
+  },
+  "devDependencies": {
+    "@types/redux-persist": "^4.0.0"
+  }
+}
