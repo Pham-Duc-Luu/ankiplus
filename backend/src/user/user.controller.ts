@@ -11,7 +11,7 @@ import {
     BadRequestException,
     UnauthorizedException,
     HttpStatus,
-    Logger,
+    Inject,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
@@ -30,11 +30,14 @@ import { UserService } from './user.service';
 import { JWTTokenDto } from 'dto/jwt-token';
 import { ConfigService } from '@nestjs/config';
 import { Token } from 'schemas/token.schema';
+import { ObjectId } from 'mongodb';
+import Logger, { LoggerKey } from 'libs/logger/logger/domain/logger';
+import LoggerService from 'libs/logger/logger/domain/loggerService';
 
 @Controller('')
 export class UserController {
     constructor(
-        private readonly logger: WinstonLoggerService,
+        @Inject(LoggerKey) private logger: Logger,
         private util: UtilService,
         private userService: UserService,
         private jwtService: JwtService,
@@ -155,32 +158,32 @@ export class UserController {
                 ignoreExpiration: true,
             });
 
-            const existToken = await this.tokenModel.find({ user_token: '67073f5e9eb07f7cfb44af4c' }).exec();
-            return existToken;
+            const refreshPayload = await this.jwtService.verify(refresh_token, {
+                secret: this.configService.get('jwtConstant.secret.key'),
+            });
 
-            // if (existToken.find((token) => token.token === refresh_token).user_token === accessPayload.sub) {
-            //     const payload: jwtPayloadDto = {
-            //         sub: accessPayload.sub,
-            //         email: accessPayload.email,
-            //     };
+            const existToken = await this.tokenModel.find({ user_token: new ObjectId(accessPayload.sub) });
 
-            //     console.log(refresh_token);
+            if (existToken.find((token) => token.token === refresh_token).user_token.toString() === accessPayload.sub) {
+                const payload: jwtPayloadDto = {
+                    sub: accessPayload.sub,
+                    email: accessPayload.email,
+                };
 
-            //     const newAccessToken = await this.userService.getAccessToken(payload);
+                const newAccessToken = await this.userService.getAccessToken(payload);
 
-            //     /**
-            //      * * with the jwt
-            //      * @returns {access_token, refresh_token}
-            //      */
-            //     return {
-            //         access_token: newAccessToken,
-            //         refresh_token,
-            //     };
-            // }
+                /**
+                 * * with the jwt
+                 * @returns {access_token, refresh_token}
+                 */
+                return {
+                    access_token: newAccessToken,
+                    refresh_token,
+                };
+            }
 
             throw new UnauthorizedException('Invalid refresh token');
         } catch (error) {
-            Logger.error(error);
             throw new UnauthorizedException();
         }
     }

@@ -1,9 +1,11 @@
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
 import { Response } from 'express';
+import morgan from 'morgan';
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { WinstonLogger } from 'src/logger/winston.config';
-import winston from 'winston';
+import { morganMiddleware } from 'src/morgan/morgan.middleware';
+import winston, { level } from 'winston';
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
@@ -11,7 +13,6 @@ export class LoggingInterceptor implements NestInterceptor {
         const req = context.switchToHttp().getRequest<Request>();
         const res = context.switchToHttp().getResponse<Response>();
         const now = Date.now();
-        console.log('a');
 
         return next.handle().pipe(
             //   map((data) => {
@@ -19,8 +20,12 @@ export class LoggingInterceptor implements NestInterceptor {
             //       return data; // Return the data (this will be sent back to the client)
             //   }),
             tap(() => {
+                // morgan('combined')(req, res, next);
+
                 const logger = new WinstonLogger().addTransportConsole().build();
-                logger.info(`${req.method} ${req.url}`);
+                logger.info('Info message');
+                logger.error('Error message');
+                logger.warn('Warning message');
             }), // Log the time taken
         );
     }

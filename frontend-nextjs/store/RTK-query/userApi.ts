@@ -11,9 +11,21 @@ export const userApi = createApi({
   endpoints: (builder) => ({
     // Define a login endpoint
     getProfile: builder.query({
-      query: () => ({
-        url: "/user/profile",
-      }),
+      // query: () => ({
+      //   url: "/user/profile",
+      // }),
+      queryFn: async (arg, queryApi, extraOptions, baseQuery) => {
+        // For the success case, the return type for the `data` property
+        // must match `ResultType`
+        //              v
+        const data = await baseQuery({
+          url: "/user/profile",
+          method: "GET",
+        });
+        console.log(data.data);
+
+        return { data: data.data };
+      },
     }),
   }),
 });

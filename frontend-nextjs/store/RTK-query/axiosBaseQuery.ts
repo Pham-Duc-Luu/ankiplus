@@ -1,47 +1,101 @@
 import type { BaseQueryFn } from "@reduxjs/toolkit/query";
 import axios from "axios";
-import type { AxiosRequestConfig, AxiosError } from "axios";
+import { AxiosRequestConfig, AxiosError } from "axios";
 import { RootState, store } from "../store";
+import { IAuthResponse } from "./authApi";
+import { loggedOut, setAccessToken } from "../authSilce";
 const axiosBaseQuery =
   (
     { baseUrl }: { baseUrl: string } = { baseUrl: "" }
-  ): BaseQueryFn<
-    {
-      url: string;
-      method?: AxiosRequestConfig["method"];
-      data?: AxiosRequestConfig["data"];
-      params?: AxiosRequestConfig["params"];
-      headers?: AxiosRequestConfig["headers"];
-    },
-    unknown,
-    unknown
-  > =>
-  async ({ url, method, data, params, headers }, { getState }) => {
-    try {
+  ): BaseQueryFn<{
+    url: string;
+    method?: AxiosRequestConfig["method"];
+    data?: AxiosRequestConfig["data"];
+    params?: AxiosRequestConfig["params"];
+    headers?: AxiosRequestConfig["headers"];
+  }> =>
+  async ({ url, method, data, params, headers }, { getState, dispatch }) => {
+    const getToken = () => {
       const { persistedReducer } = getState() as ReturnType<
         typeof store.getState
       >;
 
-      const result = await axios({
+      return {
+        access_token: persistedReducer.auth.access_token,
+        refresh_token: persistedReducer.auth.refresh_token,
+      };
+    };
+
+    const fetchNewToken = async () => {
+      return await axios<IAuthResponse>({
+        url: baseUrl + "/refresh-token",
+        method: "POST",
+        data: {
+          refresh_token: getToken().refresh_token,
+          access_token: getToken().access_token,
+        },
+        headers: {
+          Authorization: getToken().access_token
+            ? `Bearer ${getToken().access_token}`
+            : "", // Add token here
+        },
+      });
+    };
+
+    const mainFetch = () =>
+      axios<string>({
         url: baseUrl + url,
         method,
         data,
         params,
         headers: {
-          Authorization: persistedReducer.auth.access_token
-            ? `Bearer ${persistedReducer.auth.access_token}`
+          Authorization: getToken().access_token
+            ? `Bearer ${getToken().access_token}`
             : "", // Add token here
         },
       });
+
+    try {
+      const result = await mainFetch();
+
       return { data: result.data };
     } catch (axiosError) {
       const err = axiosError as AxiosError;
-      return {
-        error: {
-          status: err.response?.status,
-          data: err.response?.data || err.message,
-        },
-      };
+
+      /**
+       * auto fetch the access token
+       */
+      if (err && err.status === 401) {
+        // try to get a new token
+        try {
+          const refreshResult = await fetchNewToken();
+          if (refreshResult.data.access_token) {
+            // store the new token
+            dispatch(setAccessToken(refreshResult.data.access_token));
+
+            const result = await mainFetch();
+
+            return { data: result.data };
+          }
+          throw new AxiosError("Something went wrong!");
+        } catch (error) {
+          dispatch(loggedOut());
+          const err = error as AxiosError;
+          return {
+            error: {
+              status: err.response?.status,
+              data: err.response?.data || err.message,
+            },
+          };
+        }
+      } else {
+        return {
+          error: {
+            status: err.response?.status,
+            data: err.response?.data || err.message,
+          },
+        };
+      }
     }
   };
 

@@ -28,7 +28,7 @@ const rootReducer = combineReducers({
   auth,
 });
 
-const persistConfig: PersistConfig<RootState> = {
+const persistConfig = {
   key: "root",
   whitelist: ["auth"], // Specify which reducers should be persisted
   storage, // You can use other storages like sessionStorage, AsyncStorage (for React Native), etc.
@@ -60,7 +60,7 @@ setupListeners(store.dispatch);
 
 // Infer the `RootState`,  `AppDispatch`, and `AppStore` types from the store itself
 // Inferred type: {posts: PostsState, comments: CommentsState, users: UsersState}
-export type RootState = ReturnType<typeof rootReducer>;
+export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 export type AppStore = typeof store;
 

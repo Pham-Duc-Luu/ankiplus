@@ -28,8 +28,9 @@ import { useAppSelector } from "@/store/hooks";
 const MainNavbar = (navbarProps: NavbarProps) => {
   const router = useRouter();
   const t = useTranslations("dashboard.my collection");
-  const { auth } = useAppSelector((state) => state);
+  const { auth } = useAppSelector((state) => state.persistedReducer);
   const Tutils = useTranslations("utils");
+
   return (
     <Navbar
       isBordered

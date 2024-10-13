@@ -72,13 +72,12 @@ export class WinstonLogger {
             new winston.transports.Console({
                 format: winston.format.combine(
                     // Add a timestamp to the console logs
-                    winston.format.timestamp(),
+                    winston.format.timestamp({ format: 'YYYY-MM-DD hh:mm:ss.SSS A' }),
                     // Add colors to you logs
-                    winston.format.colorize(),
+                    winston.format.colorize({ all: true }),
+                    winston.format.align(),
                     // What the details you need as logs
-                    winston.format.printf(({ timestamp, level, message, context, trace }) => {
-                        return `${timestamp} [${context}] ${level}: ${message}${trace ? `\n${trace}` : ''}`;
-                    }),
+                    winston.format.printf((info) => `[${info.timestamp}] ${info.level}: ${info.message}`),
                 ),
                 ...options,
             }),

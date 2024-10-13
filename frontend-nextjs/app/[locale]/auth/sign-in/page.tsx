@@ -7,7 +7,6 @@ import { setAccessToken, setRefreshToken } from "@/store/authSilce";
 import { ErrResponse } from "@/store/dto/error.res.dto";
 import { useAppDispatch } from "@/store/hooks";
 import { useSignUpMutation } from "@/store/RTK-query/authApi";
-import { useGetProfileMutation } from "@/store/RTK-query/userApi";
 import { Button, Card, CircularProgress, Input, Link } from "@nextui-org/react";
 import { AxiosError } from "axios";
 import { error } from "console";
@@ -57,6 +56,7 @@ export default function IconCloudDemo() {
       dispatch(setRefreshToken(useSignUpMutationResult.data.refresh_token));
       toast({
         variant: "success",
+        duration: 700,
         title: (
           <div className=" flex justify-center items-center gap-4">
             <CircularProgress aria-label="Loading..." />

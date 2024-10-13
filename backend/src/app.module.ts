@@ -1,23 +1,30 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 import configuration from ' config/configuration';
 import { JwtModule } from '@nestjs/jwt';
 import { CollectionModule } from './collection/collection.module';
 import { UserModule } from './user/user.module';
 import { HttpExceptionFilter } from './middleware/http-exception.filter';
-import { LoggerModule } from './logger/logger.module';
 import { UtilModule } from './util/util.module';
-
+import { LoggerMiddleware } from './middleware/logger.middleware';
+import { LoggerModule } from 'libs/logger/logger/infrastructure/nestjs/loggerModule';
+import { ConfigModule } from 'libs/logger/config/infrastructure/nestjs/configModule';
+import { ContextModule } from 'libs/logger/context/infrastructure/nestjs/contextModule';
+import { APP_FILTER } from '@nestjs/core';
+// import { LoggerModule } from '@nestjs-logger/shared/logger/infrastructure/nestjs/loggerModule';
+// import { ConfigModule } from '@nestjs-logger/shared/config/infrastructure/nestjs/configModule';
+// import { ContextModule } from '@nestjs-logger/shared/context/infrastructure/nestjs/contextModule';
+// LoggerModule, ConfigModule, ContextModule
 @Module({
     imports: [
-        ConfigModule.forRoot({
-            load: [configuration], // Makes the .env configuration available globally
-            isGlobal: true,
-        }),
+        // ConfigModule.forRoot({
+        //     load: [configuration], // Makes the .env configuration available globally
+        //     isGlobal: true,
+        // }),
         JwtModule.registerAsync({
             global: true,
             useFactory: async (configService: ConfigService) => {
@@ -40,10 +47,18 @@ import { UtilModule } from './util/util.module';
         CollectionModule,
         UserModule,
         LoggerModule,
+        ConfigModule,
+        ContextModule,
         UtilModule,
     ],
     controllers: [AppController],
-    providers: [AppService],
+    providers: [
+        AppService,
+        {
+            provide: APP_FILTER,
+            useClass: HttpExceptionFilter,
+        },
+    ],
     exports: [],
 })
 export class AppModule {}

@@ -17,7 +17,7 @@ export default function DevelopmentProccessAlert() {
 
   const backdrops = ["opaque", "blur", "transparent"];
 
-  const model = useAppSelector((state) => state.model);
+  const model = useAppSelector((state) => state.persistedReducer.model);
   const dispatch = useDispatch();
   return (
     <>

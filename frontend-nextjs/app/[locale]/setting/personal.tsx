@@ -82,7 +82,7 @@ export default function Personal({}: CardProps) {
 
     fetchSvgs();
   }, []);
-  const { user } = useAppSelector((state) => state);
+  const { user } = useAppSelector((state) => state.persistedReducer);
   const t = useTranslations("settings");
   const Tutils = useTranslations("utils");
   const dispatch = useDispatch();
