@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import LoggerService from 'libs/logger/logger/domain/loggerService';
 import { Model } from 'mongoose';
 import { Collection } from 'schemas/collection.schema';
 import { FlashCard } from 'schemas/flashCard.schema';
-import { WinstonLoggerService } from 'src/logger/logger.service';
 
 @Injectable()
 export class UserFlashCardService {
@@ -11,7 +11,7 @@ export class UserFlashCardService {
         @InjectModel(Collection.name) private collectionModel: Model<Collection>,
         @InjectModel(FlashCard.name) private flashCardModel: Model<FlashCard>,
 
-        private logger: WinstonLoggerService,
+        // private logger: LoggerService,
     ) {}
 
     /**
@@ -24,7 +24,7 @@ export class UserFlashCardService {
 
             //   const array = existCollection.newFlashCards.find((item) => item === options.flashcardId);
         } catch (error) {
-            this.logger.error(error);
+            // this.logger.error(error);
         }
     }
 }

@@ -1,6 +1,10 @@
 // store/api/authApi.ts
 import { createApi } from "@reduxjs/toolkit/query/react";
 import axiosBaseQuery from "./axiosBaseQuery";
+import { AxiosError, AxiosResponse } from "axios";
+import { IUserProfileDto } from "../dto/dto.type";
+import { setState } from "../userSlice";
+import { loggedOut } from "../authSilce";
 
 // Define an API slice
 export const userApi = createApi({
@@ -18,13 +22,27 @@ export const userApi = createApi({
         // For the success case, the return type for the `data` property
         // must match `ResultType`
         //              v
-        const data = await baseQuery({
-          url: "/user/profile",
-          method: "GET",
-        });
-        console.log(data.data);
 
-        return { data: data.data };
+        try {
+          const { data } = (await baseQuery({
+            url: "/user/profile",
+            method: "GET",
+          })) as AxiosResponse<IUserProfileDto>;
+          if (!data) {
+            queryApi.dispatch(loggedOut());
+          }
+          queryApi.dispatch(setState(data));
+
+          return { data: data };
+        } catch (error) {
+          const err = error as AxiosError;
+          return {
+            error: {
+              status: err.response?.status,
+              data: err.response?.data || err.message,
+            },
+          };
+        }
       },
     }),
   }),

@@ -4,7 +4,6 @@ import { Request, Response } from 'express';
 import Logger, { LoggerKey } from 'libs/logger/logger/domain/logger';
 import FileTransport from 'libs/logger/logger/infrastructure/winston/transports/fileTransport';
 import WinstonLogger from 'libs/logger/logger/infrastructure/winston/winstonLogger';
-// import { WinstonLogger } from 'src/logger/winston.config';
 
 @Catch(HttpException)
 @Injectable()

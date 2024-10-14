@@ -6,6 +6,7 @@ import { User, UserSchema } from 'schemas/user.schema';
 import { AppModule } from 'src/app.module';
 import { UtilService } from 'src/util/util.service';
 import { Token, TokenSchema } from 'schemas/token.schema';
+import { LoggerModule } from 'libs/logger/logger/infrastructure/nestjs/loggerModule';
 
 @Module({
     imports: [
@@ -16,6 +17,8 @@ import { Token, TokenSchema } from 'schemas/token.schema';
                 schema: TokenSchema,
             },
         ]),
+
+        LoggerModule,
     ],
     controllers: [UserController],
     providers: [UserService, UtilService],

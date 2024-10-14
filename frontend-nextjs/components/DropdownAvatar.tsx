@@ -15,20 +15,28 @@ import { CgProfile } from "react-icons/cg";
 import { IoMdHelpCircleOutline } from "react-icons/io";
 import { TiMessageTyping } from "react-icons/ti";
 import { useRouter } from "@/i18n/routing";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import {
+  Avatar as ShadcnAvatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar";
+import { loggedOut } from "@/store/authSilce";
 const DropdownAvatar = () => {
   const { theme, setTheme } = useTheme();
   const t = useTranslations("navbar");
   const route = useRouter();
+  const { user } = useAppSelector((state) => state.persistedReducer);
+  const dispatch = useAppDispatch();
   return (
     <div>
       <Dropdown>
         <DropdownTrigger>
-          <Avatar
-            className=" cursor-pointer"
-            isBordered
-            color="primary"
-            src="https://i.pravatar.cc/150?u=a04258a2462d826712d"
-          />
+          <ShadcnAvatar className=" cursor-pointer  m-2">
+            <AvatarFallback
+              dangerouslySetInnerHTML={{ __html: user.avatarBuilt }}
+            ></AvatarFallback>
+          </ShadcnAvatar>
         </DropdownTrigger>
         <DropdownMenu variant="faded" aria-label="Dropdown menu with icons">
           <DropdownSection showDivider>
@@ -58,7 +66,13 @@ const DropdownAvatar = () => {
           </DropdownSection>
 
           <DropdownSection showDivider>
-            <DropdownItem key="log out" startContent={<CiLogout size={28} />}>
+            <DropdownItem
+              onClick={() => {
+                dispatch(loggedOut());
+              }}
+              key="log out"
+              startContent={<CiLogout size={28} />}
+            >
               {t("drop drow options.log out")}
             </DropdownItem>
           </DropdownSection>

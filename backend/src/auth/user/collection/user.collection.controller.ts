@@ -5,7 +5,6 @@ import {
     UseGuards,
     Request,
     BadRequestException,
-    Logger,
     InternalServerErrorException,
     Post,
     Query,
@@ -13,6 +12,7 @@ import {
     Put,
     Patch,
     HttpException,
+    Inject,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
@@ -22,12 +22,12 @@ import { CreateFlashCardDto } from 'dto/create-flashcard.dto';
 import { jwtPayloadDto } from 'dto/jwt-payload.dto';
 import { QueryOptionDto } from 'dto/query-option.dto';
 import { UpdateCollectionDto } from 'dto/update-collection.dto';
+import Logger, { LoggerKey } from 'libs/logger/logger/domain/logger';
 import { Model } from 'mongoose';
 import { Collection } from 'schemas/collection.schema';
 import { FlashCard } from 'schemas/flashCard.schema';
 import { User } from 'schemas/user.schema';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { WinstonLoggerService } from 'src/logger/logger.service';
 import { UtilService } from 'src/util/util.service';
 
 @ApiTags('users/collections')
@@ -38,8 +38,7 @@ export class UserCollectionController {
         private util: UtilService,
         private jwtService: JwtService,
         @InjectModel(FlashCard.name) private flashCardModel: Model<FlashCard>,
-        private readonly logger: WinstonLoggerService,
-
+        @Inject(LoggerKey) private logger: Logger,
         @InjectModel(User.name) private userModel: Model<User>,
         @InjectModel(Collection.name) private collectionModel: Model<Collection>,
     ) {}
@@ -119,7 +118,7 @@ export class UserCollectionController {
             }
             await collection.save();
         } catch (error) {
-            Logger.error(error);
+            this.logger.error(error);
             throw new InternalServerErrorException();
         }
 

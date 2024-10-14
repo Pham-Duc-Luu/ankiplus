@@ -10,7 +10,6 @@ import { CollectionModule } from './collection/collection.module';
 import { UserModule } from './user/user.module';
 import { HttpExceptionFilter } from './middleware/http-exception.filter';
 import { UtilModule } from './util/util.module';
-import { LoggerMiddleware } from './middleware/logger.middleware';
 import { LoggerModule } from 'libs/logger/logger/infrastructure/nestjs/loggerModule';
 import { ConfigModule } from 'libs/logger/config/infrastructure/nestjs/configModule';
 import { ContextModule } from 'libs/logger/context/infrastructure/nestjs/contextModule';

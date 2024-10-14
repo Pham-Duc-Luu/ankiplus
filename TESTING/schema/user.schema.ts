@@ -2,10 +2,10 @@ import mongoose from "mongoose";
 const { Schema } = mongoose;
 import { Collection, type ICollection } from "./collection.schema";
 export interface IUser {
-  email: string;
-
-  password: string;
-  username: string;
+  email?: string;
+  _id?: string;
+  password?: string;
+  username?: string;
   collections?: (string | ICollection)[];
 }
 

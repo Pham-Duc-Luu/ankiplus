@@ -8,7 +8,7 @@ async function add_random_users() {
   const batch_size = 10;
   const batch_size_count = 0;
   let index = 0;
-  const total_amount = 1000;
+  const total_amount = 100;
   const users: IUser[] = [];
   const list: number[] = [];
 
@@ -25,7 +25,7 @@ async function add_random_users() {
     User.create(users);
     users.length = 0;
 
-    process.exit();
+    console.log(`${(index / total_amount).toFixed(2)}%`);
   }
 }
 

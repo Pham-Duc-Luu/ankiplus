@@ -3,8 +3,6 @@ import { Response } from 'express';
 import morgan from 'morgan';
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
-import { WinstonLogger } from 'src/logger/winston.config';
-import { morganMiddleware } from 'src/morgan/morgan.middleware';
 import winston, { level } from 'winston';
 
 @Injectable()
@@ -21,11 +19,10 @@ export class LoggingInterceptor implements NestInterceptor {
             //   }),
             tap(() => {
                 // morgan('combined')(req, res, next);
-
-                const logger = new WinstonLogger().addTransportConsole().build();
-                logger.info('Info message');
-                logger.error('Error message');
-                logger.warn('Warning message');
+                // const logger = new WinstonLogger().addTransportConsole().build();
+                // logger.info('Info message');
+                // logger.error('Error message');
+                // logger.warn('Warning message');
             }), // Log the time taken
         );
     }

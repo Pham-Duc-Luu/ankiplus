@@ -44,7 +44,12 @@ export class UserAuthController {
             .populate({
                 path: 'collections', // Populate the `collections` field
                 model: 'Collection', // Specify the model to populate from
-                select: 'id name',
+                select: 'id name createdAt',
+                options: {
+                    limit: 30,
+
+                    sort: { createdAt: -1 }, // Sort by `createdAt` in descending order (newest first)
+                },
             })
             .select('email username');
 

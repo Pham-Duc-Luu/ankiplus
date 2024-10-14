@@ -2,7 +2,7 @@ import quotes from "../database/quotes.json";
 import { Collection } from "../schema/collection.schema";
 import { User } from "../schema/user.schema";
 export default async function addDescriptionCollection() {
-  const total_user_num = 1000;
+  const total_user_num = 100;
 
   for (let index = 0; index < total_user_num; index++) {
     const user = await User.findOne({

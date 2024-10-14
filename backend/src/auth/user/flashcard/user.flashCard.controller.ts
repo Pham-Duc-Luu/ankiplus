@@ -18,7 +18,6 @@ import { Collection } from 'schemas/collection.schema';
 import { FlashCard } from 'schemas/flashCard.schema';
 import { User } from 'schemas/user.schema';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { WinstonLoggerService } from 'src/logger/logger.service';
 import { UtilService } from 'src/util/util.service';
 
 @Controller('users')
@@ -29,7 +28,7 @@ export class UserFlashCardController {
         private util: UtilService,
         private jwtService: JwtService,
         @InjectModel(FlashCard.name) private flashCardModel: Model<FlashCard>,
-        private logger: WinstonLoggerService,
+        // private logger: WinstonLoggerService,
         @InjectModel(User.name) private userModel: Model<User>,
         @InjectModel(Collection.name) private collectionModel: Model<Collection>,
     ) {}
@@ -56,7 +55,7 @@ export class UserFlashCardController {
 
             const stuydingFlashCard = await this.flashCardModel.findById(param.flashCardId);
         } catch (error) {
-            this.logger.error(error);
+            // this.logger.error(error);
             if (error instanceof HttpException) {
                 return error;
             }

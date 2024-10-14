@@ -2,13 +2,8 @@ import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
-import { loggerMiddleware, LoggerMiddleware } from './middleware/logger.middleware';
-import { HttpExceptionFilter } from './middleware/http-exception.filter';
-import { AllExceptionsFilter } from './middleware/every-http-exception.filter';
-import { LoggingInterceptor } from './Interceptor/logger.interceptor';
+
 import helmet from 'helmet';
-import { morganMiddleware } from './morgan/morgan.middleware';
-import morgan from 'morgan';
 import * as compression from 'compression';
 import NestjsLoggerServiceAdapter from 'libs/logger/logger/infrastructure/nestjs/nestjsLoggerServiceAdapter';
 async function bootstrap() {

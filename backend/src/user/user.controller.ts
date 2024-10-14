@@ -24,7 +24,6 @@ import { Collection } from 'schemas/collection.schema';
 import { FlashCard } from 'schemas/flashCard.schema';
 import { User } from 'schemas/user.schema';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { WinstonLoggerService } from 'src/logger/logger.service';
 import { UtilService } from 'src/util/util.service';
 import { UserService } from './user.service';
 import { JWTTokenDto } from 'dto/jwt-token';

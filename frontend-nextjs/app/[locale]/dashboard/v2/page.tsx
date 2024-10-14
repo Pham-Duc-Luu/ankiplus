@@ -108,14 +108,15 @@ const SearchBox = ({ className }: InputProps) => {
 
 import { IoIosAdd, IoMdArrowDropdown, IoMdArrowDropup } from "react-icons/io";
 import { useRouter } from "@/i18n/routing";
-import { useProfileStore } from "@/hooks/useProfile";
 import { CiSearch } from "react-icons/ci";
 import { useGetProfileQuery } from "@/store/RTK-query/userApi";
+import { useAppSelector } from "@/store/hooks";
 const Page = () => {
-  const { profile } = useProfileStore();
   const t = useTranslations("dashboard.my collection");
   const route = useRouter();
   const { data } = useGetProfileQuery("");
+
+  const { user } = useAppSelector((state) => state.persistedReducer);
 
   useEffect(() => {
     /**
@@ -158,13 +159,11 @@ const Page = () => {
             </CardBody>
             <CardFooter className="h-1 m-0 p-0 bg-[hsl(var(--primary))] group-hover/collectionCard:visible invisible"></CardFooter>
           </Card>
-          {profile?.collections?.map((item, index) => (
-            <CollectionCard
-              _id={item._id}
-              key={index}
-              title={item.name}
-            ></CollectionCard>
-          ))}
+          {user?.collections?.map((item, index) => {
+            return (
+              <CollectionCard key={index} title={item.name}></CollectionCard>
+            );
+          })}
         </div>
       </div>
       {/* <Card className="flex-1">

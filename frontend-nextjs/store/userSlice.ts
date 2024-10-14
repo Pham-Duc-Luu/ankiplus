@@ -1,12 +1,14 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { XMLBuilder } from "fast-xml-parser";
+import { IShortCollectionDto, IUserProfileDto } from "./dto/dto.type";
 
 export interface User {
-  id?: string | number;
+  _id?: string | number;
   avatar: object;
   avatarBuilt?: any;
   username: string;
   email: string;
+  collections?: IShortCollectionDto[];
   password: string;
 }
 const options = {
@@ -76,9 +78,15 @@ export const userSlice = createSlice({
     buildAvatar: (state) => {
       state.avatarBuilt = builder.build(state.avatar);
     },
+    setState: (state, { payload }: PayloadAction<IUserProfileDto>) => {
+      state._id = payload._id;
+      state.username = payload.username;
+      state.email = payload.email;
+      state.collections = payload.collections;
+    },
   },
 });
 
-export const { setAvatarByChooseIcon } = userSlice.actions;
+export const { setAvatarByChooseIcon, setState } = userSlice.actions;
 
 export default userSlice.reducer;
