@@ -111,6 +111,7 @@ import { useRouter } from "@/i18n/routing";
 import { CiSearch } from "react-icons/ci";
 import { useGetProfileQuery } from "@/store/RTK-query/userApi";
 import { useAppSelector } from "@/store/hooks";
+import ListCollectionDisplay from "../ListCollectionDisplay";
 const Page = () => {
   const t = useTranslations("dashboard.my collection");
   const route = useRouter();
@@ -159,11 +160,12 @@ const Page = () => {
             </CardBody>
             <CardFooter className="h-1 m-0 p-0 bg-[hsl(var(--primary))] group-hover/collectionCard:visible invisible"></CardFooter>
           </Card>
-          {user?.collections?.map((item, index) => {
+          {/* {user?.collections?.map((item, index) => {
             return (
               <CollectionCard key={index} title={item.name}></CollectionCard>
             );
-          })}
+          })} */}
+          <ListCollectionDisplay></ListCollectionDisplay>
         </div>
       </div>
       {/* <Card className="flex-1">

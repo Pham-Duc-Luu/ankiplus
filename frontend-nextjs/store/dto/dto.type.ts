@@ -1,6 +1,7 @@
 export interface IShortCollectionDto {
   _id: string;
   name: string;
+  createdAt: string;
 }
 
 export interface IUserProfileDto {

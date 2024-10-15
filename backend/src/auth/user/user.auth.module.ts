@@ -13,6 +13,7 @@ import { LoggerModule } from 'libs/logger/logger/infrastructure/nestjs/loggerMod
 import LoggerService from 'libs/logger/logger/domain/loggerService';
 import { ConfigModule } from 'libs/logger/config/infrastructure/nestjs/configModule';
 import { ContextModule } from 'libs/logger/context/infrastructure/nestjs/contextModule';
+import { UserAuthService } from './user.auth.service';
 
 @Module({
     imports: [
@@ -26,6 +27,6 @@ import { ContextModule } from 'libs/logger/context/infrastructure/nestjs/context
         ContextModule,
     ],
     controllers: [UserAuthController, UserCollectionController, UserFlashCardController],
-    providers: [UtilService, UserFlashCardService, SRSService],
+    providers: [UtilService, UserFlashCardService, SRSService, UserAuthService],
 })
 export class UserAuthModule {}

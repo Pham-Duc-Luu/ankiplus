@@ -1,4 +1,3 @@
-import { useCollection } from "@/hooks/useCollection";
 import { Card } from "@/hooks/useCreateCollection";
 import { selectCardByIndex } from "@/store/collectionSlice";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -20,7 +19,7 @@ import { MdDeleteOutline } from "react-icons/md";
 export type TColumnKey = keyof Card | "action";
 export default function CardsTable() {
   const { cards, selectedCardIndex } = useAppSelector(
-    (state) => state.collection
+    (state) => state.persistedReducer.collection
   );
 
   const dispatch = useAppDispatch();

@@ -13,7 +13,7 @@ export interface ICollection {
 
   language: string;
 
-  cards: string[];
+  cards?: string[];
 
   owner: string | Schema.Types.ObjectId; // Reference to the User schema
 }
@@ -27,7 +27,7 @@ export const collectionSchema = new Schema<ICollection>(
     icon: String,
     isPublic: { type: Boolean, default: true },
     language: { type: String, default: "en" },
-    cards: [Schema.Types.ObjectId],
+    cards: [{ type: Schema.Types.ObjectId, ref: "Flashcard" }],
     owner: { type: Schema.Types.ObjectId, ref: "User" }, // Reference to the User schema
   },
   {

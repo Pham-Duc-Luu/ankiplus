@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { XMLBuilder } from "fast-xml-parser";
 import { IShortCollectionDto, IUserProfileDto } from "./dto/dto.type";
+import dayjs from "dayjs";
 
 export interface User {
   _id?: string | number;
@@ -10,6 +11,7 @@ export interface User {
   email: string;
   collections?: IShortCollectionDto[];
   password: string;
+  collectionsGroupByDate?: Record<string, IShortCollectionDto[]>;
 }
 const options = {
   ignoreAttributes: false,
@@ -66,6 +68,28 @@ const initialState: User = {
   email: "quizlette8421301@gmail.com",
   password: "*************",
 };
+// Function to group collections by the day they were created
+const groupCollectionsByDay = (
+  collections: IShortCollectionDto[]
+): Record<string, IShortCollectionDto[]> => {
+  return collections.reduce(
+    (groups: Record<string, IShortCollectionDto[]>, collection) => {
+      // Format the createdAt date to "YYYY-MM-DD" (ignoring time)
+      const day = dayjs(collection.createdAt).format("YYYY-MM-DD");
+
+      // Initialize the group if it doesn't exist
+      if (!groups[day]) {
+        groups[day] = [];
+      }
+
+      // Add the collection to the corresponding day group
+      groups[day].push(collection);
+
+      return groups;
+    },
+    {}
+  );
+};
 
 export const userSlice = createSlice({
   name: "user",
@@ -84,9 +108,15 @@ export const userSlice = createSlice({
       state.email = payload.email;
       state.collections = payload.collections;
     },
+    groupCollectionsByDayAction: (state) => {
+      if (state.collections) {
+        state.collectionsGroupByDate = groupCollectionsByDay(state.collections);
+      }
+    },
   },
 });
 
-export const { setAvatarByChooseIcon, setState } = userSlice.actions;
+export const { setAvatarByChooseIcon, setState, groupCollectionsByDayAction } =
+  userSlice.actions;
 
 export default userSlice.reducer;

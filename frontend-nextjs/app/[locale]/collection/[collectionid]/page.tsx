@@ -22,7 +22,7 @@ import { useRouter } from "@/i18n/routing";
 const page = () => {
   const t = useTranslations("collection.info");
   const t1 = useTranslations("review");
-  const { collection } = useAppSelector((state) => state);
+  const { collection } = useAppSelector((state) => state.persistedReducer);
   const dispatch = useAppDispatch();
   const route = useRouter();
   // * if there is no flash card then direct to error page
@@ -56,7 +56,7 @@ const page = () => {
   return (
     <div className=" w-full flex flex-col items-center p-6">
       <div className="lg:w-[1200px] w-full">
-        <div className=" m-4 text-2xl font-bold">{collection?.title}</div>
+        <div className=" m-4 text-2xl font-bold">{collection?.name}</div>
         <div className="flex gap-4">
           <Button
             onClick={() => {

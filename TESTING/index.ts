@@ -10,7 +10,9 @@ async function main() {
   try {
     await mongoose.connect(process.env.MONGO_URL);
     // await add_random_users();
-    await add_randoms_collections();
+    // await add_randoms_collections();
+
+    await addFlashCard();
   } catch (error) {
     console.log(error?.stack);
   }

@@ -104,7 +104,7 @@ export class UserController {
 
     @ApiTags('Authentications')
     @Post('/sign-in')
-    async findUser(@Body() loginProperty: LoginUserDto) {
+    async findUser(@Body() loginProperty: LoginUserDto): Promise<JWTTokenDto> {
         const { email, password } = loginProperty;
         if (!email || !password) {
             throw new BadRequestException('Missing email or password');
@@ -138,15 +138,12 @@ export class UserController {
          * * with the jwt
          * @returns {access_token, refresh_token}
          */
-        return {
-            access_token,
-            refresh_token,
-        };
+        return new JWTTokenDto(access_token, refresh_token);
     }
 
     @ApiTags('Authentications')
     @Post('/refresh-token')
-    async refreshToken(@Body() { access_token, refresh_token }: JWTTokenDto) {
+    async refreshToken(@Body() { access_token, refresh_token }: JWTTokenDto): Promise<JWTTokenDto> {
         if (!access_token || !refresh_token) {
             throw new BadRequestException('Missing token');
         }
@@ -175,10 +172,7 @@ export class UserController {
                  * * with the jwt
                  * @returns {access_token, refresh_token}
                  */
-                return {
-                    access_token: newAccessToken,
-                    refresh_token,
-                };
+                return new JWTTokenDto(access_token, refresh_token);
             }
 
             throw new UnauthorizedException('Invalid refresh token');

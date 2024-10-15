@@ -20,15 +20,19 @@ import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateCollectionDto } from 'dto/create-collection.dto';
 import { CreateFlashCardDto } from 'dto/create-flashcard.dto';
 import { jwtPayloadDto } from 'dto/jwt-payload.dto';
+import { ListResponseDto } from 'dto/ListResponse.dto';
 import { QueryOptionDto } from 'dto/query-option.dto';
 import { UpdateCollectionDto } from 'dto/update-collection.dto';
 import Logger, { LoggerKey } from 'libs/logger/logger/domain/logger';
+import { ObjectId } from 'mongodb';
 import { Model } from 'mongoose';
-import { Collection } from 'schemas/collection.schema';
-import { FlashCard } from 'schemas/flashCard.schema';
+import { Collection, CollectionDocument } from 'schemas/collection.schema';
+import { FlashCard, FlashCardDocument } from 'schemas/flashCard.schema';
 import { User } from 'schemas/user.schema';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { UtilService } from 'src/util/util.service';
+import { pickFields } from 'utils/utils';
+import { UserAuthService } from '../user.auth.service';
 
 @ApiTags('users/collections')
 @UseGuards(AuthGuard)
@@ -37,6 +41,8 @@ export class UserCollectionController {
     constructor(
         private util: UtilService,
         private jwtService: JwtService,
+        private userAuthService: UserAuthService,
+
         @InjectModel(FlashCard.name) private flashCardModel: Model<FlashCard>,
         @Inject(LoggerKey) private logger: Logger,
         @InjectModel(User.name) private userModel: Model<User>,
@@ -48,43 +54,79 @@ export class UserCollectionController {
      * * also this can get a specific collection by get a id
      */
     @ApiOperation({ summary: 'Get all collections from a user' })
-    @Get('/:id?')
+    @Get('')
     async getUserCollection(
         @Request() req: { user: jwtPayloadDto },
-        @Query() query: QueryOptionDto,
+        @Query() { limit = 30, skip = 0, order = 'asc' }: QueryOptionDto,
         @Param() param: { id?: string },
-    ) {
+    ): Promise<
+        ListResponseDto<
+            Pick<
+                CollectionDocument & {
+                    'cards-data': ListResponseDto<FlashCardDocument>;
+                },
+                '_id' | 'name' | 'description' | 'owner' | 'cards-data' | 'isPublic' | 'language'
+            >
+        >
+    > {
         const { sub } = req.user;
 
         const user = await this.userModel
             .findById(sub)
-            .populate({ path: 'collections', model: Collection.name, select: 'id' });
+            .select('_id')
+            .populate({
+                path: 'collections',
+                model: Collection.name,
+                options: {
+                    limit: limit,
+                    skip: skip,
+                    sort: { createdAt: order === 'asc' ? 1 : -1 },
+                    // populate: { path: 'cards', model: FlashCard.name, select: 'id front' },
+                    // match: { isPublic: true }
+                },
+            });
 
         if (!user) {
             throw new BadRequestException('There are some things wrong with your account');
         }
 
         try {
-            if (param.id) {
-                return await this.collectionModel
-                    .findOne({ $and: [{ _id: param.id }, { owner: sub }] })
-                    .populate({ path: 'cards', model: FlashCard.name })
+            return new ListResponseDto({
+                data: await Promise.all(
+                    user.collections.map(async (collectionId) => {
+                        return {
+                            ...pickFields(
+                                {
+                                    ...(await this.collectionModel.findById(collectionId)),
 
-                    .populate('owner', 'id email name')
-                    .sort({ name: query.order === 'asc' ? 1 : -1 })
-                    .limit(query.limit || 30)
-                    .skip(query.skip || 0)
-                    .exec();
-            }
-
-            return await this.collectionModel
-                .find({ owner: sub })
-                .populate({ path: 'cards', select: 'id front', model: FlashCard.name })
-                .populate('owner', 'id email name')
-                .sort({ name: query.order === 'asc' ? 1 : -1 })
-                .limit(query.limit || 30)
-                .skip(query.skip || 0)
-                .exec();
+                                    cards: new ListResponseDto({
+                                        data: (await this.flashCardModel.find({ inCollection: collectionId })).map(
+                                            (card) => ({
+                                                _id: card._id,
+                                            }),
+                                        ),
+                                        total: await this.flashCardModel.countDocuments({ collection: collectionId }),
+                                        skip: 0,
+                                        limit: 10,
+                                    }),
+                                },
+                                ['_id', 'name', 'description', 'isPublic', 'language', 'cards'],
+                            ),
+                        };
+                    }),
+                ),
+                total: await this.userAuthService.getCollectionsLength(user._id.toString()),
+                skip: skip,
+                limit: limit,
+            });
+            // return await this.collectionModel
+            //     .find({ owner: new ObjectId(sub) })
+            //     .populate({ path: 'cards', select: 'id front', model: FlashCard.name })
+            //     .populate('owner', 'id email name')
+            //     .sort({ name: query.order === 'asc' ? 1 : -1, createdAt: -1 })
+            //     .limit(query.limit || 30)
+            //     .skip(query.skip || 0)
+            //     .exec();
         } catch (error) {
             this.logger.error(error.message, error.stack);
             throw new InternalServerErrorException();
