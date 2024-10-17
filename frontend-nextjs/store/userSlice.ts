@@ -11,6 +11,8 @@ export interface User {
   email: string;
   collections?: IShortCollectionDto[];
   password: string;
+  page?: number;
+  amountPerPage?: number;
   collectionsGroupByDate?: Record<string, IShortCollectionDto[]>;
 }
 const options = {
@@ -106,9 +108,12 @@ export const userSlice = createSlice({
       state._id = payload._id;
       state.username = payload.username;
       state.email = payload.email;
-      state.collections = payload.collections;
+      state.collections = payload.collections?.data;
     },
-    groupCollectionsByDayAction: (state) => {
+    groupCollectionsByDayAction: (
+      state,
+      { payload }: PayloadAction<{ limit?: number; skip?: number }>
+    ) => {
       if (state.collections) {
         state.collectionsGroupByDate = groupCollectionsByDay(state.collections);
       }

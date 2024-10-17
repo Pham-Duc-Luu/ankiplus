@@ -14,20 +14,21 @@ const example: ICollectionCard = {
 
 import { IoIosAdd } from "react-icons/io";
 import { useRouter } from "@/i18n/routing";
-import { useProfileStore } from "@/hooks/useProfile";
+import { useAppSelector } from "@/store/hooks";
 const Page = () => {
-  const { profile } = useProfileStore();
   const t = useTranslations("dashboard.my collection");
   const route = useRouter();
-
+  const { access_token, refresh_token } = useAppSelector(
+    (state) => state.persistedReducer.auth
+  );
   useEffect(() => {
     /**
      * TODO: unhighlight it after debugging
      */
-    // if (!profile) {
-    //   route.push("/auth/sign-in");
-    // }
-  }, []);
+    if (!access_token || !refresh_token) {
+      route.push("/landing");
+    }
+  }, [access_token, refresh_token]);
 
   /**
    * ! Move to v2 page of dashboard
@@ -61,7 +62,7 @@ const Page = () => {
               </CardBody>
             </CardBody>
           </Button>
-          {profile?.collections?.map((item, index) => (
+          {/* {profile?.collections?.map((item, index) => (
             <CollectionCard
               onClick={() => {
                 route.push(`/collection/${item._id}`);
@@ -69,7 +70,7 @@ const Page = () => {
               key={index}
               title={item.name}
             ></CollectionCard>
-          ))}
+          ))} */}
         </CardBody>
       </Card>
       {/* <Card className="flex-1">

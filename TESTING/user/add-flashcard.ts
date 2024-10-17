@@ -6,12 +6,12 @@ import { v4 as uuidv4 } from "uuid";
 
 export default async function addFlashCard() {
   const total_user_num = 1000;
-  for (let index = 86; index < total_user_num; index++) {
+  for (let index = 0; index < total_user_num; index++) {
     const randomAmount = Math.floor(Math.random() * 20) + 5;
 
     console.log(
       `user index : ${index} / ${total_user_num}  => ${(
-        (100 * index) %
+        (100 * index) /
         total_user_num
       ).toFixed(4)}%`
     );
@@ -23,6 +23,7 @@ export default async function addFlashCard() {
     if (user?.collections) {
       for (let j = 0; j < user?.collections?.length; j++) {
         const collection = await Collection.findById(user?.collections[j]?._id);
+
         if (!collection) {
           return;
         }
@@ -39,10 +40,10 @@ export default async function addFlashCard() {
           );
         }
 
-        await FlashCard.create(flashCards);
-        const cardIds = flashCards.map((card) => card._id) as string[];
+        const list = await FlashCard.create(flashCards);
+        const cardIds = list.map((card) => card._id.toString());
         collection.cards = cardIds;
-        await collection?.save();
+        await collection.save();
         flashCards.length = 0;
       }
     }

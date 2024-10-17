@@ -5,7 +5,7 @@ export interface IFlashCard {
   front: any;
   back: any;
   inCollection: String;
-  _id?: string;
+  // _id?: string;
 }
 
 export const flashCardSchema = new Schema<IFlashCard>({

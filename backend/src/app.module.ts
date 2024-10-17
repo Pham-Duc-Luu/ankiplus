@@ -2,7 +2,6 @@ import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AuthModule } from './auth/auth.module';
 import { ConfigService } from '@nestjs/config';
 import configuration from ' config/configuration';
 import { JwtModule } from '@nestjs/jwt';
@@ -38,11 +37,15 @@ import { APP_FILTER } from '@nestjs/core';
             useFactory: async (configService: ConfigService) => {
                 return {
                     uri: configService.get<string>('database.mongodb.url'),
+                    connectionFactory: (connection) => {
+                        connection.set('socketTimeoutMS', 5000); // Set query timeout to 5 seconds
+                        return connection;
+                    },
                 };
             },
             inject: [ConfigService],
         }),
-        AuthModule,
+        // UserAuthModule,
         CollectionModule,
         UserModule,
         LoggerModule,

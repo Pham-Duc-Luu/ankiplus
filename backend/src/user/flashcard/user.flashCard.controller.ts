@@ -17,7 +17,7 @@ import { Model } from 'mongoose';
 import { Collection } from 'schemas/collection.schema';
 import { FlashCard } from 'schemas/flashCard.schema';
 import { User } from 'schemas/user.schema';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { AuthGuard } from 'src/guard/auth.guard';
 import { UtilService } from 'src/util/util.service';
 
 @Controller('users')

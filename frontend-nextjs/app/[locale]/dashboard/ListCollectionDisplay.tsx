@@ -15,7 +15,7 @@ const ListCollectionDisplay = () => {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(groupCollectionsByDayAction());
+    dispatch(groupCollectionsByDayAction({}));
   }, [user.collections]);
 
   useEffect(() => {

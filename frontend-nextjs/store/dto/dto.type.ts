@@ -1,7 +1,14 @@
 export interface IShortCollectionDto {
   _id: string;
   name: string;
-  createdAt: string;
+  createdAt?: string;
+}
+
+export interface IListResponseDto<T = unknown> {
+  total?: number;
+  skip?: number;
+  limit?: number;
+  data?: T[];
 }
 
 export interface IUserProfileDto {
@@ -9,5 +16,5 @@ export interface IUserProfileDto {
 
   email: string;
   username: string;
-  collections?: IShortCollectionDto[];
+  collections?: IListResponseDto<IShortCollectionDto>;
 }

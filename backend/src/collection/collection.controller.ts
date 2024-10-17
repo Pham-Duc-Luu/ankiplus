@@ -15,7 +15,7 @@ import {
     UseGuards,
 } from '@nestjs/common';
 import { User } from 'schemas/user.schema';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { AuthGuard } from 'src/guard/auth.guard';
 import { CreateCollectionDto } from 'dto/create-collection.dto';
 import { jwtPayloadDto } from 'dto/jwt-payload.dto';
 import { InjectModel } from '@nestjs/mongoose';

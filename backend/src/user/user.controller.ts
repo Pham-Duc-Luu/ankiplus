@@ -12,6 +12,7 @@ import {
     UnauthorizedException,
     HttpStatus,
     Inject,
+    Query,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
@@ -20,18 +21,22 @@ import { CreateUserDto } from 'dto/create-user.dto';
 import { jwtPayloadDto } from 'dto/jwt-payload.dto';
 import { LoginUserDto } from 'dto/login-user.dto';
 import { Model } from 'mongoose';
-import { Collection } from 'schemas/collection.schema';
+import { Collection, CollectionDocument } from 'schemas/collection.schema';
 import { FlashCard } from 'schemas/flashCard.schema';
 import { User } from 'schemas/user.schema';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { AuthGuard } from 'src/guard/auth.guard';
 import { UtilService } from 'src/util/util.service';
-import { UserService } from './user.service';
+import { UserAuthService, UserService } from './user.service';
 import { JWTTokenDto } from 'dto/jwt-token';
 import { ConfigService } from '@nestjs/config';
 import { Token } from 'schemas/token.schema';
 import { ObjectId } from 'mongodb';
 import Logger, { LoggerKey } from 'libs/logger/logger/domain/logger';
 import LoggerService from 'libs/logger/logger/domain/loggerService';
+import { QueryOptionDto } from 'dto/query-option.dto';
+import { UserProfileDto } from 'dto/userProflieDto';
+import { ListResponseDto } from 'dto/ListResponse.dto';
+import { pickFields } from 'utils/utils';
 
 @Controller('')
 export class UserController {
@@ -179,5 +184,57 @@ export class UserController {
         } catch (error) {
             throw new UnauthorizedException();
         }
+    }
+}
+
+@ApiTags('Users')
+@UseGuards(AuthGuard)
+@Controller('user')
+export class UserAuthController {
+    constructor(
+        private util: UtilService,
+        private jwtService: JwtService,
+        private userAuthService: UserAuthService,
+        @InjectModel(FlashCard.name) private flashCardModel: Model<FlashCard>,
+
+        @InjectModel(User.name) private userModel: Model<User>,
+        @InjectModel(Collection.name) private collectionModel: Model<Collection>,
+    ) {}
+
+    // * get user details profile
+    @Get('/profile')
+    async getProfile(
+        @Request() request: { user: jwtPayloadDto },
+        @Query() { limit = 30, skip = 0, order = 'asc' }: QueryOptionDto,
+    ): Promise<UserProfileDto<Pick<CollectionDocument, '_id' | 'name'>>> {
+        const user = await this.userModel
+            .findById({ _id: request.user.sub })
+            .populate({
+                path: 'collections', // Populate the `collections` field
+                model: Collection.name, // Specify the model to populate from
+                // select: 'id name createdAt',
+                options: {
+                    limit: limit,
+                    skip: skip,
+                    sort: { createdAt: order === 'asc' ? 1 : -1 },
+                },
+            })
+            .select('email username');
+
+        return new UserProfileDto<Pick<CollectionDocument, '_id' | 'name'>>({
+            _id: user._id.toString(),
+            email: user.email,
+            username: user.username,
+            collections: new ListResponseDto({
+                data: await Promise.all(
+                    user.collections.map(async (collectionId) => {
+                        return pickFields(await this.collectionModel.findById(collectionId), ['_id', 'name']);
+                    }),
+                ),
+                total: await this.userAuthService.getCollectionsLength(user._id.toString()),
+                skip: skip,
+                limit: limit,
+            }),
+        });
     }
 }

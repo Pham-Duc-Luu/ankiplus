@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
 import * as compression from 'compression';
 import NestjsLoggerServiceAdapter from 'libs/logger/logger/infrastructure/nestjs/nestjsLoggerServiceAdapter';
+import { TimeoutInterceptor } from './Interceptor/timeout.interceptor';
 async function bootstrap() {
     const app = await NestFactory.create(AppModule, { bufferLogs: true });
     const configService = app.get(ConfigService);
@@ -17,7 +18,7 @@ async function bootstrap() {
 
     app.use(helmet());
     app.useLogger(app.get(NestjsLoggerServiceAdapter));
-
+    app.useGlobalInterceptors(new TimeoutInterceptor(5000)); // 5000ms = 5 seconds
     // app.useGlobalInterceptors(new LoggingInterceptor());
     // app.useGlobalFilters(new HttpExceptionFilter());
     app.use(compression());

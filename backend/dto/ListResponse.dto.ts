@@ -16,7 +16,7 @@ import { ApiProperty } from '@nestjs/swagger';
 export interface IListResponseDto<T = unknown> {
     total?: number;
     skip?: number;
-    limit: number;
+    limit?: number;
     data?: T[];
 }
 

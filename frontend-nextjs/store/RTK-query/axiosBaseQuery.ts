@@ -65,6 +65,7 @@ const axiosBaseQuery =
       /**
        * auto fetch the access token
        */
+
       if (err && err.status === 401) {
         // try to get a new token
         try {

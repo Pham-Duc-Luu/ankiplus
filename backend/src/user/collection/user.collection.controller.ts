@@ -29,13 +29,17 @@ import { Model } from 'mongoose';
 import { Collection, CollectionDocument } from 'schemas/collection.schema';
 import { FlashCard, FlashCardDocument } from 'schemas/flashCard.schema';
 import { User } from 'schemas/user.schema';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { AuthGuard } from 'src/guard/auth.guard';
 import { UtilService } from 'src/util/util.service';
 import { pickFields } from 'utils/utils';
-import { UserAuthService } from '../user.auth.service';
+
+import { query } from 'express';
+import { UserAuthService } from '../user.service';
+import { ParamValidate } from 'src/guard/param.validate.guard';
 
 @ApiTags('users/collections')
 @UseGuards(AuthGuard)
+@UseGuards(ParamValidate)
 @Controller('users/collections')
 export class UserCollectionController {
     constructor(
@@ -50,74 +54,105 @@ export class UserCollectionController {
     ) {}
 
     /**
-     * * this is api to get all collections that are owned by the user
-     * * also this can get a specific collection by get a id
+     * Retrieves all collections owned by the user, including public ones.
+     * If a collection ID is provided in the parameters, it returns a specific collection.
+     *
+     * @param req - The request object containing the user's JWT payload.
+     * @param limit - The maximum number of collections to return (default: 30).
+     * @param skip - The number of collections to skip (default: 0).
+     * @param order - The order of collections (default: 'asc').
+     * @param param - The parameters object containing the collection ID.
+     *
+     * @returns A Promise that resolves to a ListResponseDto containing the collections.
+     *
+     * @throws BadRequestException - If there are issues with the user's account.
+     * @throws InternalServerErrorException - If an error occurs during the retrieval process.
      */
     @ApiOperation({ summary: 'Get all collections from a user' })
     @Get('')
     async getUserCollection(
         @Request() req: { user: jwtPayloadDto },
         @Query() { limit = 30, skip = 0, order = 'asc' }: QueryOptionDto,
+
         @Param() param: { id?: string },
     ): Promise<
         ListResponseDto<
-            Pick<
-                CollectionDocument & {
-                    'cards-data': ListResponseDto<FlashCardDocument>;
-                },
-                '_id' | 'name' | 'description' | 'owner' | 'cards-data' | 'isPublic' | 'language'
-            >
+            Pick<CollectionDocument, '_id' | 'name' | 'description' | 'owner' | 'isPublic' | 'language'> & {
+                cards: ListResponseDto<Pick<FlashCardDocument, '_id' | 'front'>>;
+            }
         >
     > {
         const { sub } = req.user;
 
-        const user = await this.userModel
-            .findById(sub)
-            .select('_id')
-            .populate({
-                path: 'collections',
-                model: Collection.name,
-                options: {
-                    limit: limit,
-                    skip: skip,
-                    sort: { createdAt: order === 'asc' ? 1 : -1 },
-                    // populate: { path: 'cards', model: FlashCard.name, select: 'id front' },
-                    // match: { isPublic: true }
-                },
-            });
-
-        if (!user) {
-            throw new BadRequestException('There are some things wrong with your account');
-        }
+        const FLASHCARD_LIMIT = 10;
+        const FLASHCARD_SKIP = 0;
 
         try {
+            const user = await this.userModel
+                .findById(sub)
+                .select('_id')
+                .populate({
+                    path: 'collections',
+                    model: Collection.name,
+                    options: {
+                        limit: limit,
+
+                        skip: skip,
+
+                        sort: { _id: order === 'asc' ? 1 : -1 },
+                        // populate: {
+                        //     path: 'cards',
+                        //     model: FlashCard.name,
+                        //     options: {
+                        //         limit: FLASHCARD_LIMIT,
+                        //         skip: FLASHCARD_SKIP,
+                        //         // sort: { createdAt: order === 'asc' ? 1 : -1 },
+                        //         select: 'id front',
+                        //     },
+                        // },
+                        match: { isPublic: true },
+                    },
+                });
+
+            if (!user) {
+                throw new BadRequestException('There are some things wrong with your account');
+            }
+
             return new ListResponseDto({
                 data: await Promise.all(
-                    user.collections.map(async (collectionId) => {
-                        return {
-                            ...pickFields(
-                                {
-                                    ...(await this.collectionModel.findById(collectionId)),
+                    user.collections.map(async (collection: CollectionDocument) => {
+                        const pickCollections = pickFields(collection, [
+                            '_id',
+                            'name',
+                            'description',
+                            'owner',
+                            'isPublic',
+                            'language',
+                            'cards',
+                        ]);
 
-                                    cards: new ListResponseDto({
-                                        data: (await this.flashCardModel.find({ inCollection: collectionId })).map(
-                                            (card) => ({
-                                                _id: card._id,
-                                            }),
-                                        ),
-                                        total: await this.flashCardModel.countDocuments({ collection: collectionId }),
-                                        skip: 0,
-                                        limit: 10,
+                        return {
+                            ...pickCollections,
+                            cards: new ListResponseDto({
+                                data: await Promise.all(
+                                    pickCollections.cards.map(async (item: FlashCardDocument) => {
+                                        return pickFields(await this.flashCardModel.findById(item._id), [
+                                            '_id',
+                                            'front',
+                                            'back',
+                                        ]);
                                     }),
-                                },
-                                ['_id', 'name', 'description', 'isPublic', 'language', 'cards'],
-                            ),
+                                ),
+                                skip: FLASHCARD_SKIP,
+                                limit: FLASHCARD_LIMIT,
+                                total: await this.userAuthService.getCardslenght(collection._id.toString()),
+                            }),
                         };
                     }),
                 ),
                 total: await this.userAuthService.getCollectionsLength(user._id.toString()),
                 skip: skip,
-                limit: limit,
+                limit: Number(limit),
             });
             // return await this.collectionModel
             //     .find({ owner: new ObjectId(sub) })
