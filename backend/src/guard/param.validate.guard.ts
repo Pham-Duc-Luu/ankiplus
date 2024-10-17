@@ -1,4 +1,5 @@
 import { Injectable, CanActivate, ExecutionContext, BadRequestException } from '@nestjs/common';
+import { isNumber } from 'class-validator';
 import { QueryOptionDto } from 'dto/query-option.dto';
 import { Observable } from 'rxjs';
 
@@ -11,7 +12,6 @@ export class ParamValidate implements CanActivate {
         const query = request.query as Partial<QueryOptionDto>;
 
         // Verify query's limit
-
         if (query.limit && isNaN(query.limit)) {
             throw new BadRequestException('Invalid limit query parameter');
         }
@@ -19,6 +19,8 @@ export class ParamValidate implements CanActivate {
         if (query.skip && isNaN(query.skip)) {
             throw new BadRequestException('Invalid skip query parameter');
         }
+
+        console.log(isNumber(query.limit));
 
         return true; // Allow the request if no NaN found
     }

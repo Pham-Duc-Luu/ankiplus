@@ -5,7 +5,9 @@ import { FlashCard } from './flashCard.schema';
 
 enum accessStatus {}
 
-@Schema()
+@Schema({
+    timestamps: true,
+})
 export class Collection {
     @Prop({ required: true, unique: true })
     name: string;
@@ -32,5 +34,8 @@ export class Collection {
     owner: User; // Reference to the User schema
 }
 
-export type CollectionDocument = HydratedDocument<Collection>;
+export type CollectionDocument = HydratedDocument<Collection> & {
+    createdAt: Date;
+    updatedAt: Date;
+};
 export const CollectionSchema = SchemaFactory.createForClass(Collection);

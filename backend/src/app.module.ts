@@ -36,13 +36,26 @@ import { APP_FILTER } from '@nestjs/core';
         MongooseModule.forRootAsync({
             useFactory: async (configService: ConfigService) => {
                 return {
-                    uri: configService.get<string>('database.mongodb.url'),
+                    uri: configService.get<string>('database.mongodb_main.url'),
                     connectionFactory: (connection) => {
-                        connection.set('socketTimeoutMS', 5000); // Set query timeout to 5 seconds
                         return connection;
                     },
                 };
             },
+            connectionName: configuration().database.mongodb_main.name,
+            inject: [ConfigService],
+        }),
+        MongooseModule.forRootAsync({
+            useFactory: async (configService: ConfigService) => {
+                return {
+                    uri: configService.get<string>('database.mongodb_bin.url'),
+                    connectionFactory: (connection) => {
+                        return connection;
+                    },
+                };
+            },
+            connectionName: configuration().database.mongodb_bin.name,
+
             inject: [ConfigService],
         }),
         // UserAuthModule,

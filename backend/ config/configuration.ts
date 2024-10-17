@@ -1,7 +1,8 @@
 export default () => ({
     port: parseInt(process.env.PORT, 10) || 3000,
     database: {
-        mongodb: { url: process.env.MONGODBURL || 'mongodb://localhost:27017' },
+        mongodb_main: { url: process.env.MONGODBURL || 'mongodb://localhost:27017', name: 'MAIN' },
+        mongodb_bin: { url: process.env.MONGODBURL_BIN || 'mongodb://localhost:27017', name: 'BIN' },
     },
     jwtConstant: {
         secret: {

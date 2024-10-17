@@ -18,3 +18,10 @@ export interface IUserProfileDto {
   username: string;
   collections?: IListResponseDto<IShortCollectionDto>;
 }
+
+export interface IQueryOptions {
+  limit?: number;
+  skip?: number;
+  sort?: "asc" | "desc";
+  selects?: string;
+}

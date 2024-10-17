@@ -13,15 +13,19 @@ import { ConfigModule } from 'libs/logger/config/infrastructure/nestjs/configMod
 import { ContextModule } from 'libs/logger/context/infrastructure/nestjs/contextModule';
 import { UserCollectionController } from './collection/user.collection.controller';
 import { UserFlashCardController } from './flashcard/user.flashCard.controller';
+import configuration from ' config/configuration';
 
 @Module({
     imports: [
-        MongooseModule.forFeature([
-            { name: User.name, schema: UserSchema },
-            { name: Collection.name, schema: CollectionSchema },
-            { name: FlashCard.name, schema: FlashCardSchema },
-            { name: Token.name, schema: TokenSchema },
-        ]),
+        MongooseModule.forFeature(
+            [
+                { name: User.name, schema: UserSchema },
+                { name: Collection.name, schema: CollectionSchema },
+                { name: FlashCard.name, schema: FlashCardSchema },
+                { name: Token.name, schema: TokenSchema },
+            ],
+            configuration().database.mongodb_main.name,
+        ),
         LoggerModule,
         ConfigModule,
         ContextModule,

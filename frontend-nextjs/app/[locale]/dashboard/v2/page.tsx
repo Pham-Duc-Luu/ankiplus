@@ -115,7 +115,11 @@ import ListCollectionDisplay from "../ListCollectionDisplay";
 const Page = () => {
   const t = useTranslations("dashboard.my collection");
   const route = useRouter();
-  const { data } = useGetProfileQuery("");
+  const { data } = useGetProfileQuery({
+    options: {
+      limit: 10,
+    },
+  });
 
   const { user } = useAppSelector((state) => state.persistedReducer);
 

@@ -2,9 +2,10 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import axiosBaseQuery from "./axiosBaseQuery";
 import { AxiosError, AxiosResponse } from "axios";
-import { IUserProfileDto } from "../dto/dto.type";
+import { IQueryOptions, IUserProfileDto } from "../dto/dto.type";
 import { setState } from "../userSlice";
 import { loggedOut } from "../authSilce";
+import { buildParameters } from "@/utils/params";
 
 // Define an API slice
 export const userApi = createApi({
@@ -18,14 +19,19 @@ export const userApi = createApi({
       // query: () => ({
       //   url: "/user/profile",
       // }),
-      queryFn: async (arg, queryApi, extraOptions, baseQuery) => {
+      queryFn: async (
+        { options }: { options?: IQueryOptions },
+        queryApi,
+        extraOptions,
+        baseQuery
+      ) => {
         // For the success case, the return type for the `data` property
         // must match `ResultType`
         //              v
 
         try {
           const { data } = (await baseQuery({
-            url: "/user/profile",
+            url: `/user/profile?${buildParameters({ ...options })}`,
             method: "GET",
           })) as AxiosResponse<IUserProfileDto>;
           if (!data) {

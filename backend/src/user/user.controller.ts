@@ -13,6 +13,8 @@ import {
     HttpStatus,
     Inject,
     Query,
+    UsePipes,
+    ValidationPipe,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
@@ -37,6 +39,8 @@ import { QueryOptionDto } from 'dto/query-option.dto';
 import { UserProfileDto } from 'dto/userProflieDto';
 import { ListResponseDto } from 'dto/ListResponse.dto';
 import { pickFields } from 'utils/utils';
+import { ParamValidate } from 'src/guard/param.validate.guard';
+import configuration from ' config/configuration';
 
 @Controller('')
 export class UserController {
@@ -47,8 +51,8 @@ export class UserController {
         private jwtService: JwtService,
         private configService: ConfigService,
 
-        @InjectModel(User.name) private userModel: Model<User>,
-        @InjectModel(Token.name) private tokenModel: Model<Token>,
+        @InjectModel(User.name, configuration().database.mongodb_main.name) private userModel: Model<User>,
+        @InjectModel(Token.name, configuration().database.mongodb_main.name) private tokenModel: Model<Token>,
     ) {}
 
     @ApiTags('Authentications')
@@ -189,16 +193,20 @@ export class UserController {
 
 @ApiTags('Users')
 @UseGuards(AuthGuard)
+// @UseGuards(ParamValidate)
+@UsePipes(new ValidationPipe({ transform: true }))
 @Controller('user')
 export class UserAuthController {
     constructor(
         private util: UtilService,
         private jwtService: JwtService,
         private userAuthService: UserAuthService,
-        @InjectModel(FlashCard.name) private flashCardModel: Model<FlashCard>,
+        @InjectModel(FlashCard.name, configuration().database.mongodb_main.name)
+        private flashCardModel: Model<FlashCard>,
 
-        @InjectModel(User.name) private userModel: Model<User>,
-        @InjectModel(Collection.name) private collectionModel: Model<Collection>,
+        @InjectModel(User.name, configuration().database.mongodb_main.name) private userModel: Model<User>,
+        @InjectModel(Collection.name, configuration().database.mongodb_main.name)
+        private collectionModel: Model<Collection>,
     ) {}
 
     // * get user details profile

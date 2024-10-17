@@ -25,15 +25,18 @@ import { UpdateCollectionDto } from 'dto/update-collection.dto';
 import { FlashCard } from 'schemas/flashCard.schema';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { QueryOptionDto } from 'dto/query-option.dto';
+import configuration from ' config/configuration';
 
 @ApiTags('Collections')
 @Controller('collections')
 export class CollectionController {
     constructor(
-        @InjectModel(FlashCard.name) private flashCardModel: Model<FlashCard>,
+        @InjectModel(FlashCard.name, configuration().database.mongodb_main.name)
+        private flashCardModel: Model<FlashCard>,
 
-        @InjectModel(User.name) private userModel: Model<User>,
-        @InjectModel(Collection.name) private collectionModel: Model<Collection>,
+        @InjectModel(User.name, configuration().database.mongodb_main.name) private userModel: Model<User>,
+        @InjectModel(Collection.name, configuration().database.mongodb_main.name)
+        private collectionModel: Model<Collection>,
     ) {}
 
     @Get(':id?')

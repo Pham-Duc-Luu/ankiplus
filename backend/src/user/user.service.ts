@@ -1,18 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { Model } from 'mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
+import mongoose, { Connection, Model } from 'mongoose';
 import { User } from 'schemas/user.schema';
 import { UtilService } from 'src/util/util.service';
 import * as bcrypt from 'bcrypt';
 import config from ' config/configuration';
 import { Collection } from 'schemas/collection.schema';
 import { FlashCard } from 'schemas/flashCard.schema';
+import configuration from ' config/configuration';
 @Injectable()
 export class UserService {
     constructor(
-        @InjectModel(User.name) private userModel: Model<User>,
+        @InjectModel(User.name, configuration().database.mongodb_main.name) private userModel: Model<User>,
         private jwtService: JwtService,
         private util: UtilService,
         private configService: ConfigService,
@@ -43,9 +44,10 @@ export class UserService {
 @Injectable()
 export class UserAuthService {
     constructor(
-        @InjectModel(Collection.name) private collectionModel: Model<Collection>,
-        @InjectModel(FlashCard.name) private flashCardModel: Model<FlashCard>,
-        @InjectModel(User.name) private userModel: Model<User>,
+        @InjectModel(Collection.name, configuration().database.mongodb_main.name)
+        private collectionModel: Model<Collection>,
+        // @InjectModel(FlashCard.name) private flashCardModel: Model<FlashCard>,
+        @InjectModel(User.name, configuration().database.mongodb_main.name) private userModel: Model<User>,
 
         // private logger: LoggerService,
     ) {}

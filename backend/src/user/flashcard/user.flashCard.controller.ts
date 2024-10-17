@@ -1,3 +1,4 @@
+import configuration from ' config/configuration';
 import {
     Controller,
     Get,
@@ -27,10 +28,12 @@ export class UserFlashCardController {
     constructor(
         private util: UtilService,
         private jwtService: JwtService,
-        @InjectModel(FlashCard.name) private flashCardModel: Model<FlashCard>,
+        @InjectModel(FlashCard.name, configuration().database.mongodb_main.name)
+        private flashCardModel: Model<FlashCard>,
         // private logger: WinstonLoggerService,
-        @InjectModel(User.name) private userModel: Model<User>,
-        @InjectModel(Collection.name) private collectionModel: Model<Collection>,
+        @InjectModel(User.name, configuration().database.mongodb_main.name) private userModel: Model<User>,
+        @InjectModel(Collection.name, configuration().database.mongodb_main.name)
+        private collectionModel: Model<Collection>,
     ) {}
 
     /**
