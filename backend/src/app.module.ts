@@ -13,6 +13,11 @@ import { LoggerModule } from 'libs/logger/logger/infrastructure/nestjs/loggerMod
 import { ConfigModule } from 'libs/logger/config/infrastructure/nestjs/configModule';
 import { ContextModule } from 'libs/logger/context/infrastructure/nestjs/contextModule';
 import { APP_FILTER } from '@nestjs/core';
+import { GraphQLModule } from '@nestjs/graphql';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { join } from 'path';
+import { AppResolver } from './app.resolver';
+import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 // import { LoggerModule } from '@nestjs-logger/shared/logger/infrastructure/nestjs/loggerModule';
 // import { ConfigModule } from '@nestjs-logger/shared/config/infrastructure/nestjs/configModule';
 // import { ContextModule } from '@nestjs-logger/shared/context/infrastructure/nestjs/contextModule';
@@ -58,6 +63,12 @@ import { APP_FILTER } from '@nestjs/core';
 
             inject: [ConfigService],
         }),
+        GraphQLModule.forRoot<ApolloDriverConfig>({
+            driver: ApolloDriver,
+            playground: true,
+            // plugins: [ApolloServerPluginLandingPageLocalDefault()],
+            autoSchemaFile: join(process.cwd(), 'schema.gql'),
+        }),
         // UserAuthModule,
         CollectionModule,
         UserModule,
@@ -73,6 +84,7 @@ import { APP_FILTER } from '@nestjs/core';
             provide: APP_FILTER,
             useClass: HttpExceptionFilter,
         },
+        AppResolver,
     ],
     exports: [],
 })

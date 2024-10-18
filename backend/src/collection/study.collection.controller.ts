@@ -1,7 +1,7 @@
 import configuration from ' config/configuration';
 import { Body, Controller, Param, Post, Put, Query, Request, UseGuards } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { jwtPayloadDto } from 'dto/jwt-payload.dto';
+import { jwtPayloadDto } from 'dto/jwt.dto';
 import { Model } from 'mongoose';
 import { Collection } from 'schemas/collection.schema';
 import { FlashCard } from 'schemas/flashCard.schema';

@@ -1,6 +1,25 @@
-import { Collection, CollectionDocument } from 'schemas/collection.schema';
-import { IListResponseDto, ListResponseDto } from './ListResponse.dto';
 import { ApiProperty } from '@nestjs/swagger';
+import { IsEmail, IsStrongPassword } from 'class-validator';
+import { IListResponseDto } from './ListResponse.dto';
+
+export class CreateUserDto {
+    @ApiProperty()
+    email: string;
+    @ApiProperty()
+    password: string;
+    @ApiProperty()
+    username: string;
+}
+
+export class LoginUserDto {
+    @ApiProperty()
+    @IsEmail()
+    email: string;
+
+    @IsStrongPassword()
+    @ApiProperty()
+    password: string;
+}
 
 export interface IUserProfileDto<T> {
     _id: string;

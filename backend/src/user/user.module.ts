@@ -26,6 +26,10 @@ import configuration from ' config/configuration';
             ],
             configuration().database.mongodb_main.name,
         ),
+        MongooseModule.forFeature(
+            [{ name: Collection.name, schema: CollectionSchema }],
+            configuration().database.mongodb_bin.name,
+        ),
         LoggerModule,
         ConfigModule,
         ContextModule,

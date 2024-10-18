@@ -31,7 +31,7 @@ export class Collection {
     cards: (FlashCard | string)[];
 
     @Prop({ type: Types.ObjectId, ref: 'User', required: true }) // Add reference to User
-    owner: User; // Reference to the User schema
+    owner: User | string; // Reference to the User schema
 }
 
 export type CollectionDocument = HydratedDocument<Collection> & {

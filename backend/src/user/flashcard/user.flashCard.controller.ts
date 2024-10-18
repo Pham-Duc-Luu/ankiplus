@@ -13,7 +13,7 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { trace } from 'console';
-import { jwtPayloadDto } from 'dto/jwt-payload.dto';
+import { jwtPayloadDto } from 'dto/jwt.dto';
 import { Model } from 'mongoose';
 import { Collection } from 'schemas/collection.schema';
 import { FlashCard } from 'schemas/flashCard.schema';

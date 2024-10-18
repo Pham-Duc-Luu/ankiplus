@@ -16,12 +16,9 @@ import {
 } from '@nestjs/common';
 import { User } from 'schemas/user.schema';
 import { AuthGuard } from 'src/guard/auth.guard';
-import { CreateCollectionDto } from 'dto/create-collection.dto';
-import { jwtPayloadDto } from 'dto/jwt-payload.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Collection } from 'schemas/collection.schema';
-import { UpdateCollectionDto } from 'dto/update-collection.dto';
 import { FlashCard } from 'schemas/flashCard.schema';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { QueryOptionDto } from 'dto/query-option.dto';

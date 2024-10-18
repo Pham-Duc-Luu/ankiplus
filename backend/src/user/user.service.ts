@@ -68,7 +68,7 @@ export class UserAuthService {
         return result.length > 0 ? result[0].collectionsCount : 0;
     }
 
-    async getCardslenght(collectionId: string): Promise<number> {
+    async getCardslength(collectionId: string): Promise<number> {
         const result = await this.collectionModel.aggregate([
             { $match: { _id: new mongoose.Types.ObjectId(collectionId) } }, // Match the specific user
             {

@@ -12,6 +12,7 @@ import {
     Min,
 } from 'class-validator';
 import { CollectionDocument } from 'schemas/collection.schema';
+import { FlashCardDocument } from 'schemas/flashCard.schema';
 export class QueryOptionDto {
     @ApiProperty({ default: 30, required: false })
     @IsOptional() // Marks the property as optional
@@ -33,18 +34,12 @@ export class QueryOptionDto {
 
     @ApiProperty()
     @IsOptional()
-    @IsString()
-    select?: string;
+    @Transform(({ value }) => value?.split(',').map((v: string) => v.trim())) // Transform string to array of keys
+    @IsString({ each: true }) // Ensures each item in the array is a string
+    select?: string[];
 
     @ApiProperty()
     @IsOptional()
     @IsString()
     sortBy?: string;
-}
-
-export type TSelectCollection = CollectionDocument;
-export class CollectionQueryOptionDto extends QueryOptionDto {
-    select?: keyof CollectionDocument;
-
-    sortBy?: keyof CollectionDocument;
 }

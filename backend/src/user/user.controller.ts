@@ -19,9 +19,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { ApiTags } from '@nestjs/swagger';
-import { CreateUserDto } from 'dto/create-user.dto';
-import { jwtPayloadDto } from 'dto/jwt-payload.dto';
-import { LoginUserDto } from 'dto/login-user.dto';
+
 import { Model } from 'mongoose';
 import { Collection, CollectionDocument } from 'schemas/collection.schema';
 import { FlashCard } from 'schemas/flashCard.schema';
@@ -29,18 +27,18 @@ import { User } from 'schemas/user.schema';
 import { AuthGuard } from 'src/guard/auth.guard';
 import { UtilService } from 'src/util/util.service';
 import { UserAuthService, UserService } from './user.service';
-import { JWTTokenDto } from 'dto/jwt-token';
 import { ConfigService } from '@nestjs/config';
 import { Token } from 'schemas/token.schema';
 import { ObjectId } from 'mongodb';
 import Logger, { LoggerKey } from 'libs/logger/logger/domain/logger';
 import LoggerService from 'libs/logger/logger/domain/loggerService';
 import { QueryOptionDto } from 'dto/query-option.dto';
-import { UserProfileDto } from 'dto/userProflieDto';
 import { ListResponseDto } from 'dto/ListResponse.dto';
 import { pickFields } from 'utils/utils';
 import { ParamValidate } from 'src/guard/param.validate.guard';
 import configuration from ' config/configuration';
+import { CreateUserDto, LoginUserDto, UserProfileDto } from 'dto/user.dto';
+import { jwtPayloadDto, JWTTokenDto } from 'dto/jwt.dto';
 
 @Controller('')
 export class UserController {

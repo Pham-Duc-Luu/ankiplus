@@ -16,16 +16,20 @@ import {
     UsePipes,
     ValidationPipe,
     Delete,
+    NotFoundException,
+    ForbiddenException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { CreateCollectionDto } from 'dto/create-collection.dto';
-import { CreateFlashCardDto } from 'dto/create-flashcard.dto';
-import { jwtPayloadDto } from 'dto/jwt-payload.dto';
+import {
+    CollectionDetailQueryDto,
+    CollectionQueryOptionDto,
+    CreateCollectionDto,
+    UpdateCollectionDto,
+} from 'dto/collection.dto';
+import { CreateFlashCardDto, FlashCardQueryOptionDto } from 'dto/flashcard.dto';
 import { ListResponseDto } from 'dto/ListResponse.dto';
-import { CollectionQueryOptionDto, QueryOptionDto } from 'dto/query-option.dto';
-import { UpdateCollectionDto } from 'dto/update-collection.dto';
 import Logger, { LoggerKey } from 'libs/logger/logger/domain/logger';
 import { ObjectId } from 'mongodb';
 import { Model } from 'mongoose';
@@ -40,6 +44,7 @@ import { query } from 'express';
 import { UserAuthService } from '../user.service';
 import { ParamValidate } from 'src/guard/param.validate.guard';
 import configuration from ' config/configuration';
+import { jwtPayloadDto } from 'dto/jwt.dto';
 
 @ApiTags('users/collections')
 @UseGuards(AuthGuard)
@@ -51,7 +56,8 @@ export class UserCollectionController {
         private util: UtilService,
         private jwtService: JwtService,
         private userAuthService: UserAuthService,
-
+        @InjectModel(Collection.name, configuration().database.mongodb_bin.name)
+        private bin_collectionModel: Model<Collection>,
         @InjectModel(FlashCard.name, configuration().database.mongodb_main.name)
         private flashCardModel: Model<FlashCard>,
         @Inject(LoggerKey) private logger: Logger,
@@ -80,8 +86,13 @@ export class UserCollectionController {
     async getUserCollection(
         @Request() req: { user: jwtPayloadDto },
         @Query()
-        { limit = 30, skip = 0, order = 'asc', select = 'createdAt', sortBy = 'createdAt' }: CollectionQueryOptionDto,
-        @Param() param: { id?: string },
+        {
+            limit = 30,
+            skip = 0,
+            order = 'asc',
+            select = ['_id', 'name', 'description', 'owner', 'isPublic', 'language', 'updatedAt', 'cards', 'createdAt'],
+            sortBy = 'createdAt',
+        }: CollectionQueryOptionDto,
     ): Promise<
         ListResponseDto<
             Pick<CollectionDocument, '_id' | 'name' | 'description' | 'owner' | 'isPublic' | 'language'> & {
@@ -103,8 +114,8 @@ export class UserCollectionController {
                 .findById(sub)
                 .select('_id')
                 .populate({
-                    path: 'collections',
-                    model: Collection.name,
+                    path: 'FlashCard',
+                    model: FlashCard.name,
                     options: {
                         limit: limit,
 
@@ -132,39 +143,28 @@ export class UserCollectionController {
             return new ListResponseDto({
                 data: await Promise.all(
                     user.collections.map(async (collection: CollectionDocument) => {
-                        const pickCollections = pickFields(collection, [
-                            '_id',
-                            'name',
-                            'description',
-                            'owner',
-                            'isPublic',
-                            'language',
-                            'updatedAt',
-                            'cards',
-                            'createdAt',
-                        ]);
+                        const pickCollections = pickFields(collection, select);
 
                         return {
                             ...pickCollections,
-                            cards:
-                                select === 'cards'
-                                    ? new ListResponseDto({
-                                          data: await Promise.all(
-                                              pickCollections.cards
-                                                  .slice(FLASHCARD_SKIP, FLASHCARD_LIMIT)
-                                                  .map(async (item: FlashCardDocument) => {
-                                                      return pickFields(await this.flashCardModel.findById(item._id), [
-                                                          '_id',
-                                                          'front',
-                                                          'back',
-                                                      ]);
-                                                  }),
-                                          ),
-                                          skip: FLASHCARD_SKIP,
-                                          limit: FLASHCARD_LIMIT,
-                                          total: await this.userAuthService.getCardslenght(collection._id.toString()),
-                                      })
-                                    : [],
+                            cards: select.includes('cards')
+                                ? new ListResponseDto({
+                                      data: await Promise.all(
+                                          pickCollections.cards
+                                              .slice(FLASHCARD_SKIP, FLASHCARD_LIMIT)
+                                              .map(async (item: FlashCardDocument) => {
+                                                  return pickFields(await this.flashCardModel.findById(item._id), [
+                                                      '_id',
+                                                      'front',
+                                                      'back',
+                                                  ]);
+                                              }),
+                                      ),
+                                      skip: FLASHCARD_SKIP,
+                                      limit: FLASHCARD_LIMIT,
+                                      total: await this.userAuthService.getCardslength(collection._id.toString()),
+                                  })
+                                : [],
                         };
                     }),
                 ),
@@ -184,6 +184,78 @@ export class UserCollectionController {
             this.logger.error(error.message, error.stack);
             throw new InternalServerErrorException();
         }
+    }
+
+    @ApiOperation({ summary: 'Get colletion information' })
+    @Get('/:id')
+    async getUserCollectionDetail(
+        @Request() req: { user: jwtPayloadDto },
+        @Query()
+        {
+            limit = 30,
+            skip = 0,
+            order = 'asc',
+            sortBy = '_id',
+            select = ['_id', 'name', 'description', 'owner', 'isPublic', 'language', 'updatedAt', 'cards', 'createdAt'],
+        }: CollectionQueryOptionDto,
+        @Param() param: { id?: string },
+    ): Promise<CollectionDetailQueryDto<Pick<FlashCardDocument, '_id'>>> {
+        if (!param?.id) {
+            throw new BadRequestException('Collection ID must be provided');
+        }
+
+        const { sub } = req.user;
+
+        let sort = {};
+
+        sort[sortBy] = order;
+
+        // check if the collection is exist
+        const collections = await this.collectionModel.find({ _id: param.id }).populate({
+            path: 'cards',
+            model: FlashCard.name,
+            options: {
+                limit: limit,
+
+                skip: skip,
+
+                sort: sort,
+                // populate: {
+                //     path: 'cards',
+                //     model: FlashCard.name,
+                //     options: {
+                //         limit: FLASHCARD_LIMIT,
+                //         skip: FLASHCARD_SKIP,
+                //         // sort: { createdAt: order === 'asc' ? 1 : -1 },
+                //         select: 'id front',
+                //     },
+                // },
+            },
+        });
+        if (!collections) {
+            throw new NotFoundException('Collection not found');
+        }
+
+        const collection = collections[0] as CollectionDocument;
+
+        // check if user has permission to query the collection
+        if (collection.owner.toString() !== sub) {
+            throw new ForbiddenException('You are not authorized to access this collection');
+        }
+
+        return new CollectionDetailQueryDto({
+            ...pickFields(collection, select),
+            cards: new ListResponseDto({
+                data: await Promise.all(
+                    collection.cards.map(async (card, index) => {
+                        return pickFields(await this.flashCardModel.findOne({ _id: card }), ['_id', 'front', 'back']);
+                    }),
+                ),
+                skip,
+                limit,
+                total: await this.userAuthService.getCardslength(collection._id.toString()),
+            }),
+        });
     }
 
     /**
@@ -337,7 +409,7 @@ export class UserCollectionController {
     @Delete(':id')
     async deleteCollection(@Request() req: { user: jwtPayloadDto }, @Param() param: { id: string }) {
         try {
-            // const
+            //  const
         } catch (error) {}
     }
 }
