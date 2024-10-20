@@ -1,66 +1,88 @@
 import { v4 as uuidv4 } from "uuid";
-import { Collection, type ICollection } from "../schema/collection.schema";
+import {
+  Collection,
+  collectionSchema,
+  type ICollection,
+} from "../schema/collection.schema";
 import { User } from "../schema/user.schema";
 import dayjs from "dayjs";
 import quotes from "../database/quotes.json";
-
+import type { IFlashCard } from "../schema/flashcard.schema";
+import Chance from "chance";
 export default async function add_randoms_collections() {
   /**
    * collection name : collection_ + 6 random digits
    * each user will have random numbers of collections from 5 - 30
    */
 
-  const total_user_num = 100;
   console.log("start");
+  const total_user_num = await User.countDocuments();
+  let userBatch = 1;
+  while (1) {
+    const users = await User.find()
+      .limit(  10)
+      .skip((userBatch - 1) * 10);
 
-  for (let index = 0; index < total_user_num; index++) {
-    const startDate = dayjs("2023-01-01"); // First day of 2024
-    const endDate = dayjs("2024-10-14");
-    console.log(`${((index / total_user_num) * 100).toFixed(2)}%`);
+    for (let index = 0; index < users.length; index++) {
+      const user = users[index];
+      const startDate = dayjs("2023-01-01"); // First day of 2024
+      const endDate = dayjs();
+      let currentDay = startDate;
+      while (currentDay.isBefore(endDate) || currentDay.isSame(endDate)) {
+        // * random amount of collection that needs to be added
+        // console.log({ curr: userBatch * 10, total: total_user_num });
 
-    let currentDay = startDate;
+        const numberOfCollections = Chance().integer({ min: 1, max: 3 });
 
-    const user = await User.findOne({
-      email: `example_user_${index}@example.com`,
-    });
-
-    while (currentDay.isBefore(endDate) || currentDay.isSame(endDate)) {
-      // * random amount of collection that needs to be added
-
-      const randomAmount = Math.floor(Math.random() * 20) + 5;
-
-      if (user) {
-        const collections: ICollection[] = [];
-
-        for (let j = 0; j < randomAmount; j++) {
-          collections.push(
-            new Collection({
-              name: `collection_${uuidv4()}`,
-              description: quotes[randomAmount].quote,
-              owner: user.id,
-              createdAt: currentDay.toDate(),
-            })
-          );
-        }
-        try {
-          await Collection.create(collections);
-
-          // if (!user.collections) {
-          //   user.collections = collections.map((item) => item._id);
-          // } else {
-          //   user.collections.concat(collections.map((item) => item._id));
-          // }
-          collections.forEach((item) => {
-            user?.collections?.push(item._id);
+        for (let j = 0; j < numberOfCollections; j++) {
+          const newCollection = await Collection.create({
+            name: Chance().address(),
+            description: Chance().paragraph(),
+            owner: user.id,
+            createdAt: currentDay.toDate(),
           });
-          await user?.save();
-        } catch (error) {
-          console.log(error);
+          user.collections?.push(newCollection.id);
         }
-        collections.length = 0;
+
+        currentDay = currentDay.add(1, "day"); // Move to the next day
       }
 
-      currentDay = currentDay.add(1, "day"); // Move to the next day
+      console.log(user);
+
+      await user.save();
+    }
+
+    // users.forEach(async (user) => {
+    //   const startDate = dayjs("2023-01-01"); // First day of 2024
+    //   const endDate = dayjs();
+    //   let currentDay = startDate;
+    //   while (currentDay.isBefore(endDate) || currentDay.isSame(endDate)) {
+    //     // * random amount of collection that needs to be added
+    //     // console.log({ curr: userBatch * 10, total: total_user_num });
+
+    //     const numberOfCollections = Chance().integer({ min: 2, max: 6 });
+
+    //     for (let j = 0; j < numberOfCollections; j++) {
+    //       const newCollection = await Collection.create({
+    //         name: Chance().address(),
+    //         description: Chance().paragraph(),
+    //         owner: user.id,
+    //         createdAt: currentDay.toDate(),
+    //       });
+    //       user.collections?.concat(newCollection.id);
+    //     }
+
+    //     currentDay = currentDay.add(1, "day"); // Move to the next day
+    //   }
+
+    //   console.log(user);
+
+    //   await user.save();
+    // });
+
+    userBatch++;
+    if (!users || users.length === 0) {
+      break;
     }
   }
 }

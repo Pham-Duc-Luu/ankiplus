@@ -16,7 +16,9 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "@faker-js/faker": "^9.0.3",
     "bcrypt": "^5.1.1",
+    "chance": "^1.1.12",
     "dayjs": "^1.11.13",
     "dotenv": "^16.4.5",
     "mongoose": "^8.7.1",

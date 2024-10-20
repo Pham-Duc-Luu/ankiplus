@@ -15,7 +15,7 @@ export class User {
     username: string;
 
     @Prop({ type: [{ type: Types.ObjectId, ref: 'Collection' }] })
-    collections: (Collection | string)[]; // Array of ObjectId references to Collection
+    collections: (Collection | string | Types.ObjectId)[]; // Array of ObjectId references to Collection
 
     @Prop({ type: [{ type: Types.ObjectId, ref: 'Token' }] })
     Tokens?: (Token | string)[]; // Array of ObjectId references to Collection

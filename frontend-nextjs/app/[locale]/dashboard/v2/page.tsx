@@ -112,6 +112,24 @@ import { CiSearch } from "react-icons/ci";
 import { useGetProfileQuery } from "@/store/RTK-query/userApi";
 import { useAppSelector } from "@/store/hooks";
 import ListCollectionDisplay from "../ListCollectionDisplay";
+
+import { useQuery } from "@apollo/client";
+import { gql } from "@/__generated__/gql";
+
+const GET_USER_COLLECTIONS = gql(`
+  query GetUserCollections {
+    getUserCollections {
+      name
+      description
+      thumnail
+      icon
+      isPublic
+      language
+      owner
+      createdA
+    }
+  }
+`);
 const Page = () => {
   const t = useTranslations("dashboard.my collection");
   const route = useRouter();
@@ -120,6 +138,11 @@ const Page = () => {
       limit: 10,
     },
   });
+  const { loading, error, data: gqlData } = useQuery(GET_USER_COLLECTIONS, {});
+if(gqlData) {
+  console.log(gqlData.getUserCollections.map(item=>item.));
+  
+}
 
   const { user } = useAppSelector((state) => state.persistedReducer);
 

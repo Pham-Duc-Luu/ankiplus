@@ -16,7 +16,7 @@ export class LoginUserDto {
     @IsEmail()
     email: string;
 
-    @IsStrongPassword()
+    // @IsStrongPassword()
     @ApiProperty()
     password: string;
 }

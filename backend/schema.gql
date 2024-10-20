@@ -2,11 +2,41 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type User {
-  id: Int!
-  email: String
+type CollectionGQLObject {
+  _id: String!
+  name: String!
+  description: String
+  thumnail: String
+  icon: String
+  isPublic: Boolean
+  language: String
+  cards: [String!]
+  owner: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type SRSGQLObject {
+  _id: String!
+  nextReviewDate: DateTime!
+  interval: Float!
+  efactor: Float!
+}
+
+type FlashCardGQLObject {
+  _id: String!
+  front: String!
+  back: String!
+  SRS: SRSGQLObject!
+  inCollection: String!
 }
 
 type Query {
-  user(id: Int!): User!
+  getUserCollections(limit: Int! = 30, skip: Int! = 0, order: String! = "desc", sortBy: String! = "createdAt"): [CollectionGQLObject!]!
+  getCollectionFlashCards(limit: Int! = 30, skip: Int! = 0, order: String! = "desc", sortBy: String! = "_id", collection_id: String!): [FlashCardGQLObject!]!
 }

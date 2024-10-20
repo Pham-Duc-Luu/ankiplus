@@ -20,8 +20,7 @@ export interface ICollection {
 
 export const collectionSchema = new Schema<ICollection>(
   {
-    name: { type: String, unique: true },
-
+    name: { type: String },
     description: String,
     thumnail: String,
     icon: String,

@@ -21,7 +21,7 @@ async function bootstrap() {
      * app.use(compression());
      * app.use(helmet());
      */
-
+    app.enableCors();
     app.useGlobalPipes(new ValidationPipe());
     app.useLogger(app.get(NestjsLoggerServiceAdapter));
     app.useGlobalInterceptors(new TimeoutInterceptor(5000)); // 5000ms = 5 seconds

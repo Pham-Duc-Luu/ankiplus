@@ -1,7 +1,8 @@
 import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument, Types } from 'mongoose';
-import { SRS } from './Srs.schema';
+import { SRS, SRSGQLObject } from './Srs.schema';
 import { Collection } from './collection.schema';
+import { Field, ObjectType } from '@nestjs/graphql';
 
 @Schema({ timestamps: true })
 export class FlashCard {
@@ -18,5 +19,25 @@ export class FlashCard {
     inCollection: String | Collection;
 }
 
-export type FlashCardDocument = HydratedDocument<FlashCard>;
+export type FlashCardDocument = HydratedDocument<FlashCard> & {
+    createdAt: Date;
+    updatedAt: Date;
+};
 export const FlashCardSchema = SchemaFactory.createForClass(FlashCard);
+@ObjectType()
+export class FlashCardGQLObject extends FlashCard {
+    @Field((type) => String)
+    _id: string;
+
+    @Field((type) => String)
+    front: any;
+
+    @Field((type) => String)
+    back: any;
+
+    @Field((type) => SRSGQLObject)
+    SRS: SRS;
+
+    @Field((type) => String)
+    inCollection: String;
+}

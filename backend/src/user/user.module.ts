@@ -14,6 +14,7 @@ import { ContextModule } from 'libs/logger/context/infrastructure/nestjs/context
 import { UserCollectionController } from './collection/user.collection.controller';
 import { UserFlashCardController } from './flashcard/user.flashCard.controller';
 import configuration from ' config/configuration';
+import { UserCollectionResolver } from './collection/user.collection.resolver';
 
 @Module({
     imports: [
@@ -35,6 +36,6 @@ import configuration from ' config/configuration';
         ContextModule,
     ],
     controllers: [UserController, UserAuthController, UserCollectionController, UserFlashCardController],
-    providers: [UserService, UtilService, UserAuthService],
+    providers: [UserService, UtilService, UserAuthService, UserCollectionResolver],
 })
 export class UserModule {}

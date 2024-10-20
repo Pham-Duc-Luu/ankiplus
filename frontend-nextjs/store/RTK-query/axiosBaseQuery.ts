@@ -42,8 +42,10 @@ const axiosBaseQuery =
       });
     };
 
-    const mainFetch = () =>
-      axios<string>({
+    const mainFetch = () => {
+      console.log(method);
+
+      return axios<string>({
         url: baseUrl + url,
         method,
         data,
@@ -54,6 +56,7 @@ const axiosBaseQuery =
             : "", // Add token here
         },
       });
+    };
 
     try {
       const result = await mainFetch();

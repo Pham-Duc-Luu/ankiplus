@@ -1,5 +1,7 @@
 import { User, userSChema, type IUser } from "../schema/user.schema";
 import * as bcrypt from "bcrypt";
+import Chance from "chance";
+
 async function add_random_users() {
   /**
    * generate 1000 random users
@@ -14,10 +16,11 @@ async function add_random_users() {
 
   while (index < total_amount) {
     for (let i = 0; i < batch_size; i++) {
+      const name = Chance().name({ middle: true });
       users.push({
-        email: `example_user_${index}@example.com`,
-        password: await bcrypt.hash(`example_user_${index}`, 10),
-        username: `example_user_${index}`,
+        email: `${name.replace(/ /g, "_")}_${i}@example.com`,
+        password: await bcrypt.hash(`${name.replace(/ /g, "_")}_${i}@`, 10),
+        username: `${name.charAt(0).toUpperCase() + name.slice(1)}`,
       });
       index++;
     }

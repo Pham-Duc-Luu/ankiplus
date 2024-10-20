@@ -16,7 +16,6 @@ import { APP_FILTER } from '@nestjs/core';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { join } from 'path';
-import { AppResolver } from './app.resolver';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 // import { LoggerModule } from '@nestjs-logger/shared/logger/infrastructure/nestjs/loggerModule';
 // import { ConfigModule } from '@nestjs-logger/shared/config/infrastructure/nestjs/configModule';
@@ -68,6 +67,11 @@ import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin
             playground: true,
             // plugins: [ApolloServerPluginLandingPageLocalDefault()],
             autoSchemaFile: join(process.cwd(), 'schema.gql'),
+            buildSchemaOptions: {
+                fieldMiddleware: [],
+            },
+
+            context: ({ req }) => ({ req }), // This ensures that the request object is available in the GraphQL context
         }),
         // UserAuthModule,
         CollectionModule,
@@ -84,7 +88,6 @@ import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin
             provide: APP_FILTER,
             useClass: HttpExceptionFilter,
         },
-        AppResolver,
     ],
     exports: [],
 })

@@ -6,12 +6,6 @@ import React, { useEffect, useLayoutEffect } from "react";
 import { MdOutlineNavigateNext } from "react-icons/md";
 import { MdAddCircleOutline } from "react-icons/md";
 
-const example: ICollectionCard = {
-  avatar: "https://i.pravatar.cc/150?u=a042581f4e29026024d",
-  title: "Example title",
-  description: "Example description",
-};
-
 import { IoIosAdd } from "react-icons/io";
 import { useRouter } from "@/i18n/routing";
 import { useAppSelector } from "@/store/hooks";
@@ -21,6 +15,7 @@ const Page = () => {
   const { access_token, refresh_token } = useAppSelector(
     (state) => state.persistedReducer.auth
   );
+
   useEffect(() => {
     /**
      * TODO: unhighlight it after debugging

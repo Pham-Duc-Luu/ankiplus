@@ -2,6 +2,7 @@ import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument, Types } from 'mongoose';
 import { User } from './user.schema';
 import { FlashCard } from './flashCard.schema';
+import { Field, ObjectType } from '@nestjs/graphql';
 
 enum accessStatus {}
 
@@ -13,13 +14,13 @@ export class Collection {
     name: string;
 
     @Prop({})
-    description: string;
+    description?: string;
 
     @Prop({})
-    thumnail: string;
+    thumnail?: string;
 
     @Prop({ default: 'Icon' })
-    icon: string;
+    icon?: string;
 
     @Prop({ type: Boolean, default: true })
     isPublic: boolean = true;
@@ -28,7 +29,7 @@ export class Collection {
     language: string;
 
     @Prop({ type: [{ type: Types.ObjectId, ref: 'FlashCard' }] })
-    cards: (FlashCard | string)[];
+    cards?: (FlashCard | string)[];
 
     @Prop({ type: Types.ObjectId, ref: 'User', required: true }) // Add reference to User
     owner: User | string; // Reference to the User schema
@@ -39,3 +40,39 @@ export type CollectionDocument = HydratedDocument<Collection> & {
     updatedAt: Date;
 };
 export const CollectionSchema = SchemaFactory.createForClass(Collection);
+
+@ObjectType()
+export class CollectionGQLObject extends Collection {
+    @Field((type) => String)
+    _id: string;
+
+    @Field((type) => String)
+    name: string;
+
+    @Field((type) => String, { nullable: true })
+    description?: string;
+
+    @Field((type) => String, { nullable: true })
+    thumnail?: string;
+
+    @Field((type) => String, { nullable: true })
+    icon: string;
+
+    @Field((type) => Boolean, { nullable: true })
+    isPublic: boolean = true;
+
+    @Field((type) => String, { nullable: true })
+    language: string;
+
+    @Field((type) => [String], { nullable: true }) // Reference to the FlashCard schema (in the form of string IDs)
+    cards?: string[];
+
+    @Field((type) => String)
+    owner: string; // Reference to the User schema
+
+    @Field((type) => Date)
+    createdAt: Date;
+
+    @Field((type) => Date)
+    updatedAt: Date;
+}
