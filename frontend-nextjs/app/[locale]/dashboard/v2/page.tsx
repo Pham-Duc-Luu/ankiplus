@@ -16,12 +16,13 @@ import {
   DropdownTrigger,
   Input,
   InputProps,
+  Pagination,
 } from "@nextui-org/react";
 import { useTranslations } from "next-intl";
 import React, { useEffect, useState } from "react";
 import { MdOutlineNavigateNext } from "react-icons/md";
 import { MdAddCircleOutline } from "react-icons/md";
-
+import { useQuery } from "@apollo/client";
 export const IViewOptions = ["latest", "created"] as const;
 
 const ViewOptions = ({ className }: Partial<ButtonProps>) => {
@@ -110,51 +111,51 @@ import { IoIosAdd, IoMdArrowDropdown, IoMdArrowDropup } from "react-icons/io";
 import { useRouter } from "@/i18n/routing";
 import { CiSearch } from "react-icons/ci";
 import { useGetProfileQuery } from "@/store/RTK-query/userApi";
-import { useAppSelector } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import ListCollectionDisplay from "../ListCollectionDisplay";
+import { GET_USER_TOTAL_AMOUNT_OF_COLLECTION } from "@/graphql/GET_USER_COLLECTIONS";
+import { setPage, setTotalCollectionAmount } from "@/store/userSlice";
+import _ from "lodash";
+// import { graphql } from "@/__generated__/gql";
 
-import { useQuery } from "@apollo/client";
-import { gql } from "@/__generated__/gql";
+// const GET_USER_COLLECTIONS = graphql(/* GraphQL */ `
+//   query GetUserCollections {
+//     getUserCollections {
+//       total
+//     }
+//   }
+// `);
 
-const GET_USER_COLLECTIONS = gql(`
-  query GetUserCollections {
-    getUserCollections {
-      name
-      description
-      thumnail
-      icon
-      isPublic
-      language
-      owner
-      createdA
-    }
-  }
-`);
 const Page = () => {
   const t = useTranslations("dashboard.my collection");
   const route = useRouter();
-  const { data } = useGetProfileQuery({
-    options: {
-      limit: 10,
-    },
-  });
-  const { loading, error, data: gqlData } = useQuery(GET_USER_COLLECTIONS, {});
-if(gqlData) {
-  console.log(gqlData.getUserCollections.map(item=>item.));
-  
-}
+
+  const { loading, error, data } = useQuery(
+    GET_USER_TOTAL_AMOUNT_OF_COLLECTION
+  );
+  const dispatch = useAppDispatch();
+  // const { data } = useGetProfileQuery({
+  //   options: {
+  //     limit: 10,
+  //   },
+  // });
+  // const { loading, error, data: gqlData } = useQuery(GET_USER_COLLECTIONS);
+  // if (gqlData) {
+  //   console.log(gqlData.getUserCollections);
+  // }
 
   const { user } = useAppSelector((state) => state.persistedReducer);
-
   useEffect(() => {
-    /**
-     * TODO: unhighlight it after debugging
-     */
-    // if (!profile) {
-    //   route.push("/auth/sign-in");
-    // }
-  }, []);
+    if (data?.getUserCollections.total) {
+      dispatch(setTotalCollectionAmount(data?.getUserCollections.total));
+    }
+  }, [data]);
 
+  const LIMIT = user?.amountOfCollectionPerPage;
+  const SKIP =
+    user.page && user.amountOfCollectionPerPage
+      ? (user.page - 1) * user.amountOfCollectionPerPage
+      : 10;
   return (
     <div className=" w-full min-h-screen flex flex-col items-center p-6">
       <div className=" lg:w-[1200px] w-full">
@@ -192,14 +193,29 @@ if(gqlData) {
               <CollectionCard key={index} title={item.name}></CollectionCard>
             );
           })} */}
-          <ListCollectionDisplay></ListCollectionDisplay>
+          <ListCollectionDisplay
+            LIMIT={LIMIT}
+            SKIP={SKIP}
+          ></ListCollectionDisplay>
         </div>
       </div>
-      {/* <Card className="flex-1">
-        <CardBody className="lg:max-w-[1200px]">
-          <CollectionCard {...example}></CollectionCard>
-        </CardBody>
-      </Card> */}
+      <Pagination
+        size="lg"
+        className=" m-4 sticky bottom-0"
+        isCompact
+        showControls
+        onChange={(e) => {
+          dispatch(setPage(e));
+        }}
+        total={
+          user?.amountOfCollectionPerPage && user?.totalAmountOfCollection
+            ? _.ceil(
+                user.totalAmountOfCollection / user.amountOfCollectionPerPage
+              )
+            : 0
+        }
+        initialPage={user.page}
+      />
     </div>
   );
 };

@@ -1,6 +1,6 @@
 // store/api/authApi.ts
 import { createApi } from "@reduxjs/toolkit/query/react";
-import axiosBaseQuery from "./axiosBaseQuery";
+import axiosBaseQuery from "./axios/axiosBaseQuery";
 
 export interface IAuthResponse {
   access_token: string;

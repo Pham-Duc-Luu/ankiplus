@@ -53,7 +53,7 @@ export default function CollectionCard({
         </div>
         <CardBody>
           <h4 className="font-bold text-large">{title}</h4>
-          <small className="text-default-500">{description}</small>
+          <small className="text-default-500 truncate">{description}</small>
         </CardBody>
         <div className="flex gap-4 group-hover/collectionCard:visible invisible">
           <Button isIconOnly variant="light">

@@ -12,7 +12,8 @@ export interface User {
   collections?: IShortCollectionDto[];
   password: string;
   page?: number;
-  amountPerPage?: number;
+  amountOfCollectionPerPage?: number;
+  totalAmountOfCollection?: number;
   collectionsGroupByDate?: Record<string, IShortCollectionDto[]>;
 }
 const options = {
@@ -69,6 +70,8 @@ const initialState: User = {
   username: "quizlette8421301",
   email: "quizlette8421301@gmail.com",
   password: "*************",
+  page: 1,
+  amountOfCollectionPerPage: 10,
 };
 // Function to group collections by the day they were created
 const groupCollectionsByDay = (
@@ -118,10 +121,21 @@ export const userSlice = createSlice({
         state.collectionsGroupByDate = groupCollectionsByDay(state.collections);
       }
     },
+    setTotalCollectionAmount: (state, { payload }: PayloadAction<number>) => {
+      state.totalAmountOfCollection = payload;
+    },
+    setPage: (state, { payload }: PayloadAction<number>) => {
+      state.page = payload;
+    },
   },
 });
 
-export const { setAvatarByChooseIcon, setState, groupCollectionsByDayAction } =
-  userSlice.actions;
+export const {
+  setAvatarByChooseIcon,
+  setPage,
+  setState,
+  groupCollectionsByDayAction,
+  setTotalCollectionAmount,
+} = userSlice.actions;
 
 export default userSlice.reducer;

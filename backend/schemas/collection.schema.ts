@@ -2,7 +2,8 @@ import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument, Types } from 'mongoose';
 import { User } from './user.schema';
 import { FlashCard } from './flashCard.schema';
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { ListResponseDto } from 'dto/ListResponse.dto';
 
 enum accessStatus {}
 
@@ -40,6 +41,19 @@ export type CollectionDocument = HydratedDocument<Collection> & {
     updatedAt: Date;
 };
 export const CollectionSchema = SchemaFactory.createForClass(Collection);
+
+@ObjectType()
+export class CollectionQueryGQLObject extends ListResponseDto<CollectionGQLObject> {
+    @Field((type) => Int)
+    total: number;
+    @Field((type) => Int)
+    skip: number;
+    @Field((type) => Int)
+    limit: number;
+
+    @Field((type) => [CollectionGQLObject])
+    data: CollectionGQLObject[];
+}
 
 @ObjectType()
 export class CollectionGQLObject extends Collection {

@@ -25,6 +25,7 @@ const createApolloClient = (config: { token?: string }) => {
   return new ApolloClient({
     link: authLink.concat(httpLink), // Use the authLink before the httpLink
     cache: new InMemoryCache(),
+    connectToDevTools: true,
   });
 };
 

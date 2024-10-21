@@ -8,64 +8,65 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { IShortCollectionDto } from "@/store/dto/dto.type";
 import { groupCollectionsByDayAction } from "@/store/userSlice";
 import CollectionCard from "@/components/CollectionCard";
-import { Divider } from "@nextui-org/react";
+import { Divider, Spinner } from "@nextui-org/react";
+import { useMutation, useQuery } from "@apollo/client";
+import { graphql } from "@/__generated__/gql";
+import { GET_USER_COLLECTIONS } from "@/graphql/GET_USER_COLLECTIONS";
+import _ from "lodash";
 
-const ListCollectionDisplay = () => {
-  const { user } = useAppSelector((state) => state.persistedReducer);
-  const dispatch = useAppDispatch();
+export interface ListCollectionDisplayProps {
+  LIMIT?: number;
+  SKIP?: number;
+}
 
-  useEffect(() => {
-    dispatch(groupCollectionsByDayAction({}));
-  }, [user.collections]);
+const ListCollectionDisplay = ({
+  LIMIT = 10,
+  SKIP = 0,
+}: ListCollectionDisplayProps) => {
+  const { loading, error, data } = useQuery(GET_USER_COLLECTIONS, {
+    variables: { LIMIT: LIMIT, SKIP: SKIP },
+  });
 
-  useEffect(() => {
-    if (user?.collectionsGroupByDate) {
-      console.log(
-        Object.keys(user.collectionsGroupByDate).sort((a, b) => {
-          return dayjs(a).isAfter(dayjs(b)) ? -1 : 1;
-        })
-      );
-    }
-  }, [user.collectionsGroupByDate]);
+  // const dispatch = useAppDispatch()
 
-  if (user?.collectionsGroupByDate) {
+  if (loading) {
     return (
-      <>
-        {Object.keys(user.collectionsGroupByDate)
-          .sort((a, b) => {
-            return dayjs(a).isAfter(dayjs(b)) ? -1 : 1;
-          })
-          .map((dayKeyValue, index) => {
-            if (!user.collectionsGroupByDate) {
-              return;
-            }
-            return (
-              <div key={index} className="flex flex-col gap-6">
-                <Divider className="my-4" />
-                <div className="space-y-1">
-                  <h4 className="text-xl font-medium">
-                    {dayjs(dayKeyValue).format("YYYY MMMM DD")}
-                  </h4>
-                </div>
-                {user?.collectionsGroupByDate[dayKeyValue]?.map(
-                  (item, index) => {
-                    return (
-                      <CollectionCard
-                        _id={item._id}
-                        key={index}
-                        title={item.name}
-                      ></CollectionCard>
-                    );
-                  }
-                )}
-              </div>
-            );
-          })}
-      </>
+      <div className=" flex justify-center m-6">
+        <Spinner size="lg" />
+      </div>
     );
   }
 
-  return <div>{}</div>;
+  return (
+    <div>
+      {_.values(
+        _.groupBy(data?.getUserCollections.data, function (o) {
+          return o.createdAt;
+        })
+      ).map((items, index) => {
+        return (
+          <div key={index} className="flex flex-col gap-6">
+            <Divider className="my-4" />
+            <div className="space-y-1">
+              <h4 className="text-xl font-medium">
+                {dayjs(items[0].createdAt).format("YYYY MMMM DD")}
+              </h4>
+            </div>
+            {items.map((item, i) => {
+              return (
+                <CollectionCard
+                  _id={item._id}
+                  key={i}
+                  title={item.name}
+                  description={item.description}
+                ></CollectionCard>
+              );
+            })}
+          </div>
+        );
+      })}
+    </div>
+  );
 };
 
 export default ListCollectionDisplay;

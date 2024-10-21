@@ -1,5 +1,5 @@
 import { Resolver, Query, Mutation, Args, Int, Context } from '@nestjs/graphql';
-import { Collection, CollectionGQLObject } from 'schemas/collection.schema';
+import { Collection, CollectionGQLObject, CollectionQueryGQLObject } from 'schemas/collection.schema';
 import { CollectionQueryOptionDto, CreateCollectionDto, UpdateCollectionDto } from 'dto/collection.dto';
 import { BadRequestException, ForbiddenException, Inject, Logger, UseGuards } from '@nestjs/common';
 import { AuthGuard, AuthGuardGraphqlServer } from 'src/guard/auth.guard';
@@ -8,12 +8,13 @@ import configuration from ' config/configuration';
 import { Model } from 'mongoose';
 import { jwtPayloadDto } from 'dto/jwt.dto';
 import { LoggerKey } from 'libs/logger/logger/domain/logger';
-import { FlashCard, FlashCardGQLObject } from 'schemas/flashCard.schema';
+import { FlashCard, FlashCardGQLObject, FlashCardQueryGQLObject } from 'schemas/flashCard.schema';
 import { User } from 'schemas/user.schema';
 import { ObjectId } from 'mongodb';
 import { FlashCardQueryOptionDto } from 'dto/flashcard.dto';
 import * as _ from 'lodash';
 import { ForbiddenError } from 'apollo-server-express';
+import { ListResponseDto } from 'dto/ListResponse.dto';
 
 @Resolver(() => CollectionGQLObject)
 @UseGuards(AuthGuardGraphqlServer)
@@ -27,7 +28,7 @@ export class UserCollectionResolver {
         private collectionModel: Model<Collection>,
     ) {}
 
-    @Query(() => [CollectionGQLObject])
+    @Query(() => CollectionQueryGQLObject)
     async getUserCollections(
         @Context() context: Partial<{ req: { user: jwtPayloadDto } }>, // Use context to access the request
         @Args('limit', { type: () => Int, defaultValue: 30 }) limit: number,
@@ -41,16 +42,21 @@ export class UserCollectionResolver {
 
         sort[sortBy] = order;
 
-        return await this.collectionModel
-            .find({ owner: new ObjectId(sub) })
-            .sort(sort)
-            .limit(limit)
-            .skip(skip)
-            .lean()
-            .exec();
+        return new ListResponseDto({
+            total: await this.collectionModel.find({ owner: new ObjectId(sub) }).countDocuments(),
+            skip: skip,
+            limit: limit,
+            data: await this.collectionModel
+                .find({ owner: new ObjectId(sub) })
+                .sort(sort)
+                .limit(limit)
+                .skip(skip)
+                .lean()
+                .exec(),
+        });
     }
 
-    @Query(() => [FlashCardGQLObject])
+    @Query(() => FlashCardQueryGQLObject)
     async getCollectionFlashCards(
         @Context() context: Partial<{ req: { user: jwtPayloadDto } }>, // Use context to access the request
         @Args('limit', { type: () => Int, defaultValue: 30 }) limit: number,
@@ -82,7 +88,12 @@ export class UserCollectionResolver {
             throw new ForbiddenException('You cannot access this collection');
         }
 
-        return collection.cards;
+        return new ListResponseDto({
+            total: await this.collectionModel.countDocuments(),
+            skip: skip,
+            limit: limit,
+            data: collection.cards,
+        });
     }
 
     // @Mutation(() => Collection)

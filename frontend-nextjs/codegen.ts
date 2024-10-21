@@ -1,21 +1,27 @@
-import { CodegenConfig } from "@graphql-codegen/cli";
+import type { CodegenConfig } from "@graphql-codegen/cli";
+
 const config: CodegenConfig = {
-  schema: `http://localhost:5000/graphql`,
-  // this assumes that all your source files are in a top-level `src/` directory - you might need to adjust this to your file structure
-  documents: ["./src/**/*.{ts,tsx}"],
+  schema: "http://localhost:5000/graphql",
+  documents: ["./**/*.ts", "../**/*.gql"],
+  ignoreNoDocuments: true, // for better experience with the watcher
   generates: {
     "./__generated__/": {
+      preset: "client",
       plugins: [
-        "typescript", // Generates TypeScript types for GraphQL schema
-        "typescript-operations", // Generates TypeScript types for GraphQL operations
-        "typescript-react-apollo", // Generates Apollo hooks in TypeScript
+        // "typescript", // Generates TypeScript types from GraphQL schema
+        // "typescript-operations", // Generates TypeScript types for operations
+        // "typescript-react-apollo", // Apollo hooks with TypeScript support
       ],
-      config: {
-        withHooks: true, // Enables Apollo Client hooks (e.g., useQuery, useMutation)
-      },
+
+      // presetConfig: {
+      //   gqlTagName: "gql",
+      // },
     },
+    // "./graphql.schema.json": {
+    //   plugins: ["introspection"],
+    // },
   },
-  ignoreNoDocuments: true, // Generates types even if no operations are found
+  watch: true,
 };
 
 export default config;

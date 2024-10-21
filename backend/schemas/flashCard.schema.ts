@@ -2,7 +2,8 @@ import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument, Types } from 'mongoose';
 import { SRS, SRSGQLObject } from './Srs.schema';
 import { Collection } from './collection.schema';
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { ListResponseDto } from 'dto/ListResponse.dto';
 
 @Schema({ timestamps: true })
 export class FlashCard {
@@ -40,4 +41,17 @@ export class FlashCardGQLObject extends FlashCard {
 
     @Field((type) => String)
     inCollection: String;
+}
+
+@ObjectType()
+export class FlashCardQueryGQLObject extends ListResponseDto<FlashCardGQLObject> {
+    @Field((type) => Int)
+    total: number;
+    @Field((type) => Int)
+    skip: number;
+    @Field((type) => Int)
+    limit: number;
+
+    @Field((type) => [FlashCardGQLObject])
+    data: FlashCardGQLObject[];
 }

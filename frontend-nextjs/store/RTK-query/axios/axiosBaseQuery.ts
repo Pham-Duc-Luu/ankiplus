@@ -1,9 +1,7 @@
+import { loggedOut, setAccessToken } from "@/store/authSilce";
 import type { BaseQueryFn } from "@reduxjs/toolkit/query";
 import axios from "axios";
 import { AxiosRequestConfig, AxiosError } from "axios";
-import { RootState, store } from "../store";
-import { IAuthResponse } from "./authApi";
-import { loggedOut, setAccessToken } from "../authSilce";
 const axiosBaseQuery =
   (
     { baseUrl }: { baseUrl: string } = { baseUrl: "" }

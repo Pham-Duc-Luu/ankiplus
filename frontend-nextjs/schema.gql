@@ -2,13 +2,6 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type CollectionQueryGQLObject {
-  total: Int!
-  skip: Int!
-  limit: Int!
-  data: [CollectionGQLObject!]!
-}
-
 type CollectionGQLObject {
   _id: String!
   name: String!
@@ -43,14 +36,7 @@ type FlashCardGQLObject {
   inCollection: String!
 }
 
-type FlashCardQueryGQLObject {
-  total: Int!
-  skip: Int!
-  limit: Int!
-  data: [FlashCardGQLObject!]!
-}
-
 type Query {
-  getUserCollections(limit: Int! = 30, skip: Int! = 0, order: String! = "desc", sortBy: String! = "createdAt"): CollectionQueryGQLObject!
-  getCollectionFlashCards(limit: Int! = 30, skip: Int! = 0, order: String! = "desc", sortBy: String! = "_id", collection_id: String!): FlashCardQueryGQLObject!
+  getUserCollections(limit: Int! = 30, skip: Int! = 0, order: String! = "desc", sortBy: String! = "createdAt"): [CollectionGQLObject!]!
+  getCollectionFlashCards(limit: Int! = 30, skip: Int! = 0, order: String! = "desc", sortBy: String! = "_id", collection_id: String!): [FlashCardGQLObject!]!
 }

@@ -1,11 +1,11 @@
 // store/api/authApi.ts
 import { createApi } from "@reduxjs/toolkit/query/react";
-import axiosBaseQuery from "./axiosBaseQuery";
 import { AxiosError, AxiosResponse } from "axios";
 import { IQueryOptions, IUserProfileDto } from "../dto/dto.type";
 import { setState } from "../userSlice";
 import { loggedOut } from "../authSilce";
 import { buildParameters } from "@/utils/params";
+import axiosBaseQuery from "./axios/axiosBaseQuery";
 
 // Define an API slice
 export const userApi = createApi({
