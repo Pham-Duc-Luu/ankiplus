@@ -2,5 +2,5 @@
   "watch": ["../"],
   "ext": "ts,gql,graphql",
   "ignore": ["node_modules", "__generated__", ".next"],
-  "exec": "npm run generate"
+  "exec": "npm run graphql-codegen"
 }

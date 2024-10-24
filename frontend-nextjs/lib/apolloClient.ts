@@ -2,7 +2,7 @@ import { ApolloClient, InMemoryCache, HttpLink } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 
 // Function to create Apollo Client with authentication
-const createApolloClient = (config: { token?: string }) => {
+const createApolloClient = (config?: { token?: string }) => {
   // HTTP Link for the GraphQL API
   const httpLink = new HttpLink({
     uri: `${process.env.NEXT_PUBLIC_API_BASE_URL}/graphql`,

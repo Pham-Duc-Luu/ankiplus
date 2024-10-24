@@ -56,6 +56,12 @@ export class UserCollectionResolver {
         });
     }
 
+    @Query(() => CollectionGQLObject)
+    async getCollectionById(
+        @Context() context: Partial<{ req: { user: jwtPayloadDto } }>, // Use context to access the request
+        @Args('id', { type: () => String }) id: string,
+    ) {}
+
     @Query(() => FlashCardQueryGQLObject)
     async getCollectionFlashCards(
         @Context() context: Partial<{ req: { user: jwtPayloadDto } }>, // Use context to access the request

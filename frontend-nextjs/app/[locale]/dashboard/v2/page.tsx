@@ -113,9 +113,9 @@ import { CiSearch } from "react-icons/ci";
 import { useGetProfileQuery } from "@/store/RTK-query/userApi";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import ListCollectionDisplay from "../ListCollectionDisplay";
-import { GET_USER_TOTAL_AMOUNT_OF_COLLECTION } from "@/graphql/GET_USER_COLLECTIONS";
 import { setPage, setTotalCollectionAmount } from "@/store/userSlice";
 import _ from "lodash";
+import { useGetUserCollectionsQuery } from "@/store/graphql/COLLECTION.generated";
 // import { graphql } from "@/__generated__/gql";
 
 // const GET_USER_COLLECTIONS = graphql(/* GraphQL */ `
@@ -130,9 +130,10 @@ const Page = () => {
   const t = useTranslations("dashboard.my collection");
   const route = useRouter();
 
-  const { loading, error, data } = useQuery(
-    GET_USER_TOTAL_AMOUNT_OF_COLLECTION
-  );
+  // const { loading, error, data } = useQuery(
+  //   GET_USER_TOTAL_AMOUNT_OF_COLLECTION
+  // );
+
   const dispatch = useAppDispatch();
   // const { data } = useGetProfileQuery({
   //   options: {
@@ -145,11 +146,6 @@ const Page = () => {
   // }
 
   const { user } = useAppSelector((state) => state.persistedReducer);
-  useEffect(() => {
-    if (data?.getUserCollections.total) {
-      dispatch(setTotalCollectionAmount(data?.getUserCollections.total));
-    }
-  }, [data]);
 
   const LIMIT = user?.amountOfCollectionPerPage;
   const SKIP =

@@ -34,7 +34,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
         <PersistGate loading={null} persistor={persistor}>
           <Provider store={store}>
-            <ApolloCustomeProvider>{children}</ApolloCustomeProvider>
+            {/* <ApolloCustomeProvider> */}
+            {children}
+            {/* </ApolloCustomeProvider> */}
           </Provider>
         </PersistGate>
       </NextThemesProvider>

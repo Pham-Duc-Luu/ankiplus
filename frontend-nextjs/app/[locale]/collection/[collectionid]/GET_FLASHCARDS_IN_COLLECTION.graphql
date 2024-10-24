@@ -1,0 +1,13 @@
+# query GetUserCollections($ID: String!) {
+#   getCollectionFlashCards(collection_id: $ID) {
+#     total
+#     skip
+#     limit
+#     data {
+#       _id
+#       front
+#       back
+#       inCollection
+#     }
+#   }
+# }

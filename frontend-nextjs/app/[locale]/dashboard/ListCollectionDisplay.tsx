@@ -9,10 +9,12 @@ import { IShortCollectionDto } from "@/store/dto/dto.type";
 import { groupCollectionsByDayAction } from "@/store/userSlice";
 import CollectionCard from "@/components/CollectionCard";
 import { Divider, Spinner } from "@nextui-org/react";
-import { useMutation, useQuery } from "@apollo/client";
-import { graphql } from "@/__generated__/gql";
-import { GET_USER_COLLECTIONS } from "@/graphql/GET_USER_COLLECTIONS";
+// import { useMutation, useQuery } from "@apollo/client";
+// import { graphql } from "@/__generated__/gql";
+// import { GET_USER_COLLECTIONS } from "@/graphql/GET_USER_COLLECTIONS";
 import _ from "lodash";
+import { useToast } from "@/hooks/use-toast";
+import { useGetUserCollectionsQuery } from "@/store/graphql/COLLECTION.generated";
 
 export interface ListCollectionDisplayProps {
   LIMIT?: number;
@@ -23,13 +25,13 @@ const ListCollectionDisplay = ({
   LIMIT = 10,
   SKIP = 0,
 }: ListCollectionDisplayProps) => {
-  const { loading, error, data } = useQuery(GET_USER_COLLECTIONS, {
-    variables: { LIMIT: LIMIT, SKIP: SKIP },
+  const { toast } = useToast();
+  const { data, isLoading, isError, error } = useGetUserCollectionsQuery({
+    LIMIT,
+    SKIP,
   });
 
-  // const dispatch = useAppDispatch()
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className=" flex justify-center m-6">
         <Spinner size="lg" />
@@ -58,7 +60,7 @@ const ListCollectionDisplay = ({
                   _id={item._id}
                   key={i}
                   title={item.name}
-                  description={item.description}
+                  description={item.description || ""}
                 ></CollectionCard>
               );
             })}

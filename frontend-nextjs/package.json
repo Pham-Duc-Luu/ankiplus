@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "next lint",
     "dev:graphql": "nodemon",
-    "generate": "graphql-codegen"
+    "generate": "graphql-codegen",
+    "graphql-codegen": "graphql-codegen --config codegen.yml"
   },
   "dependencies": {
     "@apollo/client": "^3.11.8",
@@ -20,7 +21,9 @@
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-toast": "^1.2.1",
     "@reduxjs/toolkit": "^2.2.7",
+    "@rtk-query/graphql-request-base-query": "^2.3.1",
     "@types/canvas-confetti": "^1.6.4",
+    "@urql/core": "^5.0.8",
     "apollo-server-micro": "^3.13.0",
     "axios": "^1.7.7",
     "canvas-confetti": "^1.9.3",
@@ -62,13 +65,16 @@
   },
   "devDependencies": {
     "@0no-co/graphqlsp": "^1.12.16",
-    "@graphql-codegen/cli": "5.0.3",
-    "@graphql-codegen/client-preset": "4.4.0",
+    "@graphql-codegen/cli": "^5.0.3",
+    "@graphql-codegen/client-preset": "^4.4.0",
     "@graphql-codegen/introspection": "^4.0.3",
+    "@graphql-codegen/near-operation-file-preset": "^3.0.0",
     "@graphql-codegen/typescript": "^4.1.0",
     "@graphql-codegen/typescript-graphql-request": "^6.2.0",
     "@graphql-codegen/typescript-operations": "^4.3.0",
     "@graphql-codegen/typescript-react-apollo": "^4.3.2",
+    "@graphql-codegen/typescript-resolvers": "^4.3.0",
+    "@graphql-codegen/typescript-rtk-query": "^3.1.1",
     "@graphql-typed-document-node/core": "^3.2.0",
     "@parcel/watcher": "^2.4.1",
     "@svgr/webpack": "^8.1.0",

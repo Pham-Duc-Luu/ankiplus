@@ -23,6 +23,8 @@ import { IoShareOutline } from "react-icons/io5";
 import { MdOutlineDeleteOutline } from "react-icons/md";
 import { useRouter } from "@/i18n/routing";
 import { FaUser } from "react-icons/fa";
+import { useAppDispatch } from "@/store/hooks";
+import { setCollection } from "@/store/collectionSlice";
 export interface CollectionCardProps
   extends CardProps,
     Partial<ICollectionCard> {}
@@ -33,11 +35,15 @@ export default function CollectionCard({
   _id,
   ...props
 }: CollectionCardProps) {
+  const dispatch = useAppDispatch();
   const route = useRouter();
   return (
     <Card className="group/collectionCard cursor-pointer" {...props}>
       <CardBody
         onClick={() => {
+          dispatch(
+            setCollection({ id: _id, name: title, description: description })
+          );
           route.push(`/collection/${_id}`);
         }}
         className="  p-4  w-full  flex items-center  flex-row gap-4"

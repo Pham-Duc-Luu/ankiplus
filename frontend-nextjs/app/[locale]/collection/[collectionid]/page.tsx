@@ -1,5 +1,5 @@
 "use client";
-import { Button, CardFooter } from "@nextui-org/react";
+import { Button, CardFooter, Spinner } from "@nextui-org/react";
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -16,8 +16,10 @@ import FlipCard from "@/components/ui/FlipCard";
 import { motion, Reorder, AnimatePresence } from "framer-motion";
 import CardsTable from "./CardTable";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { selectCardByIndex } from "@/store/collectionSlice";
+import { selectCardByIndex, setFlashCards } from "@/store/collectionSlice";
 import { useRouter } from "@/i18n/routing";
+import { useQuery } from "@apollo/client";
+import { useGetFLashCardsInCollectionQuery } from "@/store/graphql/COLLECTION.generated";
 
 const page = () => {
   const t = useTranslations("collection.info");
@@ -25,33 +27,42 @@ const page = () => {
   const { collection } = useAppSelector((state) => state.persistedReducer);
   const dispatch = useAppDispatch();
   const route = useRouter();
-  // * if there is no flash card then direct to error page
-  if (!collection?.cards) {
-    return <>Error</>;
-  }
-
-  const [tabs, setTabs] = useState(collection.cards);
 
   const { collectionid } = useParams<{ collectionid: string }>();
+
   const next = () => {
-    dispatch(
-      selectCardByIndex(
-        collection.selectedCardIndex >= collection?.cards.length - 1
-          ? 0
-          : collection.selectedCardIndex + 1
-      )
-    );
+    collection.cards &&
+      dispatch(
+        selectCardByIndex(
+          collection.selectedCardIndex >= collection?.cards.length - 1
+            ? 0
+            : collection.selectedCardIndex + 1
+        )
+      );
   };
 
   const prev = () => {
-    dispatch(
-      selectCardByIndex(
-        collection.selectedCardIndex <= 0
-          ? collection.cards?.length - 1
-          : collection.selectedCardIndex - 1
-      )
-    );
+    collection.cards &&
+      dispatch(
+        selectCardByIndex(
+          collection.selectedCardIndex <= 0
+            ? collection.cards?.length - 1
+            : collection.selectedCardIndex - 1
+        )
+      );
   };
+
+  const { data, isLoading } = useGetFLashCardsInCollectionQuery({
+    COLLECTION_ID: collectionid,
+  });
+
+  // if (loading) {
+  //   return (
+  //     <div className=" flex justify-center m-6">
+  //       <Spinner size="lg" />
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className=" w-full flex flex-col items-center p-6">

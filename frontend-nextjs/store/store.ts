@@ -1,4 +1,8 @@
-import { combineReducers, configureStore } from "@reduxjs/toolkit";
+import {
+  applyMiddleware,
+  combineReducers,
+  configureStore,
+} from "@reduxjs/toolkit";
 import collection from "./collectionSlice";
 import reviewCard from "./reviewCardSlice";
 import user from "./userSlice";
@@ -28,6 +32,10 @@ const rootReducer = combineReducers({
   auth,
 });
 
+import thunk from "redux-thunk";
+import { graphqlApi } from "./graphql/baseApi";
+// Create GQL client (or any extra argument)
+
 const persistConfig = {
   key: "root",
   whitelist: ["auth"], // Specify which reducers should be persisted
@@ -45,14 +53,16 @@ export const store = configureStore({
     // apiReducer,
     [authApi.reducerPath]: authApi.reducer,
     [userApi.reducerPath]: userApi.reducer,
+    [graphqlApi.reducerPath]: graphqlApi.reducer,
   },
+
   // devTools: process.env.NODE_ENV !== "production",
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
-    }).concat(authApi.middleware, userApi.middleware),
+    }).concat(authApi.middleware, userApi.middleware, graphqlApi.middleware),
 });
 
 // see `setupListeners` docs - takes an optional callback as the 2nd arg for customization

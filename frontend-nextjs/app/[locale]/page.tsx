@@ -1,11 +1,13 @@
-'use client';
-import SparklesText from '@/components/magicui/sparkles-text';
-import { useProfileStore } from '@/hooks/useProfile';
-import { useRouter } from '@/i18n/routing';
-import { axiosApi } from '@/lib/api/axios';
-import { Spinner } from '@nextui-org/react';
-import { useEffect } from 'react';
-import { mutate } from 'swr';
+"use client";
+import SparklesText from "@/components/magicui/sparkles-text";
+import { useProfileStore } from "@/hooks/useProfile";
+import { useRouter } from "@/i18n/routing";
+import { axiosApi } from "@/lib/api/axios";
+import { useAppDispatch } from "@/store/hooks";
+import { useGetProfileQuery } from "@/store/RTK-query/userApi";
+import { Spinner } from "@nextui-org/react";
+import { useEffect, useLayoutEffect } from "react";
+import { mutate } from "swr";
 
 export default function HomePage() {
   const router = useRouter();
@@ -34,9 +36,13 @@ export default function HomePage() {
   //   }
   // }, [router]);
 
+  const dispatch = useAppDispatch();
+
   useEffect(() => {
-    router.push('/dashboard');
+    router.push("/dashboard/v2");
   }, []);
+
+  const {} = useGetProfileQuery({});
 
   return (
     <div className=" min-h-screen w-full flex justify-center items-center">

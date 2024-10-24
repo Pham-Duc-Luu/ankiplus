@@ -1,4 +1,6 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { GraphQLClient } from "graphql-request";
+import { gql } from "@urql/core";
 
 export interface Card {
   front: string;
@@ -38,15 +40,23 @@ export const collectionSlice = createSlice({
     selectCardByIndex: (state, action: PayloadAction<number>) => {
       state.selectedCardIndex = action.payload;
     },
+    setFlashCards: (state, { payload }: PayloadAction<Card[]>) => {
+      state.cards = payload;
+    },
+    setCollection: (state, { payload }: PayloadAction<Partial<Collection>>) => {
+      state.name = payload.name;
+      state.description = payload.description;
+      state.id = payload.id;
+    },
     startReview: (state) => {
       if (state.cards) {
-        state.reviewCard = { id: state.cards[0]._id, index: 0 };
+        state.reviewCard = { id: state.cards[0]._id || 0, index: 0 };
       }
     },
     nextReview: (state) => {
       if (state.cards && state.reviewCard.index < state.cards.length - 1) {
         state.reviewCard = {
-          id: state.cards[state.reviewCard.index + 1]._id,
+          id: state.cards[state.reviewCard.index + 1]._id || 0,
           index: state.reviewCard.index + 1,
         };
       }
@@ -54,7 +64,12 @@ export const collectionSlice = createSlice({
   },
 });
 
-export const { nextReview, selectCardByIndex, startReview } =
-  collectionSlice.actions;
+export const {
+  nextReview,
+  selectCardByIndex,
+  startReview,
+  setCollection,
+  setFlashCards,
+} = collectionSlice.actions;
 
 export default collectionSlice.reducer;

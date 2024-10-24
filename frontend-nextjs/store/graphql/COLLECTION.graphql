@@ -1,0 +1,33 @@
+query GetUserCollections($SKIP: Int = 0, $LIMIT: Int = 10) {
+  getUserCollections(skip: $SKIP, limit: $LIMIT) {
+    total
+    skip
+    limit
+    data {
+      _id
+      name
+      description
+      thumnail
+      icon
+      isPublic
+      language
+      owner
+      createdAt
+      updatedAt
+    }
+  }
+}
+
+query GetFLashCardsInCollection($ID: String!) {
+  getCollectionFlashCards(collection_id: $ID) {
+    total
+    skip
+    limit
+    data {
+      _id
+      front
+      back
+      inCollection
+    }
+  }
+}

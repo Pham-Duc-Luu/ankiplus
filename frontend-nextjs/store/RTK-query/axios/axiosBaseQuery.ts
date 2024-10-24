@@ -1,7 +1,9 @@
 import { loggedOut, setAccessToken } from "@/store/authSilce";
+import { RootState } from "@/store/store";
 import type { BaseQueryFn } from "@reduxjs/toolkit/query";
 import axios from "axios";
 import { AxiosRequestConfig, AxiosError } from "axios";
+import { IAuthResponse } from "../authApi";
 const axiosBaseQuery =
   (
     { baseUrl }: { baseUrl: string } = { baseUrl: "" }
@@ -14,10 +16,7 @@ const axiosBaseQuery =
   }> =>
   async ({ url, method, data, params, headers }, { getState, dispatch }) => {
     const getToken = () => {
-      const { persistedReducer } = getState() as ReturnType<
-        typeof store.getState
-      >;
-
+      const { persistedReducer } = getState() as RootState;
       return {
         access_token: persistedReducer.auth.access_token,
         refresh_token: persistedReducer.auth.refresh_token,
