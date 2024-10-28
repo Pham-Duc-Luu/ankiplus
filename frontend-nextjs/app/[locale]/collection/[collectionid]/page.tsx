@@ -1,8 +1,8 @@
 "use client";
-import { Button, CardFooter, Spinner } from "@nextui-org/react";
+import { Button, Spinner } from "@nextui-org/react";
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import {
   MdNavigateBefore,
   MdNavigateNext,
@@ -10,18 +10,15 @@ import {
 } from "react-icons/md";
 import { PiCardsBold } from "react-icons/pi";
 import { SiSpeedtest } from "react-icons/si";
-
-import { Card, CardHeader, CardBody, Image } from "@nextui-org/react";
 import FlipCard from "@/components/ui/FlipCard";
-import { motion, Reorder, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import CardsTable from "./CardTable";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { selectCardByIndex, setFlashCards } from "@/store/collectionSlice";
 import { useRouter } from "@/i18n/routing";
-import { useQuery } from "@apollo/client";
 import { useGetFLashCardsInCollectionQuery } from "@/store/graphql/COLLECTION.generated";
-
-const page = () => {
+import { Card, setSelectedCard } from "@/store/collectionSlice";
+import _ from "lodash";
+const Page = () => {
   const t = useTranslations("collection.info");
   const t1 = useTranslations("review");
   const { collection } = useAppSelector((state) => state.persistedReducer);
@@ -29,40 +26,53 @@ const page = () => {
   const route = useRouter();
 
   const { collectionid } = useParams<{ collectionid: string }>();
+  const { data, isLoading } = useGetFLashCardsInCollectionQuery({
+    ID: collectionid,
+  });
 
   const next = () => {
-    collection.cards &&
-      dispatch(
-        selectCardByIndex(
-          collection.selectedCardIndex >= collection?.cards.length - 1
-            ? 0
-            : collection.selectedCardIndex + 1
-        )
+    if (data?.getCollectionFlashCards.data) {
+      const flashCards: Card[] = data.getCollectionFlashCards.data.map(
+        (item) => ({ _id: item._id, front: item.front, back: item.back })
       );
+      const currentIndex = _.findIndex(flashCards, function (o) {
+        return o._id === collection.selectedCard?._id;
+      });
+      const nextIndex = currentIndex + 1;
+      if (nextIndex >= 0 && currentIndex < flashCards.length - 1) {
+        dispatch(setSelectedCard(flashCards[nextIndex]));
+      }
+    }
   };
 
   const prev = () => {
-    collection.cards &&
-      dispatch(
-        selectCardByIndex(
-          collection.selectedCardIndex <= 0
-            ? collection.cards?.length - 1
-            : collection.selectedCardIndex - 1
-        )
+    if (data?.getCollectionFlashCards.data) {
+      const flashCards: Card[] = data.getCollectionFlashCards.data.map(
+        (item) => ({ _id: item._id, front: item.front, back: item.back })
       );
+      const currentIndex = _.findIndex(flashCards, function (o) {
+        return o._id === collection.selectedCard?._id;
+      });
+      const prevIndex = currentIndex - 1;
+      if (prevIndex >= 0 && prevIndex < flashCards.length - 1) {
+        dispatch(setSelectedCard(flashCards[prevIndex]));
+      }
+    }
   };
+  useEffect(() => {
+    if (data?.getCollectionFlashCards.data) {
+      const card = data.getCollectionFlashCards.data[0];
+      dispatch(setSelectedCard(card));
+    }
+  }, [data, isLoading]);
 
-  const { data, isLoading } = useGetFLashCardsInCollectionQuery({
-    COLLECTION_ID: collectionid,
-  });
-
-  // if (loading) {
-  //   return (
-  //     <div className=" flex justify-center m-6">
-  //       <Spinner size="lg" />
-  //     </div>
-  //   );
-  // }
+  if (isLoading) {
+    return (
+      <div className=" flex justify-center m-6">
+        <Spinner size="lg" />
+      </div>
+    );
+  }
 
   return (
     <div className=" w-full flex flex-col items-center p-6">
@@ -88,16 +98,18 @@ const page = () => {
         <main className=" my-4">
           <AnimatePresence mode="wait">
             <motion.div
-              key={collection.selectedCardIndex}
+              key={collection.selectedCard?._id || 1}
               animate={{ opacity: 1, y: 0 }}
               initial={{ opacity: 0, y: 20 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.15 }}
             >
-              <FlipCard
-                front={collection?.cards[collection.selectedCardIndex].front}
-                back={collection?.cards[collection.selectedCardIndex].back}
-              ></FlipCard>
+              {collection.selectedCard && (
+                <FlipCard
+                  front={collection.selectedCard.front}
+                  back={collection.selectedCard.back}
+                ></FlipCard>
+              )}
             </motion.div>
           </AnimatePresence>
         </main>
@@ -120,10 +132,16 @@ const page = () => {
             <MdNavigateNext size={28} />
           </Button>
         </div>
-        <CardsTable></CardsTable>
+        <CardsTable
+          cards={data?.getCollectionFlashCards.data.map((item) => ({
+            _id: item._id,
+            back: item.back,
+            front: item.front,
+          }))}
+        ></CardsTable>
       </div>
     </div>
   );
 };
 
-export default page;
+export default Page;

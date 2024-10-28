@@ -23,6 +23,7 @@
     "@reduxjs/toolkit": "^2.2.7",
     "@rtk-query/graphql-request-base-query": "^2.3.1",
     "@types/canvas-confetti": "^1.6.4",
+    "@uidotdev/usehooks": "^2.4.1",
     "@urql/core": "^5.0.8",
     "apollo-server-micro": "^3.13.0",
     "axios": "^1.7.7",

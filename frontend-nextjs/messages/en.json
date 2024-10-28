@@ -76,7 +76,8 @@
         "study": "study",
         "test": "test"
       }
-    }
+    },
+    "edit": {}
   },
   "review": {
     "your proccess": "your proccess",
@@ -124,6 +125,8 @@
   "utils": {
     "edit": "edit",
     "email": "email",
+    "add": "add",
+    "delete": "delete",
     "password": "password",
     "username": "username",
     "sign in": "sign in",

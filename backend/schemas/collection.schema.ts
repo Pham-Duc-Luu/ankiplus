@@ -4,6 +4,7 @@ import { User } from './user.schema';
 import { FlashCard } from './flashCard.schema';
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { ListResponseDto } from 'dto/ListResponse.dto';
+import { IsBoolean, IsOptional, IsString } from 'class-validator';
 
 enum accessStatus {}
 
@@ -24,9 +25,13 @@ export class Collection {
     icon?: string;
 
     @Prop({ type: Boolean, default: true })
-    isPublic: boolean = true;
+    @IsBoolean()
+    @IsOptional()
+    isPublic: boolean;
 
     @Prop({ type: String, default: 'en' })
+    @IsString()
+    @IsOptional()
     language: string;
 
     @Prop({ type: [{ type: Types.ObjectId, ref: 'FlashCard' }] })

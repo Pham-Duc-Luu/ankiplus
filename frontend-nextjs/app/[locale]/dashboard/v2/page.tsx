@@ -146,12 +146,19 @@ const Page = () => {
   // }
 
   const { user } = useAppSelector((state) => state.persistedReducer);
-
+  const { data } = useGetUserCollectionsQuery({});
   const LIMIT = user?.amountOfCollectionPerPage;
   const SKIP =
     user.page && user.amountOfCollectionPerPage
       ? (user.page - 1) * user.amountOfCollectionPerPage
       : 10;
+
+  useEffect(() => {
+    if (data?.getUserCollections.total) {
+      dispatch(setTotalCollectionAmount(data?.getUserCollections.total));
+    }
+  }, [data?.getUserCollections.total]);
+
   return (
     <div className=" w-full min-h-screen flex flex-col items-center p-6">
       <div className=" lg:w-[1200px] w-full">

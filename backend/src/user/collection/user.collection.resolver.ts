@@ -28,6 +28,15 @@ export class UserCollectionResolver {
         private collectionModel: Model<Collection>,
     ) {}
 
+    /**
+     *
+     * @param context
+     * @param limit
+     * @param skip
+     * @param order
+     * @param sortBy
+     * @returns list of collection
+     */
     @Query(() => CollectionQueryGQLObject)
     async getUserCollections(
         @Context() context: Partial<{ req: { user: jwtPayloadDto } }>, // Use context to access the request
@@ -56,11 +65,22 @@ export class UserCollectionResolver {
         });
     }
 
+    /**
+     *
+     * @param context
+     * @param id
+     */
     @Query(() => CollectionGQLObject)
     async getCollectionById(
         @Context() context: Partial<{ req: { user: jwtPayloadDto } }>, // Use context to access the request
         @Args('id', { type: () => String }) id: string,
-    ) {}
+    ) {
+        const collection = await this.collectionModel
+            .findOne({ _id: new ObjectId(id), owner: new ObjectId(context.req.user.sub) })
+            .exec();
+
+        return collection;
+    }
 
     @Query(() => FlashCardQueryGQLObject)
     async getCollectionFlashCards(

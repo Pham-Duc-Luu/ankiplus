@@ -4,7 +4,7 @@ import { Chip, Progress } from "@nextui-org/react";
 import React from "react";
 
 const LearningProgress = ({ className }: { className?: string }) => {
-  const { collection } = useAppSelector((state) => state);
+  const { collection } = useAppSelector((state) => state.persistedReducer);
   if (!collection.cards) {
     return <></>;
   }

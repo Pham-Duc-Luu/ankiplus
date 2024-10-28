@@ -1,6 +1,5 @@
 "use client";
 import SparklesText from "@/components/magicui/sparkles-text";
-import { useProfileStore } from "@/hooks/useProfile";
 import { useRouter } from "@/i18n/routing";
 import { axiosApi } from "@/lib/api/axios";
 import { useAppDispatch } from "@/store/hooks";
@@ -11,7 +10,6 @@ import { mutate } from "swr";
 
 export default function HomePage() {
   const router = useRouter();
-  const { initProfile, profile } = useProfileStore((state) => state);
 
   // ! This is for api from backend
   // useEffect(() => {
@@ -35,8 +33,6 @@ export default function HomePage() {
   //       });
   //   }
   // }, [router]);
-
-  const dispatch = useAppDispatch();
 
   useEffect(() => {
     router.push("/dashboard/v2");

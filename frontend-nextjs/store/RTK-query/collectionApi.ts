@@ -1,26 +1,33 @@
 // store/api/authApi.ts
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { AxiosError, AxiosResponse } from "axios";
-import { IQueryOptions, IUserProfileDto } from "../dto/dto.type";
+import {
+  IQueryOptions,
+  IUserProfileDto,
+  UpdateCollectionDto,
+} from "../dto/dto.type";
 import { setState } from "../userSlice";
 import { loggedOut } from "../authSilce";
 import { buildParameters } from "@/utils/params";
 import axiosBaseQuery from "./axios/axiosBaseQuery";
 
 // Define an API slice
-export const userApi = createApi({
+export const collectionApi = createApi({
   reducerPath: "userApi", // Unique key for the slice
   baseQuery: axiosBaseQuery({
     baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || "localhost",
   }), // Use the Axios base query
   endpoints: (builder) => ({
     // Define a login endpoint
-    getProfile: builder.query({
+    updateCollectionInformation: builder.mutation({
       // query: () => ({
       //   url: "/user/profile",
       // }),
       queryFn: async (
-        { options }: { options?: IQueryOptions },
+        {
+          id,
+          parameters,
+        }: { id: string; parameters: Partial<UpdateCollectionDto> },
         queryApi,
         extraOptions,
         baseQuery
@@ -31,11 +38,10 @@ export const userApi = createApi({
 
         try {
           const { data } = (await baseQuery({
-            url: `/user/profile?${buildParameters({ ...options })}`,
-            method: "GET",
-          })) as AxiosResponse<IUserProfileDto>;
-
-          queryApi.dispatch(setState(data));
+            url: `/users/collections/${id}`,
+            data: parameters,
+            method: "PATCH",
+          })) as AxiosResponse<string>;
 
           return { data: data };
         } catch (error) {
@@ -53,4 +59,4 @@ export const userApi = createApi({
 });
 
 // Export hooks for the endpoints
-export const { useGetProfileQuery } = userApi;
+export const { useUpdateCollectionInformationMutation } = collectionApi;

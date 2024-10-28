@@ -1,63 +1,56 @@
-import { cn } from "@/lib/utils";
+import { IReoderItemCard } from "@/app/[locale]/edit/collection/[id]/page";
+import { Card, CardProps } from "@nextui-org/react";
+import { Reorder, useDragControls } from "framer-motion";
+import React, { useState } from "react";
 import {
   Button,
-  Card,
   CardBody,
   CardHeader,
   Divider,
   Input,
 } from "@nextui-org/react";
-import { DragControls, Reorder, useDragControls } from "framer-motion";
-import { useTranslations } from "next-intl";
-
+import { cn } from "@/lib/utils";
 import {
   MdDeleteOutline,
   MdOutlineAddPhotoAlternate,
   MdOutlineDragHandle,
 } from "react-icons/md";
 import { CiLock } from "react-icons/ci";
-import { flashCardDto } from "@/lib/api/collection.user.axios";
-import { Card as ICard } from "@/app/[locale]/edit/collection/[id]/page";
-import { useState } from "react";
-
-export interface CreateCardProps extends Partial<flashCardDto> {
-  className?: string;
-  value: any;
+import { useTranslations } from "next-intl";
+export interface IReoderItemCardProps extends CardProps {
+  value: IReoderItemCard;
   order: number;
-
-  onChange?: (updatedCard: ICard) => void;
-  onRemove: (position: number) => void;
 }
 
-const CreateCard = ({
-  className,
-  order,
-  onChange,
-  onRemove,
-  front,
-
-  value,
-  back,
-}: CreateCardProps) => {
-  const t = useTranslations("collection.create.card");
+const ReoderItemCard = ({ value, className, order }: IReoderItemCardProps) => {
   const controls = useDragControls();
-  const [cardFront, setcardFront] = useState(front);
-  const [cardBack, setcardBack] = useState(back);
+  const [front, setfront] = useState<string>(value.front || "");
+  const [back, setback] = useState<string>(value.back || "");
+  const t = useTranslations("collection.create.card");
 
-  const handleUpdate = () => {
-    if (onChange) onChange({ ...value, front: cardFront, back: cardBack });
-  };
+  const [isGrapping, setisGrapping] = useState(false);
 
   return (
     <Reorder.Item
       value={value}
       dragListener={false}
-      data-item-id={value.id}
+      data-item-id={value.positionId}
       dragControls={controls}
     >
       <div className={cn(className, " my-4")}>
-        <Card className="">
-          <CardHeader className="flex gap-3 justify-between items-center">
+        <Card className={`${isGrapping ? " border border-blue-600" : ""}`}>
+          <CardHeader
+            onPointerDown={(e) => controls?.start(e)}
+            onMouseDown={() => {
+              setisGrapping(true);
+            }}
+            onMouseUp={() => {
+              setisGrapping(false);
+            }}
+            className={`flex gap-3 justify-between items-center ${
+              isGrapping ? "cursor-grabbing" : "cursor-grab"
+            }  `}
+          >
             <div className="flex flex-col">
               <p className="text-lg m-2">{order}</p>
             </div>
@@ -67,14 +60,11 @@ const CreateCard = ({
                 color="warning"
                 variant="faded"
                 className=" flex justify-center items-center"
-                onClick={() => onRemove(value.id)}
+                // onClick={() => onRemove(value.id)}
               >
                 <MdDeleteOutline size={20}></MdDeleteOutline>
               </Button>
-              <div
-                className=" p-2 cursor-move reorder-handle "
-                onPointerDown={(e) => controls?.start(e)}
-              >
+              <div className=" p-2 cursor-move reorder-handle ">
                 <MdOutlineDragHandle
                   size={30}
                   className="mr-4 "
@@ -87,23 +77,25 @@ const CreateCard = ({
             <Input
               variant="underlined"
               labelPlacement="outside"
-              label={t("front.title")}
-              onBlur={handleUpdate} // Call onChange when input loses focus
+              // label={t("front.title")}
+              // onBlur={handleUpdate} // Call onChange when input loses focus
               onChange={(e) => {
-                setcardFront(e.target.value);
+                setfront(e.target.value);
               }}
-              onClear={() => setcardFront(undefined)}
+              value={front}
+              // onClear={() => setcardFront(undefined)}
               isClearable
             ></Input>
             <Input
               isClearable
+              value={back}
               variant="underlined"
               labelPlacement="outside"
-              onBlur={handleUpdate} // Call onChange when input loses focus
+              // onBlur={handleUpdate} // Call onChange when input loses focus
               onChange={(e) => {
-                setcardBack(e.target.value);
+                setback(e.target.value);
               }}
-              onClear={() => setcardBack(undefined)}
+              // onClear={() => setcardBack(undefined)}
               label={t("back.title")}
             ></Input>
             <div>
@@ -132,4 +124,4 @@ const CreateCard = ({
   );
 };
 
-export default CreateCard;
+export default ReoderItemCard;

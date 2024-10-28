@@ -274,11 +274,22 @@ export class UserCollectionController {
         }
         try {
             const collection = await this.collectionModel.findOne({
-                $and: [{ owner: req.user.sub }, { _id: param.id }],
+                $and: [{ owner: new ObjectId(req.user.sub) }, { _id: new ObjectId(param.id) }],
             });
-
+            if (!collection) {
+                return new BadRequestException('Collection not found');
+            }
             if (body.name) {
                 collection.name = body.name;
+            }
+            if (body.description) {
+                collection.description;
+            }
+            if (body.thumnail) {
+                collection.thumnail = body.thumnail;
+            }
+            if (body.icon) {
+                collection.icon = body.icon;
             }
             if (body.isPublic) {
                 collection.isPublic = body.isPublic;

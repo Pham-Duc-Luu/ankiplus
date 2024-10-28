@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import React from "react";
+import React, { useEffect } from "react";
 import SparklesText from "./magicui/sparkles-text";
 import {
   Navbar,
@@ -30,7 +30,11 @@ const MainNavbar = (navbarProps: NavbarProps) => {
   const t = useTranslations("dashboard.my collection");
   const { auth } = useAppSelector((state) => state.persistedReducer);
   const Tutils = useTranslations("utils");
-
+  useEffect(() => {
+    if (!auth.access_token) {
+      router.push("/landing");
+    }
+  }, [auth]);
   return (
     <Navbar
       isBordered

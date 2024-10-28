@@ -27,6 +27,13 @@ export type GetFLashCardsInCollectionQueryVariables = Types.Exact<{
 
 export type GetFLashCardsInCollectionQuery = { __typename?: 'Query', getCollectionFlashCards: { __typename?: 'FlashCardQueryGQLObject', total: number, skip: number, limit: number, data: Array<{ __typename?: 'FlashCardGQLObject', _id: string, front: string, back: string, inCollection: string }> } };
 
+export type GetCollectionDetailQueryVariables = Types.Exact<{
+  ID: Types.Scalars['String']['input'];
+}>;
+
+
+export type GetCollectionDetailQuery = { __typename?: 'Query', getCollectionById: { __typename?: 'CollectionGQLObject', name: string, description?: string, thumnail?: string, icon?: string, isPublic?: boolean, language?: string, owner: string, createdAt: any, updatedAt: any } };
+
 
 export const GetUserCollectionsDocument = `
     query GetUserCollections($SKIP: Int = 0, $LIMIT: Int = 10) {
@@ -64,6 +71,21 @@ export const GetFLashCardsInCollectionDocument = `
   }
 }
     `;
+export const GetCollectionDetailDocument = `
+    query GetCollectionDetail($ID: String!) {
+  getCollectionById(id: $ID) {
+    name
+    description
+    thumnail
+    icon
+    isPublic
+    language
+    owner
+    createdAt
+    updatedAt
+  }
+}
+    `;
 
 const injectedRtkApi = graphqlApi.injectEndpoints({
   endpoints: (build) => ({
@@ -73,9 +95,12 @@ const injectedRtkApi = graphqlApi.injectEndpoints({
     GetFLashCardsInCollection: build.query<GetFLashCardsInCollectionQuery, GetFLashCardsInCollectionQueryVariables>({
       query: (variables) => ({ document: GetFLashCardsInCollectionDocument, variables })
     }),
+    GetCollectionDetail: build.query<GetCollectionDetailQuery, GetCollectionDetailQueryVariables>({
+      query: (variables) => ({ document: GetCollectionDetailDocument, variables })
+    }),
   }),
 });
 
 export { injectedRtkApi as api };
-export const { useGetUserCollectionsQuery, useLazyGetUserCollectionsQuery, useGetFLashCardsInCollectionQuery, useLazyGetFLashCardsInCollectionQuery } = injectedRtkApi;
+export const { useGetUserCollectionsQuery, useLazyGetUserCollectionsQuery, useGetFLashCardsInCollectionQuery, useLazyGetFLashCardsInCollectionQuery, useGetCollectionDetailQuery, useLazyGetCollectionDetailQuery } = injectedRtkApi;
 

@@ -25,3 +25,32 @@ export interface IQueryOptions {
   sort?: "asc" | "desc";
   selects?: string;
 }
+
+export interface CollectionType {
+  _id: string;
+  id: string;
+
+  name: string;
+
+  description?: string;
+
+  thumnail?: string;
+
+  icon?: string;
+
+  isPublic: boolean;
+
+  language: string;
+
+  cards?: string[];
+
+  owner: string; // Reference to the User schema
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface UpdateCollectionDto
+  extends Pick<
+    CollectionType,
+    "description" | "icon" | "isPublic" | "language" | "name" | "thumnail"
+  > {}

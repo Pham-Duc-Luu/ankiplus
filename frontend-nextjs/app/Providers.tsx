@@ -2,6 +2,7 @@
 "use client";
 import { ToastProvider } from "@/components/ui/toast";
 import { Toaster } from "@/components/ui/toaster";
+import MouseContextProvider from "@/context/mouse-context";
 import createApolloClient from "@/lib/apolloClient";
 import { useAppSelector } from "@/store/hooks";
 import { persistor, store } from "@/store/store";
@@ -34,9 +35,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
         <PersistGate loading={null} persistor={persistor}>
           <Provider store={store}>
-            {/* <ApolloCustomeProvider> */}
-            {children}
-            {/* </ApolloCustomeProvider> */}
+            <MouseContextProvider>
+              {/* <ApolloCustomeProvider> */}
+              {children}
+              {/* </ApolloCustomeProvider> */}
+            </MouseContextProvider>
           </Provider>
         </PersistGate>
       </NextThemesProvider>

@@ -40,13 +40,7 @@ export class CollectionQueryOptionDto extends QueryOptionDto {
     sortBy?: keyof CollectionDocument;
 }
 
-export class UpdateCollectionDto {
-    @ApiProperty()
-    name: string;
-
-    @ApiProperty()
-    isPublic: boolean;
-}
+export class UpdateCollectionDto extends Collection {}
 
 export class CollectionDetailQueryDto<T> {
     @ApiProperty()

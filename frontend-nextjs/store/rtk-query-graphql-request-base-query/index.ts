@@ -124,8 +124,9 @@ export const graphqlRequestBaseQuery = <E = ErrorResponse>(
                 data: await ClientRequest(),
                 meta: {},
               };
+            } else {
+              throw new AxiosError("Something went wrong!");
             }
-            throw new AxiosError("Something went wrong!");
           } catch (error) {
             dispatch(loggedOut());
             const err = error as AxiosError;

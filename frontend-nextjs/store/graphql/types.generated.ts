@@ -57,8 +57,14 @@ export type FlashCardQueryGqlObject = {
 
 export type Query = {
   __typename?: 'Query';
+  getCollectionById: CollectionGqlObject;
   getCollectionFlashCards: FlashCardQueryGqlObject;
   getUserCollections: CollectionQueryGqlObject;
+};
+
+
+export type QueryGetCollectionByIdArgs = {
+  id: Scalars['String']['input'];
 };
 
 

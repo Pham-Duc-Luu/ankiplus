@@ -24,7 +24,12 @@ export interface FlipCardProps extends CardProps {
 
 export const ExtendCard = ({ text, className }: FlipCardProps) => {
   return (
-    <Card className={cn("py-4 min-w-[800px] min-h-80", className)}>
+    <Card
+      className={cn(
+        "py-4 min-w-[800px] h-[500px] min-h-80 overflow-hidden",
+        className
+      )}
+    >
       <CardHeader className=" flex justify-end gap-3">
         <Button isIconOnly size="lg">
           <MdOutlineModeEdit size={28} />
@@ -33,7 +38,7 @@ export const ExtendCard = ({ text, className }: FlipCardProps) => {
           <PiStarThin size={28} />
         </Button>
       </CardHeader>
-      <CardBody className="overflow-visible py-2 flex justify-center items-center text-2xl ">
+      <CardBody className=" overflow-hidden py-2 px-8 flex justify-center items-center text-2xl ">
         {text}
       </CardBody>
     </Card>
@@ -58,10 +63,10 @@ const FlipCard = ({ front, back, className, CustomCard }: FlipCardProps) => {
 
   return (
     <ReactCardFlip isFlipped={isFlipped} flipDirection="vertical">
-      <div className="front" onClick={() => handleClick()}>
+      <div className="front m-4" onClick={() => handleClick()}>
         <ExtendCard className={cn(className)} text={front}></ExtendCard>
       </div>
-      <div className="back" onClick={() => handleClick()}>
+      <div className="back m-4" onClick={() => handleClick()}>
         <ExtendCard className={cn(className)} text={back}></ExtendCard>
       </div>
     </ReactCardFlip>

@@ -17,12 +17,11 @@ interface Collection {
     index: number;
     id: string | number;
   };
-  selectedCardIndex: number;
+  selectedCard?: Card;
 }
 // Define the initial state using that type
 const initialState: Collection = {
   id: 1,
-  selectedCardIndex: 0,
   reviewCard: { index: 0, id: 0 },
   name: "Example collection name",
   cards: [
@@ -37,8 +36,8 @@ export const collectionSlice = createSlice({
   name: "collection",
   initialState,
   reducers: {
-    selectCardByIndex: (state, action: PayloadAction<number>) => {
-      state.selectedCardIndex = action.payload;
+    setSelectedCard: (state, { payload }: PayloadAction<Card>) => {
+      state.selectedCard = payload;
     },
     setFlashCards: (state, { payload }: PayloadAction<Card[]>) => {
       state.cards = payload;
@@ -66,7 +65,7 @@ export const collectionSlice = createSlice({
 
 export const {
   nextReview,
-  selectCardByIndex,
+  setSelectedCard,
   startReview,
   setCollection,
   setFlashCards,

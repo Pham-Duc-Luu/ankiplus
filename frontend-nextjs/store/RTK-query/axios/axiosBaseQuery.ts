@@ -77,8 +77,9 @@ const axiosBaseQuery =
             const result = await mainFetch();
 
             return { data: result.data };
+          } else {
+            throw new AxiosError("Something went wrong!");
           }
-          throw new AxiosError("Something went wrong!");
         } catch (error) {
           dispatch(loggedOut());
           const err = error as AxiosError;

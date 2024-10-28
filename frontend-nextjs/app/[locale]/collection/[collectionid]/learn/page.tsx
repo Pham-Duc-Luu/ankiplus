@@ -13,7 +13,9 @@ import { useRouter } from "@/i18n/routing";
 import { Button } from "@nextui-org/react";
 
 const Page = () => {
-  const { collection, reviewCard } = useAppSelector((state) => state);
+  const { collection, reviewCard } = useAppSelector(
+    (state) => state.persistedReducer
+  );
   const dispatch = useDispatch();
 
   useEffect(() => {

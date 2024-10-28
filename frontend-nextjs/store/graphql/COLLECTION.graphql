@@ -31,3 +31,17 @@ query GetFLashCardsInCollection($ID: String!) {
     }
   }
 }
+
+query GetCollectionDetail($ID: String!) {
+  getCollectionById(id: $ID) {
+    name
+    description
+    thumnail
+    icon
+    isPublic
+    language
+    owner
+    createdAt
+    updatedAt
+  }
+}
