@@ -40,8 +40,6 @@ const axiosBaseQuery =
     };
 
     const mainFetch = () => {
-      console.log(method);
-
       return axios<string>({
         url: baseUrl + url,
         method,
@@ -65,7 +63,7 @@ const axiosBaseQuery =
       /**
        * auto fetch the access token
        */
-
+      ``;
       if (err && err.status === 401) {
         // try to get a new token
         try {
@@ -81,7 +79,7 @@ const axiosBaseQuery =
             throw new AxiosError("Something went wrong!");
           }
         } catch (error) {
-          dispatch(loggedOut());
+          // dispatch(loggedOut());
           const err = error as AxiosError;
           return {
             error: {

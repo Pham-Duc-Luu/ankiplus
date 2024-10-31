@@ -1,18 +1,16 @@
 import {
+    BadRequestException,
+    Body,
     Controller,
     Get,
-    Param,
-    Post,
-    Req,
-    UseGuards,
-    Request,
-    Body,
     HttpException,
-    BadRequestException,
-    UnauthorizedException,
     HttpStatus,
     Inject,
+    Post,
     Query,
+    Request,
+    UnauthorizedException,
+    UseGuards,
     UsePipes,
     ValidationPipe,
 } from '@nestjs/common';
@@ -31,11 +29,9 @@ import { ConfigService } from '@nestjs/config';
 import { Token } from 'schemas/token.schema';
 import { ObjectId } from 'mongodb';
 import Logger, { LoggerKey } from 'libs/logger/logger/domain/logger';
-import LoggerService from 'libs/logger/logger/domain/loggerService';
 import { QueryOptionDto } from 'dto/query-option.dto';
 import { ListResponseDto } from 'dto/ListResponse.dto';
 import { pickFields } from 'utils/utils';
-import { ParamValidate } from 'src/guard/param.validate.guard';
 import configuration from ' config/configuration';
 import { CreateUserDto, LoginUserDto, UserProfileDto } from 'dto/user.dto';
 import { jwtPayloadDto, JWTTokenDto } from 'dto/jwt.dto';
@@ -48,7 +44,6 @@ export class UserController {
         private userService: UserService,
         private jwtService: JwtService,
         private configService: ConfigService,
-
         @InjectModel(User.name, configuration().database.mongodb_main.name) private userModel: Model<User>,
         @InjectModel(Token.name, configuration().database.mongodb_main.name) private tokenModel: Model<Token>,
     ) {}
@@ -163,9 +158,13 @@ export class UserController {
 
             const refreshPayload = await this.jwtService.verify(refresh_token, {
                 secret: this.configService.get('jwtConstant.secret.key'),
+                ignoreExpiration: true,
             });
 
-            const existToken = await this.tokenModel.find({ user_token: new ObjectId(accessPayload.sub) });
+            const existToken = await this.tokenModel.find({
+                user_token: new ObjectId(accessPayload.sub),
+                token: refresh_token,
+            });
 
             if (existToken.find((token) => token.token === refresh_token).user_token.toString() === accessPayload.sub) {
                 const payload: jwtPayloadDto = {
@@ -179,11 +178,13 @@ export class UserController {
                  * * with the jwt
                  * @returns {access_token, refresh_token}
                  */
-                return new JWTTokenDto(access_token, refresh_token);
-            }
 
-            throw new UnauthorizedException('Invalid refresh token');
+                return new JWTTokenDto(newAccessToken, refresh_token);
+            } else {
+                throw new UnauthorizedException('Invalid refresh token');
+            }
         } catch (error) {
+            this.logger.error(error);
             throw new UnauthorizedException();
         }
     }
@@ -201,7 +202,6 @@ export class UserAuthController {
         private userAuthService: UserAuthService,
         @InjectModel(FlashCard.name, configuration().database.mongodb_main.name)
         private flashCardModel: Model<FlashCard>,
-
         @InjectModel(User.name, configuration().database.mongodb_main.name) private userModel: Model<User>,
         @InjectModel(Collection.name, configuration().database.mongodb_main.name)
         private collectionModel: Model<Collection>,

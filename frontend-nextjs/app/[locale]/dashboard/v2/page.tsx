@@ -115,7 +115,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import ListCollectionDisplay from "../ListCollectionDisplay";
 import { setPage, setTotalCollectionAmount } from "@/store/userSlice";
 import _ from "lodash";
-import { useGetUserCollectionsQuery } from "@/store/graphql/COLLECTION.generated";
+import { useGetUserCollectionsQuery } from "@/store/graphql/COLLECTION.modify";
 // import { graphql } from "@/__generated__/gql";
 
 // const GET_USER_COLLECTIONS = graphql(/* GraphQL */ `
@@ -130,20 +130,7 @@ const Page = () => {
   const t = useTranslations("dashboard.my collection");
   const route = useRouter();
 
-  // const { loading, error, data } = useQuery(
-  //   GET_USER_TOTAL_AMOUNT_OF_COLLECTION
-  // );
-
   const dispatch = useAppDispatch();
-  // const { data } = useGetProfileQuery({
-  //   options: {
-  //     limit: 10,
-  //   },
-  // });
-  // const { loading, error, data: gqlData } = useQuery(GET_USER_COLLECTIONS);
-  // if (gqlData) {
-  //   console.log(gqlData.getUserCollections);
-  // }
 
   const { user } = useAppSelector((state) => state.persistedReducer);
   const { data } = useGetUserCollectionsQuery({});

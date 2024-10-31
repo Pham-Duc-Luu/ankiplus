@@ -11,8 +11,6 @@ const ReviewTimeOption = ({ className }: { className?: string }) => {
   const dispatch = useDispatch();
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
-      console.log(e);
-
       if (e.key === "1" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
       }

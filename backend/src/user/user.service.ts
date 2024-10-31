@@ -1,15 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { InjectConnection, InjectModel } from '@nestjs/mongoose';
-import mongoose, { Connection, Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
+import mongoose, { Model } from 'mongoose';
 import { User } from 'schemas/user.schema';
 import { UtilService } from 'src/util/util.service';
 import * as bcrypt from 'bcrypt';
-import config from ' config/configuration';
-import { Collection } from 'schemas/collection.schema';
-import { FlashCard } from 'schemas/flashCard.schema';
 import configuration from ' config/configuration';
+import { Collection } from 'schemas/collection.schema';
+
 @Injectable()
 export class UserService {
     constructor(
@@ -22,10 +21,12 @@ export class UserService {
     async verifyRefreshToken(token: string, storedHash: string) {
         return bcrypt.compare(token, storedHash);
     }
+
     async hashRefreshToken(token: string) {
         const salt = await bcrypt.genSalt();
         return bcrypt.hash(token, salt); // Store this in your DB for verification later
     }
+
     async getAccessToken(payload: any) {
         return this.jwtService.sign(payload, {
             secret: this.configService.get('jwtConstant.public.key'),
@@ -48,7 +49,6 @@ export class UserAuthService {
         private collectionModel: Model<Collection>,
         // @InjectModel(FlashCard.name) private flashCardModel: Model<FlashCard>,
         @InjectModel(User.name, configuration().database.mongodb_main.name) private userModel: Model<User>,
-
         // private logger: LoggerService,
     ) {}
 

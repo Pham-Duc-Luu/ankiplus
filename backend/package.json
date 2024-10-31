@@ -31,6 +31,8 @@
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/swagger": "^7.4.0",
     "@types/bcrypt": "^5.0.2",
+    "@types/lodash": "^4.17.13",
+    "@types/lodash-es": "^4.17.12",
     "apollo-server-express": "^3.13.0",
     "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",

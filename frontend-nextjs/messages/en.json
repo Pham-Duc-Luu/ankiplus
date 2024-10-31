@@ -54,7 +54,8 @@
         "description": "Give new collection a description"
       },
       "function": {
-        "create": "Create"
+        "create": "Create",
+        "pending": "The collection is creating..."
       },
       "card": {
         "front": {

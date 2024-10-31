@@ -7,7 +7,7 @@ import collection from "./collectionSlice";
 import reviewCard from "./reviewCardSlice";
 import user from "./userSlice";
 import model from "./modalSlice";
-import storage from "redux-persist/lib/storage"; // defaults to localStorage for web
+import localStorage from "redux-persist/lib/storage"; // defaults to localStorage for web
 import { PersistGate } from "redux-persist/integration/react";
 import { PersistConfig } from "redux-persist/es/types"; // Import the PersistConfig type
 import { persistReducer, persistStore } from "redux-persist";
@@ -24,22 +24,25 @@ import {
 } from "redux-persist";
 import { authApi } from "./RTK-query/authApi";
 import { userApi } from "./RTK-query/userApi";
+import { collectionApi } from "./RTK-query/collectionApi";
+import createNewCollection from "./createCollectionSlice";
 const rootReducer = combineReducers({
   collection,
   reviewCard,
   user,
   model,
+  createNewCollection,
   auth,
 });
 
 import thunk from "redux-thunk";
-import { graphqlApi } from "./graphql/baseApi";
+import { CollectionGraphqlApi } from "./graphql/COLLECTION.modify";
 // Create GQL client (or any extra argument)
 
 const persistConfig = {
   key: "root",
   whitelist: ["auth"], // Specify which reducers should be persisted
-  storage, // You can use other storages like sessionStorage, AsyncStorage (for React Native), etc.
+  storage: localStorage, // You can use other storages like sessionStorage, AsyncStorage (for React Native), etc.
 };
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
@@ -53,7 +56,8 @@ export const store = configureStore({
     // apiReducer,
     [authApi.reducerPath]: authApi.reducer,
     [userApi.reducerPath]: userApi.reducer,
-    [graphqlApi.reducerPath]: graphqlApi.reducer,
+    [CollectionGraphqlApi.reducerPath]: CollectionGraphqlApi.reducer,
+    [collectionApi.reducerPath]: collectionApi.reducer,
   },
 
   // devTools: process.env.NODE_ENV !== "production",
@@ -62,7 +66,12 @@ export const store = configureStore({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
-    }).concat(authApi.middleware, userApi.middleware, graphqlApi.middleware),
+    }).concat(
+      authApi.middleware,
+      userApi.middleware,
+      CollectionGraphqlApi.middleware,
+      collectionApi.middleware
+    ),
 });
 
 // see `setupListeners` docs - takes an optional callback as the 2nd arg for customization

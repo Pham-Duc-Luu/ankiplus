@@ -2,19 +2,25 @@ import { ApiBody, ApiProperty } from '@nestjs/swagger';
 import { Collection, CollectionDocument } from 'schemas/collection.schema';
 import { QueryOptionDto } from './query-option.dto';
 import { ListResponseDto } from './ListResponse.dto';
+import { IsBoolean, IsOptional, IsString } from 'class-validator';
 
 export class flashCardDto {
     @ApiProperty()
+    @IsString()
     front: string;
     @ApiProperty()
+    @IsString()
     back: string;
 }
 
 export class CreateCollectionDto {
     @ApiProperty()
+    @IsString()
     name: string;
 
     @ApiProperty()
+    @IsString()
+    @IsOptional()
     description?: string;
 
     @ApiProperty()
@@ -24,9 +30,13 @@ export class CreateCollectionDto {
     thumnail?: string;
 
     @ApiProperty()
+    @IsBoolean()
+    @IsOptional()
     isPublic: boolean;
 
     @ApiProperty()
+    @IsString()
+    @IsOptional()
     language: string;
 
     @ApiProperty()

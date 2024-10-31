@@ -45,6 +45,7 @@ import { UserAuthService } from '../user.service';
 import { ParamValidate } from 'src/guard/param.validate.guard';
 import configuration from ' config/configuration';
 import { jwtPayloadDto } from 'dto/jwt.dto';
+var _ = require('lodash');
 
 @ApiTags('users/collections')
 @UseGuards(AuthGuard)
@@ -318,37 +319,25 @@ export class UserCollectionController {
             throw new BadRequestException('You must provide a name');
         }
 
-        // if (!flashCards || !Array.isArray(flashCards) || flashCards.length <= 0) {
-        //     throw new BadRequestException('You must provide a flash card');
-        // }
-
         if (await this.collectionModel.findOne({ name })) {
             throw new BadRequestException('Collection name already exists');
         }
 
         try {
-            const collection = new this.collectionModel({
+            const collection = await this.collectionModel.create({
                 name,
                 description,
                 thumnail,
                 isPublic,
                 language,
-                owner: sub,
+                owner: user._id,
             });
-            await collection.save();
             if (flashCards?.length > 0) {
                 const createFlashCard = await this.flashCardModel.create(flashCards);
                 collection.cards.push(...createFlashCard.map((card) => card._id.toString()));
             }
-            const updateUserCollection = await this.userModel
-                .findByIdAndUpdate(
-                    sub,
-                    {
-                        $push: { collections: collection.id },
-                    },
-                    { new: true },
-                )
-                .exec();
+            user.collections.push(collection._id);
+            await user.save();
         } catch (error) {
             this.logger.error(error.message, error.stack);
             throw new InternalServerErrorException();
@@ -420,7 +409,28 @@ export class UserCollectionController {
     @Delete(':id')
     async deleteCollection(@Request() req: { user: jwtPayloadDto }, @Param() param: { id: string }) {
         try {
-            //  const
-        } catch (error) {}
+            const collection = await this.collectionModel.findOne({
+                _id: new ObjectId(param.id),
+                owner: new ObjectId(req.user.sub),
+            });
+            console.log(collection);
+
+            if (!collection) {
+                return new BadRequestException('Collection not found');
+            }
+            const user = await this.userModel.findById(req.user.sub);
+
+            _.remove(user.collections, function (o) {
+                return o.toString() === param.id;
+            });
+
+            // await this.collectionModel.deleteOne({ _id: new ObjectId(param.id) });
+            await collection.deleteOne();
+
+            return 'Deleted';
+        } catch (error) {
+            this.logger.error(error);
+            throw new InternalServerErrorException();
+        }
     }
 }

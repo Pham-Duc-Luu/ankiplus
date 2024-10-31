@@ -1,7 +1,8 @@
+"use client";
 import { IReoderItemCard } from "@/app/[locale]/edit/collection/[id]/page";
 import { Card, CardProps } from "@nextui-org/react";
 import { Reorder, useDragControls } from "framer-motion";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   CardBody,
@@ -17,6 +18,14 @@ import {
 } from "react-icons/md";
 import { CiLock } from "react-icons/ci";
 import { useTranslations } from "next-intl";
+import { IReorderItemCard } from "@/app/[locale]/create/collection/page";
+import _ from "lodash";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import {
+  removeFlashCards,
+  setFlashCards,
+  updateFlashCard,
+} from "@/store/createCollectionSlice";
 export interface IReoderItemCardProps extends CardProps {
   value: IReoderItemCard;
   order: number;
@@ -29,6 +38,14 @@ const ReoderItemCard = ({ value, className, order }: IReoderItemCardProps) => {
   const t = useTranslations("collection.create.card");
 
   const [isGrapping, setisGrapping] = useState(false);
+  const dispatch = useAppDispatch();
+  const { newCollection } = useAppSelector(
+    (state) => state.persistedReducer.createNewCollection
+  );
+
+  useEffect(() => {
+    dispatch(updateFlashCard({ ...value, front, back }));
+  }, [front, back]);
 
   return (
     <Reorder.Item
@@ -60,7 +77,9 @@ const ReoderItemCard = ({ value, className, order }: IReoderItemCardProps) => {
                 color="warning"
                 variant="faded"
                 className=" flex justify-center items-center"
-                // onClick={() => onRemove(value.id)}
+                onClick={() => {
+                  dispatch(removeFlashCards(value));
+                }}
               >
                 <MdDeleteOutline size={20}></MdDeleteOutline>
               </Button>
@@ -82,6 +101,7 @@ const ReoderItemCard = ({ value, className, order }: IReoderItemCardProps) => {
               onChange={(e) => {
                 setfront(e.target.value);
               }}
+              onClear={() => setfront("")}
               value={front}
               // onClear={() => setcardFront(undefined)}
               isClearable
@@ -89,6 +109,7 @@ const ReoderItemCard = ({ value, className, order }: IReoderItemCardProps) => {
             <Input
               isClearable
               value={back}
+              onClear={() => setback("")}
               variant="underlined"
               labelPlacement="outside"
               // onBlur={handleUpdate} // Call onChange when input loses focus

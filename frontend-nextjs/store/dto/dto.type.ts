@@ -48,9 +48,38 @@ export interface CollectionType {
   createdAt: Date;
   updatedAt: Date;
 }
-
+export interface CollectionDto extends CollectionType {}
 export interface UpdateCollectionDto
   extends Pick<
     CollectionType,
     "description" | "icon" | "isPublic" | "language" | "name" | "thumnail"
   > {}
+
+export interface IFlashCardDto {
+  _id: string;
+  id: string;
+
+  front: string;
+  back: string;
+}
+
+export interface CreateCollectionDto {
+  name: string;
+
+  description?: string;
+
+  icon?: string;
+
+  thumnail?: string;
+
+  isPublic?: boolean;
+
+  language?: string;
+
+  flashCards?: flashCardDto[];
+}
+
+export interface flashCardDto {
+  front: string;
+  back: string;
+}

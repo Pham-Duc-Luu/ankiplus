@@ -36,10 +36,6 @@ export const graphqlRequestBaseQuery = <E = ErrorResponse>(
 
     const getToken = () => {
       const { persistedReducer } = getState() as RootState;
-      console.log({
-        access_token: persistedReducer.auth.access_token,
-        refresh_token: persistedReducer.auth.refresh_token,
-      });
 
       return {
         access_token: persistedReducer.auth.access_token,
@@ -64,15 +60,16 @@ export const graphqlRequestBaseQuery = <E = ErrorResponse>(
       );
     };
 
-    const ClientRequest = async () => {
+    const ClientRequest = async ({
+      access_token,
+    }: {
+      access_token: string;
+    }) => {
       const prepareHeaders: PrepareHeaders =
         options.prepareHeaders ?? ((x) => x);
       const headers = new Headers(stripUndefined(requestHeaders));
 
-      headers.set(
-        "Authorization",
-        `Bearer ${persistedReducer.auth.access_token}`
-      );
+      headers.set("Authorization", `Bearer ${access_token}`);
 
       const preparedHeaders = await prepareHeaders(headers, {
         getState,
@@ -107,12 +104,15 @@ export const graphqlRequestBaseQuery = <E = ErrorResponse>(
       //   extra,
       // });
       return {
-        data: await ClientRequest(),
+        data: await ClientRequest({
+          access_token: persistedReducer.auth.access_token || "",
+        }),
         meta: {},
       };
     } catch (error) {
       if (error instanceof ClientError) {
         const { name, message, stack, request, response } = error;
+
         if (message.includes("401")) {
           try {
             const refreshResult = await fetchNewToken();
@@ -121,15 +121,18 @@ export const graphqlRequestBaseQuery = <E = ErrorResponse>(
               dispatch(setAccessToken(refreshResult.data.access_token));
 
               return {
-                data: await ClientRequest(),
+                data: await ClientRequest({
+                  access_token: refreshResult.data.access_token,
+                }),
                 meta: {},
               };
             } else {
               throw new AxiosError("Something went wrong!");
             }
           } catch (error) {
-            dispatch(loggedOut());
+            // dispatch(loggedOut());
             const err = error as AxiosError;
+
             const { message, stack, name } = err;
             const customErrors =
               options.customErrors ?? (() => ({ name, message, stack }));
@@ -137,13 +140,13 @@ export const graphqlRequestBaseQuery = <E = ErrorResponse>(
 
             return { error: customizedErrors, meta: { request, response } };
           }
+        } else {
+          const customErrors =
+            options.customErrors ?? (() => ({ name, message, stack }));
+
+          const customizedErrors = customErrors(error) as E;
+          return { error: customizedErrors, meta: { request, response } };
         }
-
-        const customErrors =
-          options.customErrors ?? (() => ({ name, message, stack }));
-
-        const customizedErrors = customErrors(error) as E;
-        return { error: customizedErrors, meta: { request, response } };
       }
       throw error;
     }

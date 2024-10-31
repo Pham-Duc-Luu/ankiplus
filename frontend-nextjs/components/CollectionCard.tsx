@@ -8,9 +8,10 @@ import {
   CardProps,
   Divider,
   Snippet,
+  Spinner,
   useDisclosure,
 } from "@nextui-org/react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { MdOutlineNavigateNext } from "react-icons/md";
 import { IoIosAddCircleOutline } from "react-icons/io";
 
@@ -37,13 +38,17 @@ import {
   ModalBody,
   ModalFooter,
 } from "@nextui-org/react";
+import { useDeleteCollectionMutation } from "@/store/RTK-query/collectionApi";
 export interface CollectionCardProps
   extends CardProps,
-    Partial<ICollectionCard> {}
+    Partial<ICollectionCard> {
+  onDelete?: () => void;
+}
 export default function CollectionCard({
   avatar,
   title,
   description,
+  onDelete = () => {},
   _id,
   ...props
 }: CollectionCardProps) {
@@ -51,6 +56,14 @@ export default function CollectionCard({
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const route = useRouter();
   const t_utils = useTranslations("utils");
+  const [deleteCollectionTrigger, data] = useDeleteCollectionMutation();
+
+  useEffect(() => {
+    if (data.isSuccess) {
+      onDelete();
+    }
+  }, [data]);
+
   return (
     <>
       <Card className="group/collectionCard cursor-pointer" {...props}>
@@ -121,26 +134,35 @@ export default function CollectionCard({
         <CardFooter className="h-1 m-0 p-0 bg-[hsl(var(--primary))] group-hover/collectionCard:visible invisible"></CardFooter>
       </Card>
 
-      <Modal backdrop="blur" isOpen={isOpen} onOpenChange={onOpenChange}>
-        <ModalContent>
+      <Modal
+        backdrop="blur"
+        isOpen={isOpen}
+        className={data.isLoading ? " cursor-progress" : ""}
+        onOpenChange={onOpenChange}
+        isDismissable={!data.isLoading}
+        isKeyboardDismissDisabled={!data.isLoading}
+      >
+        <ModalContent className={data.isLoading ? " cursor-progress" : ""}>
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1">
                 Delete Confirmation
               </ModalHeader>
               <ModalBody>
-                <Button
-                  isDisabled
-                  className=" opacity-100"
-                  color="danger"
-                >{`Are you sure to delete the collection ${title}?`}</Button>
+                <>
+                  Are you sure to delete collection :{" "}
+                  <p className=" font-bold">{title}</p>
+                </>
               </ModalBody>
               <ModalFooter>
-                <Button color="primary" onPress={onClose}>
-                  Cancel
-                </Button>
-                <Button color="danger" onPress={onClose}>
-                  Delete
+                <Button color="primary">Cancel</Button>
+                <Button
+                  color="danger"
+                  onClick={() => {
+                    deleteCollectionTrigger({ id: _id });
+                  }}
+                >
+                  {data.isLoading ? <Spinner></Spinner> : "Delete"}
                 </Button>
               </ModalFooter>
             </>

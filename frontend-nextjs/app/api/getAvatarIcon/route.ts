@@ -32,8 +32,6 @@ export function GET(req: Request) {
     return { fileName, content: jsonObj };
   });
 
-  console.log(svgs);
-
   // Read the SVG file content
 
   // Respond with an array of SVG content and file names

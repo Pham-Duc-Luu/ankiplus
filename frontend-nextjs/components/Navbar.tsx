@@ -30,11 +30,7 @@ const MainNavbar = (navbarProps: NavbarProps) => {
   const t = useTranslations("dashboard.my collection");
   const { auth } = useAppSelector((state) => state.persistedReducer);
   const Tutils = useTranslations("utils");
-  useEffect(() => {
-    if (!auth.access_token) {
-      router.push("/landing");
-    }
-  }, [auth]);
+
   return (
     <Navbar
       isBordered

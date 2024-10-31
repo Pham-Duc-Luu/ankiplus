@@ -16,23 +16,6 @@ const Page = () => {
     (state) => state.persistedReducer.auth
   );
 
-  useEffect(() => {
-    /**
-     * TODO: unhighlight it after debugging
-     */
-    if (!access_token || !refresh_token) {
-      route.push("/landing");
-    }
-  }, [access_token, refresh_token]);
-
-  /**
-   * ! Move to v2 page of dashboard
-   */
-
-  useLayoutEffect(() => {
-    route.push("dashboard/v2");
-  }, []);
-
   return (
     <div className=" w-full min-h-screen flex flex-col items-center p-6">
       <Card className=" lg:w-[1200px] w-full">

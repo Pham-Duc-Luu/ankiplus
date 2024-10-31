@@ -14,7 +14,7 @@ import { Divider, Spinner } from "@nextui-org/react";
 // import { GET_USER_COLLECTIONS } from "@/graphql/GET_USER_COLLECTIONS";
 import _ from "lodash";
 import { useToast } from "@/hooks/use-toast";
-import { useGetUserCollectionsQuery } from "@/store/graphql/COLLECTION.generated";
+import { useGetUserCollectionsQuery } from "@/store/graphql/COLLECTION.modify";
 
 export interface ListCollectionDisplayProps {
   LIMIT?: number;
@@ -26,18 +26,26 @@ const ListCollectionDisplay = ({
   SKIP = 0,
 }: ListCollectionDisplayProps) => {
   const { toast } = useToast();
-  const { data, isLoading, isError, error } = useGetUserCollectionsQuery({
-    LIMIT,
-    SKIP,
-  });
+  const { data, isLoading, isError, error, refetch, isFetching } =
+    useGetUserCollectionsQuery(
+      {
+        LIMIT,
+        SKIP,
+      },
+      {}
+    );
 
-  if (isLoading) {
+  if (isLoading || isFetching) {
     return (
       <div className=" flex justify-center m-6">
         <Spinner size="lg" />
       </div>
     );
   }
+
+  const handlDeleteCollection = () => {
+    refetch();
+  };
 
   return (
     <div>
@@ -58,6 +66,7 @@ const ListCollectionDisplay = ({
               return (
                 <CollectionCard
                   _id={item._id}
+                  onDelete={handlDeleteCollection}
                   key={i}
                   title={item.name}
                   description={item.description || ""}
