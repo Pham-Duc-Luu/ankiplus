@@ -15,6 +15,7 @@ import { FlashCardQueryOptionDto } from 'dto/flashcard.dto';
 import * as _ from 'lodash';
 import { ForbiddenError } from 'apollo-server-express';
 import { ListResponseDto } from 'dto/ListResponse.dto';
+import * as dayjs from 'dayjs';
 
 @Resolver(() => CollectionGQLObject)
 @UseGuards(AuthGuardGraphqlServer)
@@ -90,6 +91,7 @@ export class UserCollectionResolver {
         @Args('order', { type: () => String, defaultValue: 'desc' }) order: 'asc' | 'desc',
         @Args('sortBy', { type: () => String, defaultValue: '_id' })
         sortBy: FlashCardQueryOptionDto['sortBy'],
+        @Args('filter', { type: () => String }) filter: string | null,
         @Args('collection_id', { type: () => String }) collection_id: string,
     ) {
         const { sub } = context.req.user;
@@ -113,12 +115,15 @@ export class UserCollectionResolver {
         if (collection.owner.toString() !== sub) {
             throw new ForbiddenException('You cannot access this collection');
         }
-
+        const total = (await this.collectionModel.findById(collection_id)).cards.length;
         return new ListResponseDto({
-            total: await this.collectionModel.countDocuments(),
+            total: total,
             skip: skip,
-            limit: limit,
-            data: collection.cards,
+            limit: total > limit ? limit : total,
+            data: _.filter(collection.cards, function (o: FlashCard) {
+                if (filter === 'review') return !dayjs(o.SRS.nextReviewDate).isAfter(dayjs());
+                return true;
+            }),
         });
     }
 

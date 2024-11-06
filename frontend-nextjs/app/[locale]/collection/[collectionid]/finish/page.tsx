@@ -23,12 +23,15 @@ import CustomConfettiButton from "./Confetti";
 import { useRouter } from "@/i18n/routing";
 import { useParams } from "next/navigation";
 import { GrLinkNext } from "react-icons/gr";
+import { useGetCollectionDetailQuery } from "@/store/graphql/COLLECTION.modify";
 const Page = () => {
-  const { collection } = useAppSelector((state) => state);
   const [value, setValue] = useState(0);
   const t = useTranslations("review");
   const route = useRouter();
-
+  const { collectionid } = useParams<{ collectionid: string }>();
+  const GetCollectionDetailQuery = useGetCollectionDetailQuery({
+    ID: collectionid,
+  });
   useEffect(() => {
     const handleIncrement = (prev: number) => {
       if (prev === 100) {
@@ -70,14 +73,17 @@ const Page = () => {
     }, 250);
   };
   useEffect(() => {
-    handleClick();
-  }, []);
-  const { collectionid } = useParams<{ collectionid: string }>();
-
+    GetCollectionDetailQuery.data?.getCollectionById && handleClick();
+  }, [GetCollectionDetailQuery]);
+  if (GetCollectionDetailQuery.isLoading) {
+    return;
+  }
   return (
     <div className=" w-full flex flex-col items-center p-6">
       <div className="lg:w-[1200px] w-full">
-        <div className=" w-full text-2xl font-bold">{collection.name}</div>
+        <div className=" w-full text-2xl font-bold">
+          {GetCollectionDetailQuery.data?.getCollectionById.name}
+        </div>
         <Card isBlurred className="p-4">
           <CardBody className=" flex-row gap-12 justify-between items-center">
             <div className="">

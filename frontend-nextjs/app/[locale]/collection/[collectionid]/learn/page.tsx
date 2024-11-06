@@ -6,18 +6,29 @@ import React, { useEffect } from "react";
 import ReviewTimeOption from "./ReviewTimeOption";
 import Proccess from "./LearningProgress";
 import { useDispatch } from "react-redux";
-import { startReview } from "@/store/collectionSlice";
+import { setFlashCards, startReview } from "@/store/collectionSlice";
 import { initReviewCard } from "@/store/reviewCardSlice";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/routing";
 import { Button } from "@nextui-org/react";
+import { useParams } from "next/navigation";
+import { useGetFLashCardsInCollectionQuery } from "@/store/graphql/COLLECTION.modify";
+import { useGetCollectionDetailQuery } from "@/store/graphql/COLLECTION.generated";
 
 const Page = () => {
   const { collection, reviewCard } = useAppSelector(
     (state) => state.persistedReducer
   );
   const dispatch = useDispatch();
+  const { collectionid } = useParams<{ collectionid: string }>();
 
+  const GetFLashCardsInCollectionQuery = useGetFLashCardsInCollectionQuery({
+    ID: collectionid,
+  });
+
+  const GetCollectionDetailQuery = useGetCollectionDetailQuery({
+    ID: collectionid,
+  });
   useEffect(() => {
     dispatch(startReview());
 
@@ -28,6 +39,17 @@ const Page = () => {
     if (collection.cards)
       dispatch(initReviewCard(collection.cards[collection.reviewCard.index]));
   }, [collection.reviewCard]);
+
+  useEffect(() => {
+    if (GetFLashCardsInCollectionQuery.data?.getCollectionFlashCards.data) {
+      dispatch(
+        setFlashCards(
+          GetFLashCardsInCollectionQuery.data?.getCollectionFlashCards.data
+        )
+      );
+    }
+  }, [GetFLashCardsInCollectionQuery.data]);
+
   const t = useTranslations("review");
 
   const route = useRouter();
@@ -42,8 +64,10 @@ const Page = () => {
   return (
     <div className="w-full flex flex-col items-center">
       <div className="lg:w-[1200px] flex flex-col gap-8 items-center p-6">
-        <div className=" w-full">{collection.name}</div>
-        <Proccess></Proccess>
+        <div className=" w-full">
+          {GetCollectionDetailQuery.data?.getCollectionById.name}
+        </div>
+        {/* <Proccess></Proccess> */}
         <main className="w-full">
           <AnimatePresence mode="wait">
             <motion.div

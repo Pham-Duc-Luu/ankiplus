@@ -11,6 +11,14 @@ enum accessStatus {}
 @Schema({
     timestamps: true,
 })
+export class ReviewSession {
+    @Prop({ type: [{ type: Types.ObjectId, ref: 'FlashCard' }] })
+    cards?: (FlashCard | string)[];
+}
+
+@Schema({
+    timestamps: true,
+})
 export class Collection {
     @Prop({ required: true, unique: true })
     name: string;
@@ -36,6 +44,9 @@ export class Collection {
 
     @Prop({ type: [{ type: Types.ObjectId, ref: 'FlashCard' }] })
     cards?: (FlashCard | string)[];
+
+    @Prop({ type: ReviewSession })
+    reviewSession: ReviewSession;
 
     @Prop({ type: Types.ObjectId, ref: 'User', required: true }) // Add reference to User
     owner: User | string; // Reference to the User schema

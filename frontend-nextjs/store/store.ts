@@ -37,6 +37,7 @@ const rootReducer = combineReducers({
 
 import thunk from "redux-thunk";
 import { CollectionGraphqlApi } from "./graphql/COLLECTION.modify";
+import { flashcardApi } from "./RTK-query/flashcardApi";
 // Create GQL client (or any extra argument)
 
 const persistConfig = {
@@ -56,6 +57,8 @@ export const store = configureStore({
     // apiReducer,
     [authApi.reducerPath]: authApi.reducer,
     [userApi.reducerPath]: userApi.reducer,
+    [flashcardApi.reducerPath]: flashcardApi.reducer,
+
     [CollectionGraphqlApi.reducerPath]: CollectionGraphqlApi.reducer,
     [collectionApi.reducerPath]: collectionApi.reducer,
   },
@@ -70,7 +73,8 @@ export const store = configureStore({
       authApi.middleware,
       userApi.middleware,
       CollectionGraphqlApi.middleware,
-      collectionApi.middleware
+      collectionApi.middleware,
+      flashcardApi.middleware
     ),
 });
 

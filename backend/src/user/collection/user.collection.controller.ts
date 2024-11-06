@@ -45,6 +45,7 @@ import { UserAuthService } from '../user.service';
 import { ParamValidate } from 'src/guard/param.validate.guard';
 import configuration from ' config/configuration';
 import { jwtPayloadDto } from 'dto/jwt.dto';
+
 var _ = require('lodash');
 
 @ApiTags('users/collections')
@@ -335,6 +336,7 @@ export class UserCollectionController {
             if (flashCards?.length > 0) {
                 const createFlashCard = await this.flashCardModel.create(flashCards);
                 collection.cards.push(...createFlashCard.map((card) => card._id.toString()));
+                collection.reviewSession.cards.push(...createFlashCard.map((card) => card._id.toString()));
             }
             user.collections.push(collection._id);
             await user.save();

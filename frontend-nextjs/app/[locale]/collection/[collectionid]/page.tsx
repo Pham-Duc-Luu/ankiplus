@@ -18,6 +18,7 @@ import { useRouter } from "@/i18n/routing";
 import { useGetFLashCardsInCollectionQuery } from "@/store/graphql/COLLECTION.generated";
 import { Card, setSelectedCard } from "@/store/collectionSlice";
 import _ from "lodash";
+import Navbar from "@/components/Navbar";
 const Page = () => {
   const t = useTranslations("collection.info");
   const t1 = useTranslations("review");
@@ -26,7 +27,7 @@ const Page = () => {
   const route = useRouter();
 
   const { collectionid } = useParams<{ collectionid: string }>();
-  const { data, isLoading } = useGetFLashCardsInCollectionQuery({
+  const { data, isLoading, refetch } = useGetFLashCardsInCollectionQuery({
     ID: collectionid,
   });
 
@@ -143,5 +144,18 @@ const Page = () => {
     </div>
   );
 };
+import SideBar from "@/components/SideBar";
 
-export default Page;
+export default function () {
+  return (
+    <div className=" ">
+      <Navbar position="static"></Navbar>
+      <div>
+        <SideBar></SideBar>
+        <div>
+          <Page></Page>
+        </div>
+      </div>
+    </div>
+  );
+}

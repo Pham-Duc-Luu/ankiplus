@@ -15,6 +15,8 @@ import { UserCollectionController } from './collection/user.collection.controlle
 import { UserFlashCardController } from './flashcard/user.flashCard.controller';
 import configuration from ' config/configuration';
 import { UserCollectionResolver } from './collection/user.collection.resolver';
+import { SRSService } from './flashcard/Srs.flashCard.service';
+import { UserCollectionService } from './collection/user.collection.service';
 
 @Module({
     imports: [
@@ -36,6 +38,6 @@ import { UserCollectionResolver } from './collection/user.collection.resolver';
         ContextModule,
     ],
     controllers: [UserController, UserAuthController, UserCollectionController, UserFlashCardController],
-    providers: [UserService, UtilService, UserAuthService, UserCollectionResolver],
+    providers: [UserService, UtilService, UserAuthService, UserCollectionResolver, UserCollectionService, SRSService],
 })
 export class UserModule {}
