@@ -82,7 +82,7 @@ const Page = () => {
         <div className="flex gap-4">
           <Button
             onClick={() => {
-              route.push(`${collectionid}/learn`);
+              route.push(COLLECTION_LEARN(collectionid));
             }}
             startContent={<PiCardsBold size={28} />}
             size="lg"
@@ -145,6 +145,7 @@ const Page = () => {
   );
 };
 import SideBar from "@/components/SideBar";
+import { COLLECTION_LEARN } from "@/store/route.slice";
 
 export default function () {
   return (

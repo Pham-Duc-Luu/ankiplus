@@ -15,7 +15,7 @@ import {
     UseGuards,
 } from '@nestjs/common';
 import { User } from 'schemas/user.schema';
-import { AuthGuard } from 'src/guard/auth.guard';
+import { AuthGuard } from 'src/auth/guard/auth.guard';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Collection } from 'schemas/collection.schema';

@@ -22,7 +22,7 @@ import mongoose, { Model } from 'mongoose';
 import { Collection } from 'schemas/collection.schema';
 import { FlashCard } from 'schemas/flashCard.schema';
 import { User } from 'schemas/user.schema';
-import { AuthGuard } from 'src/guard/auth.guard';
+import { AuthGuard } from 'src/auth/guard/auth.guard';
 import { UtilService } from 'src/util/util.service';
 import Logger, { LoggerKey } from '../../../libs/logger/logger/domain/logger';
 import { ObjectId } from 'mongodb';
@@ -30,6 +30,7 @@ import { EditFlashCardDto } from '../../../dto/flashcard.dto';
 import * as _ from 'lodash';
 import { SRSService } from './Srs.flashCard.service';
 import { IsOptional } from 'class-validator';
+import { UserCollectionService } from '../collection/user.collection.service';
 
 @Controller('users')
 @UseGuards(AuthGuard)
@@ -46,6 +47,7 @@ export class UserFlashCardController {
         @InjectModel(User.name, configuration().database.mongodb_main.name) private userModel: Model<User>,
         @InjectModel(Collection.name, configuration().database.mongodb_main.name)
         private collectionModel: Model<Collection>,
+        private userCollectionService: UserCollectionService,
     ) {}
 
     /**
@@ -77,6 +79,9 @@ export class UserFlashCardController {
             const stuydingFlashCard = await this.flashCardModel.findById(param.flashCardId);
 
             const card = await this.SrsService.updateSRS(quality, param.flashCardId);
+
+            // await this.userCollectionService.pushToCardToReviewSession(param.collectionId, [card._id.toString()]);
+
             return card.SRS;
         } catch (error) {
             // this.logger.error(error);

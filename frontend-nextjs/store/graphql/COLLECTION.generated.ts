@@ -18,7 +18,7 @@ export type GetUserCollectionsQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetUserCollectionsQuery = { __typename?: 'Query', getUserCollections: { __typename?: 'CollectionQueryGQLObject', total: number, skip: number, limit: number, data: Array<{ __typename?: 'CollectionGQLObject', _id: string, name: string, description?: string, thumnail?: string, icon?: string, isPublic?: boolean, language?: string, owner: string, createdAt: any, updatedAt: any }> } };
+export type GetUserCollectionsQuery = { __typename?: 'Query', getUserCollections: { __typename?: 'CollectionQueryGQLObject', total: number, skip: number, limit: number, data: Array<{ __typename?: 'CollectionGQLObject', _id: string, name: string, description?: string, thumbnail?: string, icon?: string, isPublic?: boolean, language?: string, owner: string, createdAt: any, updatedAt: any }> } };
 
 export type GetFLashCardsInCollectionQueryVariables = Types.Exact<{
   ID: Types.Scalars['String']['input'];
@@ -32,7 +32,16 @@ export type GetCollectionDetailQueryVariables = Types.Exact<{
 }>;
 
 
-export type GetCollectionDetailQuery = { __typename?: 'Query', getCollectionById: { __typename?: 'CollectionGQLObject', name: string, description?: string, thumnail?: string, icon?: string, isPublic?: boolean, language?: string, owner: string, createdAt: any, updatedAt: any } };
+export type GetCollectionDetailQuery = { __typename?: 'Query', getCollectionById: { __typename?: 'CollectionGQLObject', name: string, description?: string, thumbnail?: string, icon?: string, isPublic?: boolean, language?: string, owner: string, createdAt: any, updatedAt: any } };
+
+export type GetNeedToReviewFlashCardsQueryVariables = Types.Exact<{
+  ID: Types.Scalars['String']['input'];
+  SKIP?: Types.InputMaybe<Types.Scalars['Int']['input']>;
+  LIMIT?: Types.InputMaybe<Types.Scalars['Int']['input']>;
+}>;
+
+
+export type GetNeedToReviewFlashCardsQuery = { __typename?: 'Query', getNeedToReviewFlashCards: { __typename?: 'NeedToReviewFlashCardGQLObject', total: number, skip: number, limit: number, data: Array<{ __typename?: 'FlashCardGQLObject', _id: string, front: string, back: string, inCollection: string, SRS: { __typename?: 'SRSGQLObject', _id: string, nextReviewDate: any, interval: number, efactor: number } }> } };
 
 
 export const GetUserCollectionsDocument = `
@@ -45,7 +54,7 @@ export const GetUserCollectionsDocument = `
       _id
       name
       description
-      thumnail
+      thumbnail
       icon
       isPublic
       language
@@ -76,13 +85,34 @@ export const GetCollectionDetailDocument = `
   getCollectionById(id: $ID) {
     name
     description
-    thumnail
+    thumbnail
     icon
     isPublic
     language
     owner
     createdAt
     updatedAt
+  }
+}
+    `;
+export const GetNeedToReviewFlashCardsDocument = `
+    query GetNeedToReviewFlashCards($ID: String!, $SKIP: Int = 0, $LIMIT: Int = 30) {
+  getNeedToReviewFlashCards(collection_id: $ID, limit: $LIMIT, skip: $SKIP) {
+    total
+    skip
+    limit
+    data {
+      _id
+      front
+      back
+      inCollection
+      SRS {
+        _id
+        nextReviewDate
+        interval
+        efactor
+      }
+    }
   }
 }
     `;
@@ -98,9 +128,12 @@ const injectedRtkApi = graphqlApi.injectEndpoints({
     GetCollectionDetail: build.query<GetCollectionDetailQuery, GetCollectionDetailQueryVariables>({
       query: (variables) => ({ document: GetCollectionDetailDocument, variables })
     }),
+    GetNeedToReviewFlashCards: build.query<GetNeedToReviewFlashCardsQuery, GetNeedToReviewFlashCardsQueryVariables>({
+      query: (variables) => ({ document: GetNeedToReviewFlashCardsDocument, variables })
+    }),
   }),
 });
 
 export { injectedRtkApi as api };
-export const { useGetUserCollectionsQuery, useLazyGetUserCollectionsQuery, useGetFLashCardsInCollectionQuery, useLazyGetFLashCardsInCollectionQuery, useGetCollectionDetailQuery, useLazyGetCollectionDetailQuery } = injectedRtkApi;
+export const { useGetUserCollectionsQuery, useLazyGetUserCollectionsQuery, useGetFLashCardsInCollectionQuery, useLazyGetFLashCardsInCollectionQuery, useGetCollectionDetailQuery, useLazyGetCollectionDetailQuery, useGetNeedToReviewFlashCardsQuery, useLazyGetNeedToReviewFlashCardsQuery } = injectedRtkApi;
 

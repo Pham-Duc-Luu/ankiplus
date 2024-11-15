@@ -1,5 +1,5 @@
 import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument, Types } from 'mongoose';
+import mongoose, { HydratedDocument, ObjectId, Types } from 'mongoose';
 import { User } from './user.schema';
 import { FlashCard } from './flashCard.schema';
 import { Field, Int, ObjectType } from '@nestjs/graphql';
@@ -12,6 +12,9 @@ enum accessStatus {}
     timestamps: true,
 })
 export class ReviewSession {
+    /**
+     *  a review session includes cards that have review date after today
+     */
     @Prop({ type: [{ type: Types.ObjectId, ref: 'FlashCard' }] })
     cards?: (FlashCard | string)[];
 }
@@ -27,7 +30,7 @@ export class Collection {
     description?: string;
 
     @Prop({})
-    thumnail?: string;
+    thumbnail?: string;
 
     @Prop({ default: 'Icon' })
     icon?: string;
@@ -57,52 +60,3 @@ export type CollectionDocument = HydratedDocument<Collection> & {
     updatedAt: Date;
 };
 export const CollectionSchema = SchemaFactory.createForClass(Collection);
-
-@ObjectType()
-export class CollectionQueryGQLObject extends ListResponseDto<CollectionGQLObject> {
-    @Field((type) => Int)
-    total: number;
-    @Field((type) => Int)
-    skip: number;
-    @Field((type) => Int)
-    limit: number;
-
-    @Field((type) => [CollectionGQLObject])
-    data: CollectionGQLObject[];
-}
-
-@ObjectType()
-export class CollectionGQLObject extends Collection {
-    @Field((type) => String)
-    _id: string;
-
-    @Field((type) => String)
-    name: string;
-
-    @Field((type) => String, { nullable: true })
-    description?: string;
-
-    @Field((type) => String, { nullable: true })
-    thumnail?: string;
-
-    @Field((type) => String, { nullable: true })
-    icon: string;
-
-    @Field((type) => Boolean, { nullable: true })
-    isPublic: boolean = true;
-
-    @Field((type) => String, { nullable: true })
-    language: string;
-
-    @Field((type) => [String], { nullable: true }) // Reference to the FlashCard schema (in the form of string IDs)
-    cards?: string[];
-
-    @Field((type) => String)
-    owner: string; // Reference to the User schema
-
-    @Field((type) => Date)
-    createdAt: Date;
-
-    @Field((type) => Date)
-    updatedAt: Date;
-}

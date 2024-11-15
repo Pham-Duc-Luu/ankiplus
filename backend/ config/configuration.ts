@@ -14,4 +14,19 @@ export default () => ({
             expiresIn: process.env.JWT_PUBLIC_KEY_EXPIRATION || '1h',
         },
     },
+    oauth2: {
+        provider: {
+            google: {
+                clientID: process.env.GOOGLE_CLIENT_ID || 'google-id',
+                clientSecret: process.env.GOOGLE_CLIENT_SECRET || 'google-secret',
+                callbackURL: process.env.CALLBACK_URL || 'http://localhost:5000/auth/google/callback',
+            },
+        },
+    },
+
+    client: {
+        frontend: {
+            url: process.env.FRONTEND_URL || 'http://localhost:3000',
+        },
+    },
 });

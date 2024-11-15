@@ -7,7 +7,7 @@ query GetUserCollections($SKIP: Int = 0, $LIMIT: Int = 10) {
       _id
       name
       description
-      thumnail
+      thumbnail
       icon
       isPublic
       language
@@ -36,12 +36,36 @@ query GetCollectionDetail($ID: String!) {
   getCollectionById(id: $ID) {
     name
     description
-    thumnail
+    thumbnail
     icon
     isPublic
     language
     owner
     createdAt
     updatedAt
+  }
+}
+
+query GetNeedToReviewFlashCards(
+  $ID: String!
+  $SKIP: Int = 0
+  $LIMIT: Int = 30
+) {
+  getNeedToReviewFlashCards(collection_id: $ID, limit: $LIMIT, skip: $SKIP) {
+    total
+    skip
+    limit
+    data {
+      _id
+      front
+      back
+      inCollection
+      SRS {
+        _id
+        nextReviewDate
+        interval
+        efactor
+      }
+    }
   }
 }

@@ -17,6 +17,8 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { join } from 'path';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
+import { ScheduleModule } from '@nestjs/schedule';
+import { AuthModule } from './auth/auth.module';
 // import { LoggerModule } from '@nestjs-logger/shared/logger/infrastructure/nestjs/loggerModule';
 // import { ConfigModule } from '@nestjs-logger/shared/config/infrastructure/nestjs/configModule';
 // import { ContextModule } from '@nestjs-logger/shared/context/infrastructure/nestjs/contextModule';
@@ -27,16 +29,7 @@ import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin
         //     load: [configuration], // Makes the .env configuration available globally
         //     isGlobal: true,
         // }),
-        JwtModule.registerAsync({
-            global: true,
-            useFactory: async (configService: ConfigService) => {
-                return {
-                    secret: configService.get<string>('jwtConstant.secret'),
-                    // signOptions: { expiresIn: configService.get<string>('jwtConstant.expiresIn') },
-                };
-            },
-            inject: [ConfigService],
-        }),
+        AuthModule,
         MongooseModule.forRootAsync({
             useFactory: async (configService: ConfigService) => {
                 return {
@@ -73,6 +66,7 @@ import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin
 
             context: ({ req }) => ({ req }), // This ensures that the request object is available in the GraphQL context
         }),
+        ScheduleModule.forRoot(),
         // UserAuthModule,
         CollectionModule,
         UserModule,

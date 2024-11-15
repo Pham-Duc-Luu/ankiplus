@@ -25,6 +25,7 @@ export type FlashCardDocument = HydratedDocument<FlashCard> & {
     updatedAt: Date;
 };
 export const FlashCardSchema = SchemaFactory.createForClass(FlashCard);
+
 @ObjectType()
 export class FlashCardGQLObject extends FlashCard {
     @Field((type) => String)
@@ -45,6 +46,19 @@ export class FlashCardGQLObject extends FlashCard {
 
 @ObjectType()
 export class FlashCardQueryGQLObject extends ListResponseDto<FlashCardGQLObject> {
+    @Field((type) => Int)
+    total: number;
+    @Field((type) => Int)
+    skip: number;
+    @Field((type) => Int)
+    limit: number;
+
+    @Field((type) => [FlashCardGQLObject])
+    data: FlashCardGQLObject[];
+}
+
+@ObjectType()
+export class NeedToReviewFlashCardGQLObject extends ListResponseDto<FlashCardGQLObject> {
     @Field((type) => Int)
     total: number;
     @Field((type) => Int)

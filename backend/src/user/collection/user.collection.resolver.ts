@@ -1,14 +1,33 @@
 import { Resolver, Query, Mutation, Args, Int, Context } from '@nestjs/graphql';
-import { Collection, CollectionGQLObject, CollectionQueryGQLObject } from 'schemas/collection.schema';
-import { CollectionQueryOptionDto, CreateCollectionDto, UpdateCollectionDto } from 'dto/collection.dto';
-import { BadRequestException, ForbiddenException, Inject, Logger, UseGuards } from '@nestjs/common';
-import { AuthGuard, AuthGuardGraphqlServer } from 'src/guard/auth.guard';
+import { Collection } from 'schemas/collection.schema';
+import {
+    CollectionGQLObject,
+    CollectionQueryGQLObject,
+    CollectionQueryOptionDto,
+    CreateCollectionDto,
+    UpdateCollectionDto,
+} from 'dto/collection.dto';
+import {
+    BadRequestException,
+    ForbiddenException,
+    Inject,
+    InternalServerErrorException,
+    Logger,
+    UseGuards,
+} from '@nestjs/common';
+import { AuthGuard, AuthGuardGraphqlServer } from 'src/auth/guard/auth.guard';
 import { InjectModel } from '@nestjs/mongoose';
 import configuration from ' config/configuration';
 import { Model } from 'mongoose';
 import { jwtPayloadDto } from 'dto/jwt.dto';
 import { LoggerKey } from 'libs/logger/logger/domain/logger';
-import { FlashCard, FlashCardGQLObject, FlashCardQueryGQLObject } from 'schemas/flashCard.schema';
+import {
+    FlashCard,
+    FlashCardDocument,
+    FlashCardGQLObject,
+    FlashCardQueryGQLObject,
+    NeedToReviewFlashCardGQLObject,
+} from 'schemas/flashCard.schema';
 import { User } from 'schemas/user.schema';
 import { ObjectId } from 'mongodb';
 import { FlashCardQueryOptionDto } from 'dto/flashcard.dto';
@@ -16,6 +35,7 @@ import * as _ from 'lodash';
 import { ForbiddenError } from 'apollo-server-express';
 import { ListResponseDto } from 'dto/ListResponse.dto';
 import * as dayjs from 'dayjs';
+import { UserCollectionService } from './user.collection.service';
 
 @Resolver(() => CollectionGQLObject)
 @UseGuards(AuthGuardGraphqlServer)
@@ -27,6 +47,7 @@ export class UserCollectionResolver {
         @InjectModel(User.name, configuration().database.mongodb_main.name) private userModel: Model<User>,
         @InjectModel(Collection.name, configuration().database.mongodb_main.name)
         private collectionModel: Model<Collection>,
+        private useCollectionService: UserCollectionService,
     ) {}
 
     /**
@@ -91,7 +112,7 @@ export class UserCollectionResolver {
         @Args('order', { type: () => String, defaultValue: 'desc' }) order: 'asc' | 'desc',
         @Args('sortBy', { type: () => String, defaultValue: '_id' })
         sortBy: FlashCardQueryOptionDto['sortBy'],
-        @Args('filter', { type: () => String }) filter: string | null,
+        @Args('filter', { type: () => String, nullable: true }) filter: string | null,
         @Args('collection_id', { type: () => String }) collection_id: string,
     ) {
         const { sub } = context.req.user;
@@ -127,21 +148,92 @@ export class UserCollectionResolver {
         });
     }
 
-    // @Mutation(() => Collection)
-    // async createCollection(@Args('createCollectionDto') createCollectionDto: CreateCollectionDto) {
-    //     return this.collectionModel.create(createCollectionDto);
-    // }
+    @Query(() => NeedToReviewFlashCardGQLObject)
+    async getNeedToReviewFlashCards(
+        @Context() context: Partial<{ req: { user: jwtPayloadDto } }>, // Use context to access the request
+        @Args('limit', { type: () => Int, defaultValue: 30 }) limit: number,
+        @Args('skip', { type: () => Int, defaultValue: 0 }) skip: number,
+        @Args('order', { type: () => String, defaultValue: 'desc' }) order: 'asc' | 'desc',
+        @Args('sortBy', { type: () => String, defaultValue: '_id' })
+        sortBy: FlashCardQueryOptionDto['sortBy'],
+        @Args('collection_id', { type: () => String }) collection_id: string,
+    ) {
+        try {
+            const { sub } = context.req.user;
+            let sort = {};
+            sort[sortBy] = order;
 
-    // @Mutation(() => Collection)
-    // async updateCollection(
-    //     @Args('id', { type: () => String }) id: string,
-    //     @Args('updateCollectionDto') updateCollectionDto: UpdateCollectionDto,
-    // ) {
-    //     return this.collectionModel.update(id, updateCollectionDto);
-    // }
+            // /**
+            //  * find all the flashcards that have nextReviewDate before the current date
+            //  */
 
-    // @Mutation(() => String)
-    // async deleteCollection(@Args('id', { type: () => String }) id: string) {
-    //     return this.collectionModel.remove(id);
-    // }
+            // const flashcards = collection.cards as FlashCardDocument[];
+
+            // const today = dayjs();
+
+            // // the card that has nextReviewDate before the current date
+            // const todayReviewFlashCards = _.filter(flashcards, function (o) {
+            //     return !today.isBefore(dayjs(o.SRS.nextReviewDate));
+            // });
+
+            // // add the flashcards to the review session if the review session does not exist
+            // todayReviewFlashCards.forEach((item) => {
+            //     if (!collection?.reviewSession) {
+            //         // initialize review session
+            //         collection.reviewSession = { cards: [] };
+            //     }
+
+            //     // check if the card exist in review session
+            //     if (!_.includes(collection.reviewSession.cards, item._id.toString())) {
+            //         collection.reviewSession.cards.push(item._id.toString());
+            //     }
+            // });
+
+            // await collection.save();
+
+            // await this.useCollectionService.updateCardToReviewSession(
+            //     collection_id,
+            //     await this.useCollectionService.findReviewFlashcards(collection_id),
+            // );
+
+            /**
+             * check if the collection exist
+             */
+            const collection = await this.collectionModel.findById(collection_id);
+
+            /**
+             * find all of the flashcards that need to be reviewed today
+             */
+            const needToReviewCards = await this.useCollectionService.findReviewFlashcards(collection_id);
+
+            // remove the flashcards that have already existed in reivewSession
+            _.pullAll(needToReviewCards, collection.reviewSession.cards);
+            console.log(needToReviewCards);
+
+            // update the cards to review session
+            await this.useCollectionService.pushToCardToReviewSession(collection_id, needToReviewCards);
+            const updatedColletion = await this.collectionModel.findById(collection_id);
+
+            return new NeedToReviewFlashCardGQLObject({
+                total: collection.reviewSession.cards.length,
+                skip,
+                limit,
+                data: await Promise.all(
+                    updatedColletion.reviewSession.cards.map(async (item): Promise<FlashCardGQLObject> => {
+                        const card = await this.flashCardModel.findById(item).lean().exec();
+                        return {
+                            _id: card._id.toString(),
+                            front: card.front,
+                            back: card.back,
+                            SRS: card.SRS,
+                            inCollection: card.inCollection.toString(),
+                        };
+                    }),
+                ),
+            });
+        } catch (error) {
+            this.logger.error(error);
+            throw new InternalServerErrorException();
+        }
+    }
 }

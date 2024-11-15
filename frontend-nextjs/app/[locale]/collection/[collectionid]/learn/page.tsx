@@ -13,7 +13,10 @@ import { useRouter } from "@/i18n/routing";
 import { Button } from "@nextui-org/react";
 import { useParams } from "next/navigation";
 import { useGetFLashCardsInCollectionQuery } from "@/store/graphql/COLLECTION.modify";
-import { useGetCollectionDetailQuery } from "@/store/graphql/COLLECTION.generated";
+import {
+  useGetCollectionDetailQuery,
+  useGetNeedToReviewFlashCardsQuery,
+} from "@/store/graphql/COLLECTION.generated";
 
 const Page = () => {
   const { collection, reviewCard } = useAppSelector(
@@ -22,18 +25,19 @@ const Page = () => {
   const dispatch = useDispatch();
   const { collectionid } = useParams<{ collectionid: string }>();
 
-  const GetFLashCardsInCollectionQuery = useGetFLashCardsInCollectionQuery({
+  const GetFLashCardsInCollectionQuery = useGetNeedToReviewFlashCardsQuery({
     ID: collectionid,
   });
 
   const GetCollectionDetailQuery = useGetCollectionDetailQuery({
     ID: collectionid,
   });
+
   useEffect(() => {
     dispatch(startReview());
 
     if (collection?.cards) dispatch(initReviewCard(collection.cards[0]));
-  }, []);
+  }, [collection.cards]);
 
   useEffect(() => {
     if (collection.cards)
@@ -41,10 +45,10 @@ const Page = () => {
   }, [collection.reviewCard]);
 
   useEffect(() => {
-    if (GetFLashCardsInCollectionQuery.data?.getCollectionFlashCards.data) {
+    if (GetFLashCardsInCollectionQuery.data?.getNeedToReviewFlashCards.data) {
       dispatch(
         setFlashCards(
-          GetFLashCardsInCollectionQuery.data?.getCollectionFlashCards.data
+          GetFLashCardsInCollectionQuery.data?.getNeedToReviewFlashCards.data
         )
       );
     }

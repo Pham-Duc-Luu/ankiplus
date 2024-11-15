@@ -36,13 +36,13 @@ import { Model } from 'mongoose';
 import { Collection, CollectionDocument } from 'schemas/collection.schema';
 import { FlashCard, FlashCardDocument } from 'schemas/flashCard.schema';
 import { User } from 'schemas/user.schema';
-import { AuthGuard } from 'src/guard/auth.guard';
+import { AuthGuard } from 'src/auth/guard/auth.guard';
 import { UtilService } from 'src/util/util.service';
 import { pickFields } from 'utils/utils';
 
 import { query } from 'express';
 import { UserAuthService } from '../user.service';
-import { ParamValidate } from 'src/guard/param.validate.guard';
+import { ParamValidate } from 'src/auth/guard/param.validate.guard';
 import configuration from ' config/configuration';
 import { jwtPayloadDto } from 'dto/jwt.dto';
 
@@ -287,8 +287,8 @@ export class UserCollectionController {
             if (body.description) {
                 collection.description;
             }
-            if (body.thumnail) {
-                collection.thumnail = body.thumnail;
+            if (body.thumbnail) {
+                collection.thumbnail = body.thumbnail;
             }
             if (body.icon) {
                 collection.icon = body.icon;
@@ -394,7 +394,6 @@ export class UserCollectionController {
                 return typeof cards !== 'string';
             });
 
-            console.debug(reviewCard);
             return reviewCard.filter((card) => new Date(card.SRS.nextReviewDate).getTime() <= new Date().getTime());
         } catch (error) {
             this.logger.error(error);

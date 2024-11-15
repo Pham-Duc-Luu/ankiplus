@@ -22,7 +22,7 @@ import { Model } from 'mongoose';
 import { Collection, CollectionDocument } from 'schemas/collection.schema';
 import { FlashCard } from 'schemas/flashCard.schema';
 import { User } from 'schemas/user.schema';
-import { AuthGuard } from 'src/guard/auth.guard';
+import { AuthGuard } from 'src/auth/guard/auth.guard';
 import { UtilService } from 'src/util/util.service';
 import { UserAuthService, UserService } from './user.service';
 import { ConfigService } from '@nestjs/config';

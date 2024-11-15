@@ -2,38 +2,17 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type CollectionQueryGQLObject {
-  total: Int!
-  skip: Int!
-  limit: Int!
-  data: [CollectionGQLObject!]!
-}
-
-type CollectionGQLObject {
-  _id: String!
-  name: String!
-  description: String
-  thumnail: String
-  icon: String
-  isPublic: Boolean
-  language: String
-  cards: [String!]
-  owner: String!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-}
-
-"""
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
-"""
-scalar DateTime
-
 type SRSGQLObject {
   _id: String!
   nextReviewDate: DateTime!
   interval: Float!
   efactor: Float!
 }
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
 
 type FlashCardGQLObject {
   _id: String!
@@ -50,8 +29,37 @@ type FlashCardQueryGQLObject {
   data: [FlashCardGQLObject!]!
 }
 
+type NeedToReviewFlashCardGQLObject {
+  total: Int!
+  skip: Int!
+  limit: Int!
+  data: [FlashCardGQLObject!]!
+}
+
+type CollectionQueryGQLObject {
+  total: Int!
+  skip: Int!
+  limit: Int!
+  data: [CollectionGQLObject!]!
+}
+
+type CollectionGQLObject {
+  _id: String!
+  name: String!
+  description: String
+  thumbnail: String
+  icon: String
+  isPublic: Boolean
+  language: String
+  cards: [String!]
+  owner: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
 type Query {
   getUserCollections(limit: Int! = 30, skip: Int! = 0, order: String! = "desc", sortBy: String! = "createdAt"): CollectionQueryGQLObject!
   getCollectionById(id: String!): CollectionGQLObject!
-  getCollectionFlashCards(limit: Int! = 30, skip: Int! = 0, order: String! = "desc", sortBy: String! = "_id", filter: String!, collection_id: String!): FlashCardQueryGQLObject!
+  getCollectionFlashCards(limit: Int! = 30, skip: Int! = 0, order: String! = "desc", sortBy: String! = "_id", filter: String, collection_id: String!): FlashCardQueryGQLObject!
+  getNeedToReviewFlashCards(limit: Int! = 30, skip: Int! = 0, order: String! = "desc", sortBy: String! = "_id", collection_id: String!): NeedToReviewFlashCardGQLObject!
 }

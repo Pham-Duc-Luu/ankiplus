@@ -3,6 +3,7 @@ import { Collection, CollectionDocument } from 'schemas/collection.schema';
 import { QueryOptionDto } from './query-option.dto';
 import { ListResponseDto } from './ListResponse.dto';
 import { IsBoolean, IsOptional, IsString } from 'class-validator';
+import { Field, Int, ObjectType } from '@nestjs/graphql';
 
 export class flashCardDto {
     @ApiProperty()
@@ -77,4 +78,53 @@ export class CollectionDetailQueryDto<T> {
     constructor(partial: Partial<CollectionDetailQueryDto<T>>) {
         Object.assign(this, partial); // Assign all properties in one step
     }
+}
+
+@ObjectType()
+export class CollectionQueryGQLObject extends ListResponseDto<CollectionGQLObject> {
+    @Field((type) => Int)
+    total: number;
+    @Field((type) => Int)
+    skip: number;
+    @Field((type) => Int)
+    limit: number;
+
+    @Field((type) => [CollectionGQLObject])
+    data: CollectionGQLObject[];
+}
+
+@ObjectType()
+export class CollectionGQLObject extends Collection {
+    @Field((type) => String)
+    _id: string;
+
+    @Field((type) => String)
+    name: string;
+
+    @Field((type) => String, { nullable: true })
+    description?: string;
+
+    @Field((type) => String, { nullable: true })
+    thumbnail?: string;
+
+    @Field((type) => String, { nullable: true })
+    icon: string;
+
+    @Field((type) => Boolean, { nullable: true })
+    isPublic: boolean = true;
+
+    @Field((type) => String, { nullable: true })
+    language: string;
+
+    @Field((type) => [String], { nullable: true }) // Reference to the FlashCard schema (in the form of string IDs)
+    cards?: string[];
+
+    @Field((type) => String)
+    owner: string; // Reference to the User schema
+
+    @Field((type) => Date)
+    createdAt: Date;
+
+    @Field((type) => Date)
+    updatedAt: Date;
 }

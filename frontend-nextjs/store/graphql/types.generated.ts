@@ -26,7 +26,7 @@ export type CollectionGqlObject = {
   language?: Maybe<Scalars['String']['output']>;
   name: Scalars['String']['output'];
   owner: Scalars['String']['output'];
-  thumnail?: Maybe<Scalars['String']['output']>;
+  thumbnail?: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['DateTime']['output'];
 };
 
@@ -55,10 +55,19 @@ export type FlashCardQueryGqlObject = {
   total: Scalars['Int']['output'];
 };
 
+export type NeedToReviewFlashCardGqlObject = {
+  __typename?: 'NeedToReviewFlashCardGQLObject';
+  data: Array<FlashCardGqlObject>;
+  limit: Scalars['Int']['output'];
+  skip: Scalars['Int']['output'];
+  total: Scalars['Int']['output'];
+};
+
 export type Query = {
   __typename?: 'Query';
   getCollectionById: CollectionGqlObject;
   getCollectionFlashCards: FlashCardQueryGqlObject;
+  getNeedToReviewFlashCards: NeedToReviewFlashCardGqlObject;
   getUserCollections: CollectionQueryGqlObject;
 };
 
@@ -69,6 +78,16 @@ export type QueryGetCollectionByIdArgs = {
 
 
 export type QueryGetCollectionFlashCardsArgs = {
+  collection_id: Scalars['String']['input'];
+  filter?: InputMaybe<Scalars['String']['input']>;
+  limit?: Scalars['Int']['input'];
+  order?: Scalars['String']['input'];
+  skip?: Scalars['Int']['input'];
+  sortBy?: Scalars['String']['input'];
+};
+
+
+export type QueryGetNeedToReviewFlashCardsArgs = {
   collection_id: Scalars['String']['input'];
   limit?: Scalars['Int']['input'];
   order?: Scalars['String']['input'];
