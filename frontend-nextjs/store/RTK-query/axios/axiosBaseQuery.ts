@@ -4,6 +4,7 @@ import type { BaseQueryFn } from "@reduxjs/toolkit/query";
 import axios from "axios";
 import { AxiosRequestConfig, AxiosError } from "axios";
 import { IAuthResponse } from "../authApi";
+import { getCookie, getCookies, setCookie } from "cookies-next";
 const axiosBaseQuery =
   (
     { baseUrl }: { baseUrl: string } = { baseUrl: "" }
@@ -26,6 +27,7 @@ const axiosBaseQuery =
     const fetchNewToken = async () => {
       return await axios<IAuthResponse>({
         url: baseUrl + "/refresh-token",
+        withCredentials: true,
         method: "POST",
         data: {
           refresh_token: getToken().refresh_token,
@@ -54,6 +56,7 @@ const axiosBaseQuery =
     };
 
     try {
+      console.log(getCookies());
       const result = await mainFetch();
 
       return { data: result.data };

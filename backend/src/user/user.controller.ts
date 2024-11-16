@@ -8,6 +8,7 @@ import {
     Inject,
     Post,
     Query,
+    Req,
     Request,
     UnauthorizedException,
     UseGuards,
@@ -35,7 +36,7 @@ import { pickFields } from 'utils/utils';
 import configuration from ' config/configuration';
 import { CreateUserDto, LoginUserDto, UserProfileDto } from 'dto/user.dto';
 import { jwtPayloadDto, JWTTokenDto } from 'dto/jwt.dto';
-
+import { Request as ExpressRequest } from 'express';
 @Controller('')
 export class UserController {
     constructor(
@@ -145,7 +146,11 @@ export class UserController {
 
     @ApiTags('Authentications')
     @Post('/refresh-token')
-    async refreshToken(@Body() { access_token, refresh_token }: JWTTokenDto): Promise<JWTTokenDto> {
+    async refreshToken(
+        @Body() { access_token, refresh_token }: JWTTokenDto,
+        @Req() req: ExpressRequest,
+    ): Promise<JWTTokenDto> {
+        console.log(req.cookies['token']);
         if (!access_token || !refresh_token) {
             throw new BadRequestException('Missing token');
         }

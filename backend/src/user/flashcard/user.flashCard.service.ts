@@ -11,7 +11,6 @@ export class UserFlashCardService {
     constructor(
         @InjectModel(Collection.name) private collectionModel: Model<Collection>,
         @InjectModel(FlashCard.name) private flashCardModel: Model<FlashCard>,
-        // private logger: LoggerService,
     ) {}
 
     /**

@@ -14,7 +14,6 @@ export class UserService {
     constructor(
         @InjectModel(User.name, configuration().database.mongodb_main.name) private userModel: Model<User>,
         private jwtService: JwtService,
-        private util: UtilService,
         private configService: ConfigService,
     ) {}
 

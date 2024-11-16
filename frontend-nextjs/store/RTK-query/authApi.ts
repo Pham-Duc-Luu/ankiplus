@@ -25,8 +25,15 @@ export const authApi = createApi({
         data: credentials,
       }),
     }),
+    GoogleOAuth2: builder.mutation<IAuthResponse, string>({
+      query: (token) => ({
+        url: "/auth/google/verify",
+        method: "POST",
+        data: { token },
+      }),
+    }),
   }),
 });
 
 // Export hooks for the endpoints
-export const { useSignUpMutation } = authApi;
+export const { useSignUpMutation, useGoogleOAuth2Mutation } = authApi;

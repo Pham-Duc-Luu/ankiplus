@@ -47,3 +47,11 @@ export class UserProfileDto<D> implements IUserProfileDto<D> {
         this.collections = collections;
     }
 }
+
+export interface IOAuthGoogleUser {
+    provider: string;
+    providerId: string;
+    email: string;
+    name: string;
+    picture: string;
+}

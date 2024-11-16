@@ -1,9 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
-import { Strategy, VerifyCallback } from 'passport-google-oauth2';
+import { Strategy, VerifyCallback } from 'passport-google-oauth20';
 import { log } from 'winston';
 import { configDotenv } from 'dotenv';
+import { IOAuthGoogleUser } from 'dto/user.dto';
 configDotenv();
 
 @Injectable()
@@ -11,7 +12,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     constructor(private configService: ConfigService) {
         super({
             clientID:
-                configService.get<string>('oauth2.provider.google.clientId') ||
+                configService.get<string>('oauth2.provider.google.clientID') ||
                 process.env.GOOGLE_CLIENT_ID ||
                 'google-id',
             clientSecret:
@@ -31,7 +32,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     async validate(_accessToken: string, _refreshToken: string, profile: any, done: VerifyCallback): Promise<any> {
         const { id, name, emails, photos } = profile;
 
-        const user = {
+        const user: IOAuthGoogleUser = {
             provider: 'google',
             providerId: id,
             email: emails[0].value,

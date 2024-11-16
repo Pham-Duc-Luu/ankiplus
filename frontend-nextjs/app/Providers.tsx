@@ -8,6 +8,7 @@ import { useAppSelector } from "@/store/hooks";
 import { persistor, store } from "@/store/store";
 import { ApolloProvider } from "@apollo/client";
 import { NextUIProvider } from "@nextui-org/react";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
@@ -36,8 +37,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <PersistGate loading={null} persistor={persistor}>
           <Provider store={store}>
             <MouseContextProvider>
+              <GoogleOAuthProvider
+                clientId={`${process.env.NEXT_PUBLIC_AUTH_GOOGLE_ID}`}
+              >
+                {children}
+              </GoogleOAuthProvider>
               {/* <ApolloCustomeProvider> */}
-              {children}
               {/* </ApolloCustomeProvider> */}
             </MouseContextProvider>
           </Provider>
