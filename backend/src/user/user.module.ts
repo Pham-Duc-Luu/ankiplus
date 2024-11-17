@@ -17,6 +17,7 @@ import configuration from ' config/configuration';
 import { UserCollectionResolver } from './collection/user.collection.resolver';
 import { SRSService } from './flashcard/Srs.flashCard.service';
 import { UserCollectionService } from './collection/user.collection.service';
+import { MailerService } from './mailer.service';
 
 @Module({
     imports: [
@@ -38,6 +39,14 @@ import { UserCollectionService } from './collection/user.collection.service';
         ContextModule,
     ],
     controllers: [UserController, UserAuthController, UserCollectionController, UserFlashCardController],
-    providers: [UserService, UtilService, UserAuthService, UserCollectionResolver, UserCollectionService, SRSService],
+    providers: [
+        UserService,
+        UtilService,
+        UserAuthService,
+        UserCollectionResolver,
+        UserCollectionService,
+        SRSService,
+        MailerService,
+    ],
 })
 export class UserModule {}

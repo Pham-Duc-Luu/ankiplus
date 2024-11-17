@@ -32,6 +32,16 @@ const ViewOptions = ({ className }: Partial<ButtonProps>) => {
     IViewOptions[0]
   );
 
+  const route = useRouter();
+
+  const { access_token } = useAppSelector(
+    (state) => state.persistedReducer.auth
+  );
+
+  useEffect(() => {
+    if (!access_token) route.push(AUTH_SIGN_IN());
+  }, [access_token]);
+
   return (
     <Dropdown
       onOpenChange={(isOpen) => {
@@ -116,6 +126,7 @@ import ListCollectionDisplay from "../ListCollectionDisplay";
 import { setPage, setTotalCollectionAmount } from "@/store/userSlice";
 import _ from "lodash";
 import { useGetUserCollectionsQuery } from "@/store/graphql/COLLECTION.modify";
+import { AUTH_SIGN_IN } from "@/store/route.slice";
 // import { graphql } from "@/__generated__/gql";
 
 // const GET_USER_COLLECTIONS = graphql(/* GraphQL */ `

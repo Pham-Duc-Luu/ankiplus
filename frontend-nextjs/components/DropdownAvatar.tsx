@@ -33,9 +33,13 @@ const DropdownAvatar = () => {
       <Dropdown>
         <DropdownTrigger>
           <ShadcnAvatar className=" cursor-pointer  m-2">
-            <AvatarFallback
-              dangerouslySetInnerHTML={{ __html: user.avatarBuilt }}
-            ></AvatarFallback>
+            {user.avatarBuilt ? (
+              <AvatarFallback
+                dangerouslySetInnerHTML={{ __html: user.avatarBuilt }}
+              ></AvatarFallback>
+            ) : (
+              <AvatarFallback>{user.username[0].toUpperCase()}</AvatarFallback>
+            )}
           </ShadcnAvatar>
         </DropdownTrigger>
         <DropdownMenu variant="faded" aria-label="Dropdown menu with icons">

@@ -55,3 +55,14 @@ export interface IOAuthGoogleUser {
     name: string;
     picture: string;
 }
+
+export class SendOtpDto {
+    @ApiProperty()
+    @IsEmail()
+    email: string;
+}
+
+export class ResetPasswordDto extends LoginUserDto {
+    @ApiProperty()
+    otp: string;
+}

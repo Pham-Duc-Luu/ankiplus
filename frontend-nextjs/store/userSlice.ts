@@ -5,7 +5,7 @@ import dayjs from "dayjs";
 
 export interface User {
   _id?: string | number;
-  avatar: object;
+  avatar?: object;
   avatarBuilt?: any;
   username: string;
   email: string;
@@ -65,8 +65,8 @@ const initAvatar = {
 };
 
 const initialState: User = {
-  avatar: initAvatar,
-  avatarBuilt: builder.build(initAvatar),
+  // avatar: initAvatar,
+  // avatarBuilt: builder.build(initAvatar),
   username: "quizlette8421301",
   email: "quizlette8421301@gmail.com",
   password: "*************",

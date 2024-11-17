@@ -1,5 +1,11 @@
 "use client";
-import { Avatar, AvatarProps, Button, CardProps } from "@nextui-org/react";
+import {
+  Avatar,
+  AvatarProps,
+  Button,
+  CardProps,
+  Spinner,
+} from "@nextui-org/react";
 import {
   Card,
   CardHeader,
@@ -29,6 +35,7 @@ import {
 import DevelopmentProccessAlert from "@/components/DevelopmentProccessAlert";
 import { useDispatch } from "react-redux";
 import { handleOpen } from "@/store/modalSlice";
+import { useGetProfileQuery } from "@/store/RTK-query/userApi";
 interface SvgFile {
   fileName: string;
   content: any;
@@ -62,7 +69,7 @@ const AvatarIcon = ({ data, ...props }: AvatarIconProps) => {
   );
 };
 
-export default function Personal({}: CardProps) {
+export default function Personal({ ...prop }: CardProps) {
   const [svgFiles, setSvgFiles] = useState<SvgFile[]>([]);
 
   useEffect(() => {
@@ -87,8 +94,18 @@ export default function Personal({}: CardProps) {
   const Tutils = useTranslations("utils");
   const dispatch = useDispatch();
 
+  // fetch user profile
+  const { isFetching, isError, data } = useGetProfileQuery({});
+
+  if (isFetching) {
+    <Spinner size="lg">loading...</Spinner>;
+  }
+  if (isError) {
+    return <DevelopmentProccessAlert />;
+  }
+
   return (
-    <Card className="">
+    <Card className="" {...prop}>
       <CardHeader className="flex gap-3 flex-col">
         <p className="w-full text-2xl font-sans px-10 py-4">
           {t("personal.change avatar")}
@@ -123,7 +140,7 @@ export default function Personal({}: CardProps) {
       <CardBody className="flex flex-row justify-center items-center p-10">
         <div className="flex flex-col flex-1">
           <p className=" text-xl font-bold">{Tutils("username")}</p>
-          <p className=" text-xl">{user.username}</p>
+          <p className=" text-xl">{data?.username}</p>
         </div>
         <Button
           variant="ghost"
@@ -140,7 +157,7 @@ export default function Personal({}: CardProps) {
       <CardBody className="flex flex-row justify-center items-center p-10">
         <div className="flex flex-col flex-1">
           <p className=" text-xl font-bold">{Tutils("email")}</p>
-          <p className=" text-xl">{user.email}</p>
+          <p className=" text-xl">{data?.email}</p>
         </div>
         <Button
           variant="ghost"

@@ -6,6 +6,7 @@ import {
     HttpException,
     HttpStatus,
     Inject,
+    InternalServerErrorException,
     Post,
     Query,
     Req,
@@ -34,9 +35,13 @@ import { QueryOptionDto } from 'dto/query-option.dto';
 import { ListResponseDto } from 'dto/ListResponse.dto';
 import { pickFields } from 'utils/utils';
 import configuration from ' config/configuration';
-import { CreateUserDto, LoginUserDto, UserProfileDto } from 'dto/user.dto';
+import { CreateUserDto, LoginUserDto, ResetPasswordDto, SendOtpDto, UserProfileDto } from 'dto/user.dto';
 import { jwtPayloadDto, JWTTokenDto } from 'dto/jwt.dto';
 import { Request as ExpressRequest } from 'express';
+import { AUTHENTICATION } from 'dto/ApiTag.dto';
+import * as otpGen from 'otp-generator';
+import { MailerService } from './mailer.service';
+import * as dayjs from 'dayjs';
 @Controller('')
 export class UserController {
     constructor(
@@ -45,11 +50,12 @@ export class UserController {
         private userService: UserService,
         private jwtService: JwtService,
         private configService: ConfigService,
+        private mailerService: MailerService,
         @InjectModel(User.name, configuration().database.mongodb_main.name) private userModel: Model<User>,
         @InjectModel(Token.name, configuration().database.mongodb_main.name) private tokenModel: Model<Token>,
     ) {}
 
-    @ApiTags('Authentications')
+    @ApiTags(AUTHENTICATION, 'User')
     @Post('/sign-up')
     async create(@Body() createUser: CreateUserDto) {
         const { email, password, username } = createUser;
@@ -105,7 +111,7 @@ export class UserController {
         };
     }
 
-    @ApiTags('Authentications')
+    @ApiTags(AUTHENTICATION, 'User')
     @Post('/sign-in')
     async findUser(@Body() loginProperty: LoginUserDto): Promise<JWTTokenDto> {
         const { email, password } = loginProperty;
@@ -144,7 +150,7 @@ export class UserController {
         return new JWTTokenDto(access_token, refresh_token);
     }
 
-    @ApiTags('Authentications')
+    @ApiTags(AUTHENTICATION)
     @Post('/refresh-token')
     async refreshToken(
         @Body() { access_token, refresh_token }: JWTTokenDto,
@@ -191,6 +197,68 @@ export class UserController {
         } catch (error) {
             this.logger.error(error);
             throw new UnauthorizedException();
+        }
+    }
+
+    @ApiTags(AUTHENTICATION)
+    @Post('/reset-password/send-otp')
+    async sendOTP(@Body() { email }: SendOtpDto) {
+        try {
+            if (!email) {
+                return new BadRequestException('Email is required');
+            }
+            // Check if the email is valid
+            const existUser = await this.userModel.findOne({ email });
+
+            if (!existUser) return new BadRequestException('The email does not exist');
+            const otp = otpGen.generate(6, { upperCaseAlphabets: false, specialChars: false });
+
+            existUser.resetPasswordToken = otp;
+            existUser.resetPasswordExpires = dayjs().add(60, 'second').toDate();
+
+            // Send OTP via email
+            this.mailerService.sendEmail({
+                from: 'Ankiplus',
+                to: email,
+                subject: 'Reset Password OTP',
+                html: `<p>Your OTP code is: <strong>${otp}</strong></p><p>It is valid for 60 second.</p>`,
+            });
+
+            await existUser.save();
+
+            return 'OTP has sent to your email';
+        } catch (error) {
+            this.logger.error(error);
+            throw new InternalServerErrorException();
+        }
+    }
+
+    @ApiTags(AUTHENTICATION)
+    @Post('/reset-password')
+    async resetPassword(@Body() { email, password, otp }: ResetPasswordDto) {
+        try {
+            if (!email || !password || !otp) {
+                return new BadRequestException('Email, password and otp are required');
+            }
+            // Check if the email is valid
+            const existUser = await this.userModel.findOne({ email });
+
+            if (!existUser) return new BadRequestException('The email does not exist');
+
+            if (dayjs().isAfter(existUser.resetPasswordExpires) || existUser.resetPasswordToken !== otp) {
+                return new BadRequestException('Invalid OTP or expired time');
+            }
+
+            existUser.password = this.util.hashSync(password);
+
+            existUser.resetPasswordExpires = null;
+            existUser.resetPasswordToken = null;
+            await existUser.save();
+
+            return 'ok';
+        } catch (error) {
+            this.logger.error(error);
+            throw new InternalServerErrorException();
         }
     }
 }

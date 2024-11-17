@@ -8,7 +8,9 @@ export const routeState = {
   COLLECTION_CREATE: () => `/create/collection`,
   COLLECTION_EDIT: () => `/edit/collection`,
   SETTING: () => `/setting`,
-  AUTH_SIGN_IN: () => `/auth/sign-in/v2`,
+  AUTH_SIGN_IN: () => `/auth/sign-in`,
+  AUTH_SIGN_UP: () => `/auth/sign-up`,
+  AUTH_FORGOTPASSWORD: () => `/auth/forgot-password`,
 };
 
 export const {
@@ -20,4 +22,6 @@ export const {
   COLLECTION_EDIT,
   SETTING,
   AUTH_SIGN_IN,
+  AUTH_FORGOTPASSWORD,
+  AUTH_SIGN_UP,
 } = routeState;

@@ -29,4 +29,13 @@ export default () => ({
             url: process.env.FRONTEND_URL || 'http://localhost:3000',
         },
     },
+    mailer: {
+        host: 'smtp.ethereal.email',
+        port: 587,
+        secure: false, // true for port 465, false for other ports
+        auth: {
+            user: process.env.HOST_EMAIL_USER || 'maddison53@ethereal.email',
+            pass: process.env.HOST_EMAIL_PASS || 'jn7jnAPss4f63QBp6D',
+        },
+    },
 });

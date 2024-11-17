@@ -11,6 +11,8 @@ import { ValidationPipe } from '@nestjs/common';
 import { DelayInterceptor } from './Interceptor/delay.interceptor';
 async function bootstrap() {
     const app = await NestFactory.create(AppModule, { bufferLogs: true });
+    app.setGlobalPrefix('api/v1');
+
     const configService = app.get(ConfigService);
     const config = new DocumentBuilder().build();
     const document = SwaggerModule.createDocument(app, config);
