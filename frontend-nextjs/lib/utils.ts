@@ -25,3 +25,7 @@ export function closestItem<T>(arr: T[], item: T) {
 export function capitalize(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
+
+const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/i;
+
+export const isValidEmail = (email: string) => emailRegex.test(email);

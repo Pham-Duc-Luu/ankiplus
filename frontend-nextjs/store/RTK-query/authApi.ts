@@ -15,12 +15,39 @@ export const authApi = createApi({
   }), // Use the Axios base query
   endpoints: (builder) => ({
     // Define a login endpoint
-    signUp: builder.mutation<
+    signIn: builder.mutation<
       IAuthResponse,
       { email: string; password: string }
     >({
       query: (credentials) => ({
         url: "/sign-in",
+        method: "POST",
+        data: credentials,
+      }),
+    }),
+    signUp: builder.mutation<
+      IAuthResponse,
+      { email: string; password: string; username: string }
+    >({
+      query: (credentials) => ({
+        url: "/sign-up",
+        method: "POST",
+        data: credentials,
+      }),
+    }),
+    sendOtp: builder.mutation<string, { email: string }>({
+      query: (credentials) => ({
+        url: "/reset-password/send-otp",
+        method: "POST",
+        data: credentials,
+      }),
+    }),
+    resetPassword: builder.mutation<
+      string,
+      { email: string; password: string; otp: string }
+    >({
+      query: (credentials) => ({
+        url: "/reset-password",
         method: "POST",
         data: credentials,
       }),
@@ -36,4 +63,10 @@ export const authApi = createApi({
 });
 
 // Export hooks for the endpoints
-export const { useSignUpMutation, useGoogleOAuth2Mutation } = authApi;
+export const {
+  useSignInMutation,
+  useSignUpMutation,
+  useGoogleOAuth2Mutation,
+  useResetPasswordMutation,
+  useSendOtpMutation,
+} = authApi;

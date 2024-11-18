@@ -7,7 +7,7 @@ import { ErrResponse } from "@/store/dto/error.res.dto";
 import { useAppDispatch } from "@/store/hooks";
 import {
   useGoogleOAuth2Mutation,
-  useSignUpMutation,
+  useSignInMutation,
 } from "@/store/RTK-query/authApi";
 import { Button, Card, CircularProgress, Input, Link } from "@nextui-org/react";
 import axios, { AxiosError } from "axios";
@@ -25,7 +25,14 @@ import {
 
   //   googleLogout,
 } from "@react-oauth/google";
-import { AUTH_FORGOTPASSWORD, AUTH_SIGN_UP } from "@/store/route.slice";
+
+import {
+  AUTH_FORGOTPASSWORD,
+  AUTH_SIGN_UP,
+  DASHBOARD_ROUTE,
+} from "@/store/route.slice";
+import { CiMail } from "react-icons/ci";
+import ResetPasswordButton from "@/components/ResetPassword.modal";
 
 export default function IconCloudDemo() {
   const GoogleLogin = useGoogleLogin({
@@ -46,15 +53,15 @@ export default function IconCloudDemo() {
   const { toast } = useToast();
   const dispatch = useAppDispatch();
 
-  const [useSignUpMutationTrigger, useSignUpMutationResult] =
-    useSignUpMutation();
+  const [useSignInMutationTrigger, useSignInMutationResult] =
+    useSignInMutation();
 
   const [useGoogleOAuth2MutationTrigger, useGoogleOAuth2MutationResult] =
     useGoogleOAuth2Mutation();
 
   const handleSubmit = () => {
     if (email && password) {
-      useSignUpMutationTrigger({ email: email, password: password });
+      useSignInMutationTrigger({ email: email, password: password });
     }
   };
 
@@ -66,10 +73,10 @@ export default function IconCloudDemo() {
      * if the response is error
      */
     if (
-      useSignUpMutationResult.isError &&
-      useSignUpMutationResult.error?.data
+      useSignInMutationResult.isError &&
+      useSignInMutationResult.error?.data
     ) {
-      const error = useSignUpMutationResult.error
+      const error = useSignInMutationResult.error
         .data as AxiosError<ErrResponse>;
 
       toast({ variant: "destructive", title: error?.message });
@@ -78,9 +85,9 @@ export default function IconCloudDemo() {
     /**
      * if the sign up was successful
      */
-    if (useSignUpMutationResult.data) {
-      dispatch(setAccessToken(useSignUpMutationResult.data.access_token));
-      dispatch(setRefreshToken(useSignUpMutationResult.data.refresh_token));
+    if (useSignInMutationResult.data) {
+      dispatch(setAccessToken(useSignInMutationResult.data.access_token));
+      dispatch(setRefreshToken(useSignInMutationResult.data.refresh_token));
       toast({
         variant: "success",
         duration: 700,
@@ -92,9 +99,9 @@ export default function IconCloudDemo() {
         ),
       });
 
-      router.push("/dashboard/v2");
+      router.push(DASHBOARD_ROUTE());
     }
-  }, [useSignUpMutationResult]);
+  }, [useSignInMutationResult]);
 
   /**
    * * capture the change event from the sign in mutation
@@ -132,7 +139,7 @@ export default function IconCloudDemo() {
         ),
       });
 
-      router.push("/dashboard/v2");
+      router.push(DASHBOARD_ROUTE());
     }
   }, [useGoogleOAuth2MutationResult]);
   return (
@@ -191,12 +198,15 @@ export default function IconCloudDemo() {
             </div>
           </div>
           <div className=" flex justify-between items-center">
-            <Link href={AUTH_SIGN_UP()} underline="always">
+            <Link
+              onPress={(e) => {
+                router.push(AUTH_SIGN_UP());
+              }}
+              underline="always"
+            >
               {t("sign up.action")}
             </Link>
-            <Link href={AUTH_FORGOTPASSWORD()} underline="always">
-              {t("forgotPassword.action")}
-            </Link>
+            <ResetPasswordButton></ResetPasswordButton>
           </div>
         </form>
       </Card>

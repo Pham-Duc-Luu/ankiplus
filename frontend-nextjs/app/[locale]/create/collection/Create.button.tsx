@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "@/i18n/routing";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { DASHBOARD_ROUTE } from "@/store/route.slice";
 import { useCreateNewCollectionMutation } from "@/store/RTK-query/collectionApi";
 import { Button, ButtonProps, Spinner } from "@nextui-org/react";
 import { useTranslations } from "next-intl";
@@ -43,7 +44,7 @@ const CreateButton = (props: ButtonProps) => {
         // description: 'There was a problem with your request.',
         // action: <ToastAction altText="Try again">Try again</ToastAction>,
       });
-      router.push("/dashboard/v2");
+      router.push(DASHBOARD_ROUTE());
     }
   }, [dataMutation]);
 

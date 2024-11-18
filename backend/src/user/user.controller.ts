@@ -210,7 +210,9 @@ export class UserController {
             // Check if the email is valid
             const existUser = await this.userModel.findOne({ email });
 
-            if (!existUser) return new BadRequestException('The email does not exist');
+            if (!existUser) throw new BadRequestException('The email does not exist');
+            console.log(existUser);
+
             const otp = otpGen.generate(6, { upperCaseAlphabets: false, specialChars: false });
 
             existUser.resetPasswordToken = otp;
@@ -228,6 +230,9 @@ export class UserController {
 
             return 'OTP has sent to your email';
         } catch (error) {
+            if (error instanceof HttpException) {
+                throw error;
+            }
             this.logger.error(error);
             throw new InternalServerErrorException();
         }

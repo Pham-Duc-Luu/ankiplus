@@ -25,6 +25,7 @@ import ThemSwitch from "./ThemSwitch";
 import { useTranslations } from "next-intl";
 import DropdownAvatar from "./DropdownAvatar";
 import { useAppSelector } from "@/store/hooks";
+import { AUTH_SIGN_IN, DASHBOARD_ROUTE } from "@/store/route.slice";
 const MainNavbar = (navbarProps: NavbarProps) => {
   const router = useRouter();
   const t = useTranslations("dashboard.my collection");
@@ -56,7 +57,7 @@ const MainNavbar = (navbarProps: NavbarProps) => {
         <NavbarBrand
           className="mr-4  cursor-pointer"
           onClick={() => {
-            router.push("/dashboard");
+            router.push(DASHBOARD_ROUTE());
           }}
         >
           {/* <AcmeLogo />
@@ -83,7 +84,7 @@ const MainNavbar = (navbarProps: NavbarProps) => {
               size="lg"
               variant="bordered"
               onClick={() => {
-                router.push("/auth/sign-in");
+                router.push(AUTH_SIGN_IN());
               }}
             >
               {Tutils("sign in")}
