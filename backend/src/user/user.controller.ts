@@ -63,20 +63,20 @@ export class UserController {
             throw new HttpException('Missing email, password or username', HttpStatus.BAD_REQUEST);
         }
 
-        // * validate email and password format
-        if (!this.util.validateEmail(email)) {
-            throw new BadRequestException('Invalid email');
-        }
-        if (!this.util.validatePassword(password)) {
-            throw new BadRequestException('Invalid password');
-        }
+        // // * validate email and password format
+        // if (!this.util.validateEmail(email)) {
+        //     throw new BadRequestException('Invalid email');
+        // }
+        // if (!this.util.validatePassword(password)) {
+        //     throw new BadRequestException('Invalid password');
+        // }
 
         // * check if email or username have been use
         const existUser = await this.userModel.findOne({
             $or: [{ email: email }, { username: username }],
         });
         if (existUser) {
-            throw new BadRequestException('Email or username already');
+            throw new BadRequestException('Email or username has already been used');
         }
 
         // * create a new user

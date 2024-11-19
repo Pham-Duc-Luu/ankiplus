@@ -5,6 +5,12 @@ import axios from "axios";
 import { AxiosRequestConfig, AxiosError } from "axios";
 import { IAuthResponse } from "../authApi";
 import { getCookie, getCookies, setCookie } from "cookies-next";
+
+export interface RTKqueryError<T = any> {
+  status: number;
+  data: T;
+}
+
 const axiosBaseQuery =
   (
     { baseUrl }: { baseUrl: string } = { baseUrl: "" }

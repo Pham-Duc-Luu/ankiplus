@@ -9,7 +9,7 @@ export const routeState = {
   COLLECTION_EDIT: () => `/edit/collection`,
   SETTING: () => `/setting`,
   AUTH_SIGN_IN: () => `/auth/sign-in`,
-  AUTH_SIGN_UP: () => `/auth/sign-up`,
+  AUTH_SIGN_UP: () => `/auth/sign-up/v2`,
   AUTH_FORGOTPASSWORD: () => `/auth/forgot-password`,
 };
 

@@ -29,11 +29,17 @@ async function bootstrap() {
         credentials: true,
     });
 
-    app.useGlobalPipes(new ValidationPipe());
+    app.useGlobalPipes(
+        new ValidationPipe({
+            // whitelist: true, // Remove properties not in the DTO
+            // forbidNonWhitelisted: true, // Throw an error if extraneous values are present
+            transform: true, // Automatically transform payloads to DTO instances
+        }),
+    );
     app.useLogger(app.get(NestjsLoggerServiceAdapter));
     app.useGlobalInterceptors(new TimeoutInterceptor(5000)); // 5000ms = 5 seconds
     // app.useGlobalInterceptors(new LoggingInterceptor());
-    app.useGlobalInterceptors(new DelayInterceptor(2000));
+    // app.useGlobalInterceptors(new DelayInterceptor(2000));
     await app.listen(configService.get('port'));
 }
 bootstrap();

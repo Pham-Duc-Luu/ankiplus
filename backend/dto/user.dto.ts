@@ -4,8 +4,10 @@ import { IListResponseDto } from './ListResponse.dto';
 
 export class CreateUserDto {
     @ApiProperty()
+    @IsEmail()
     email: string;
     @ApiProperty()
+    @IsStrongPassword()
     password: string;
     @ApiProperty()
     username: string;
@@ -18,6 +20,7 @@ export class LoginUserDto {
 
     // @IsStrongPassword()
     @ApiProperty()
+    @IsStrongPassword()
     password: string;
 }
 

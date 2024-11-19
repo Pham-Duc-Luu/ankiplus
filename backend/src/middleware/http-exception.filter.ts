@@ -5,6 +5,21 @@ import { Request, Response } from 'express';
 import Logger, { LoggerKey } from 'libs/logger/logger/domain/logger';
 import FileTransport from 'libs/logger/logger/infrastructure/winston/transports/fileTransport';
 import WinstonLogger from 'libs/logger/logger/infrastructure/winston/winstonLogger';
+import * as _ from 'lodash';
+
+const formatErrorMessage = (message: string | string[]): string => {
+    if (_.isString(message)) {
+        // If it's a string, return it directly
+        return message;
+    }
+
+    if (_.isArray(message)) {
+        // If it's an array of strings, capitalize and join them
+        return message.map((msg) => _.capitalize(msg)).join('. ') + '.';
+    }
+
+    return ''; // Return an empty string if it's neither a string nor an array
+};
 
 @Catch(HttpException)
 @Injectable()
@@ -25,11 +40,13 @@ export class HttpExceptionFilter implements ExceptionFilter {
         const gqlHost = GqlArgumentsHost.create(host);
         const isGraphQL = gqlHost.getType().toString() === 'graphql';
 
+        const validateErrorMessage = Object(exception.getResponse()).message as string | string[];
+
         const errorResponse = {
             statusCode: status,
             timestamp: new Date().toISOString(),
             path: request?.url,
-            message: exception.message || 'Internal server error',
+            message: formatErrorMessage(validateErrorMessage) || exception.message || 'Internal server error',
         };
         if (isGraphQL) {
             // For GraphQL, just throw the exception directly.
@@ -37,6 +54,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
         }
 
         this.logger.error(JSON.stringify(exception, null, 4));
-        response.status(status).json(exception);
+        response.status(status).json(errorResponse);
     }
 }

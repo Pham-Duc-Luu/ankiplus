@@ -310,6 +310,7 @@ export class UserCollectionController {
     async createCollections(@Request() req: { user: jwtPayloadDto }, @Body() body: CreateCollectionDto) {
         const { name, flashCards, description, isPublic, thumnail, language, icon } = body;
         const { sub } = req.user;
+        console.log(flashCards);
 
         const user = await this.userModel.findById(sub);
         if (!user) {
@@ -325,6 +326,8 @@ export class UserCollectionController {
         }
 
         try {
+            const createFlashCard = await this.flashCardModel.insertMany(flashCards);
+
             const collection = await this.collectionModel.create({
                 name,
                 description,
@@ -333,15 +336,16 @@ export class UserCollectionController {
                 language,
                 owner: user._id,
             });
-            if (flashCards?.length > 0) {
-                const createFlashCard = await this.flashCardModel.create(flashCards);
-                collection.cards.push(...createFlashCard.map((card) => card._id.toString()));
-                collection.reviewSession.cards.push(...createFlashCard.map((card) => card._id.toString()));
-            }
+
+            collection.cards = createFlashCard.map((card) => card._id.toString());
+            collection.reviewSession = {
+                cards: createFlashCard.map((card) => card._id.toString()),
+            };
             user.collections.push(collection._id);
+            await collection.save();
             await user.save();
         } catch (error) {
-            this.logger.error(error.message, error.stack);
+            this.logger.error(error);
             throw new InternalServerErrorException();
         }
 

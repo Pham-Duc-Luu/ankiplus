@@ -1,10 +1,20 @@
 "use client";
-import React from "react";
-import { Button, Card, Input, InputProps, Link } from "@nextui-org/react";
+import React, { useEffect } from "react";
+import {
+  Button,
+  Card,
+  CircularProgress,
+  Input,
+  InputProps,
+  Link,
+} from "@nextui-org/react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { FaGoogle, FaFacebook } from "react-icons/fa";
-import { useSignUpMutation } from "@/store/RTK-query/authApi";
+import {
+  useGoogleOAuth2Mutation,
+  useSignUpMutation,
+} from "@/store/RTK-query/authApi";
 import { MdOutlineVisibility, MdOutlineVisibilityOff } from "react-icons/md";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -19,6 +29,15 @@ import {
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { error } from "console";
+import { AxiosError } from "axios";
+import { RTKqueryError } from "@/store/RTK-query/axios/axiosBaseQuery";
+import { useToast } from "@/hooks/use-toast";
+import { ErrResponse } from "@/store/dto/error.res.dto";
+import { useGoogleLogin } from "@react-oauth/google";
+import { setAccessToken, setRefreshToken } from "@/store/authSilce";
+import { useAppDispatch } from "@/store/hooks";
+import { useRouter } from "@/i18n/routing";
+import { AUTH_SIGN_IN, DASHBOARD_ROUTE } from "@/store/route.slice";
 // Define the Zod schema for form validation
 const signUpSchema = z
   .object({
@@ -92,9 +111,28 @@ const Page = () => {
   const t = useTranslations("auth");
   const [useSignUpMutationTrigger, useSignUpMutationResult] =
     useSignUpMutation();
+
+  const [useGoogleOAuth2MutationTrigger, useGoogleOAuth2MutationResult] =
+    useGoogleOAuth2Mutation();
+  const GoogleLogin = useGoogleLogin({
+    flow: "auth-code",
+    onSuccess: (tokenResponse) => {
+      console.log(tokenResponse);
+
+      useGoogleOAuth2MutationTrigger(tokenResponse.code);
+    },
+    onError: (error) => console.log(error),
+    scope: "",
+  });
+  const router = useRouter();
+
+  const { toast } = useToast();
   const [credential, setcredential] = useState<
     Parameters<typeof useSignUpMutationTrigger>[0] & { confirmPassword: string }
   >();
+
+  const dispatch = useAppDispatch();
+
   const [isVisible, setIsVisible] = useState<{
     password: boolean;
     confirmPassword: boolean;
@@ -116,10 +154,78 @@ const Page = () => {
 
   // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof signUpSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
+    useSignUpMutationTrigger(values);
   }
+
+  useEffect(() => {
+    if (useSignUpMutationResult.error) {
+      const error = useSignUpMutationResult.error
+        .data as AxiosError<ErrResponse>;
+
+      toast({ variant: "destructive", title: error?.message });
+    }
+
+    /**
+     * if the sign up was successful
+     */
+    if (useSignUpMutationResult.data) {
+      dispatch(setAccessToken(useSignUpMutationResult.data.access_token));
+      dispatch(setRefreshToken(useSignUpMutationResult.data.refresh_token));
+      toast({
+        variant: "success",
+        duration: 700,
+        title: (
+          <div className=" flex justify-center items-center gap-4">
+            <CircularProgress aria-label="Loading..." />
+            <p>You've signed up successful</p>
+          </div>
+        ),
+      });
+
+      router.push(DASHBOARD_ROUTE());
+    }
+  }, [useSignUpMutationResult]);
+
+  /**
+   * * SIGN UP GOOGLE
+   */
+  useEffect(() => {
+    /**
+     * if the response is error
+     */
+    if (
+      useGoogleOAuth2MutationResult.isError &&
+      useGoogleOAuth2MutationResult.error?.data
+    ) {
+      const error = useGoogleOAuth2MutationResult.error
+        .data as AxiosError<ErrResponse>;
+
+      toast({ variant: "destructive", title: error?.message });
+    }
+
+    /**
+     * if the sign up was successful
+     */
+    if (useGoogleOAuth2MutationResult.data) {
+      dispatch(setAccessToken(useGoogleOAuth2MutationResult.data.access_token));
+      dispatch(
+        setRefreshToken(useGoogleOAuth2MutationResult.data.refresh_token)
+      );
+      toast({
+        variant: "success",
+        duration: 700,
+        title: (
+          <div className=" flex justify-center items-center gap-4">
+            <CircularProgress aria-label="Loading..." />
+            <p>You've signed up successful</p>
+          </div>
+        ),
+      });
+
+      router.push(DASHBOARD_ROUTE());
+    }
+  }, [useGoogleOAuth2MutationResult]);
+
   return (
     <>
       <Card isFooterBlurred radius="lg" className="border-none p-6 lg:mx-32  ">
@@ -201,10 +307,22 @@ const Page = () => {
           <Button color="primary" type="submit">
             {t("sign up.action")}
           </Button>
+          <div className=" flex w-full justify-center gap-4">
+            <Button className=" flex-1" onClick={() => GoogleLogin()}>
+              <FaGoogle />
+            </Button>
+            <Button className="flex-1">
+              <FaFacebook />
+            </Button>
+          </div>
         </form>
         <div className=" flex justify-between items-center">
-          <Link href="#" underline="always">
-            {t("sign up.action")}
+          <Link
+            href="#"
+            underline="always"
+            onPress={() => router.push(AUTH_SIGN_IN())}
+          >
+            {t("sign in.action")}
           </Link>
           <Link href="#" underline="always">
             {t("forgotPassword.action")}
