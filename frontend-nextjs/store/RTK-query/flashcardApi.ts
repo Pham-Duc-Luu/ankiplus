@@ -69,10 +69,40 @@ export const flashcardApi = createApi({
         }
       },
     }),
+
+    addFlashCardToCollection: builder.mutation({
+      queryFn: async (
+        {
+          collectionId,
+          listCard,
+        }: { collectionId: string; listCard: flashCardDto[] },
+        queryApi,
+        extraOptions,
+        baseQuery
+      ) => {
+        try {
+          const { data } = (await baseQuery({
+            url: `/users/collections/${collectionId}/flashcards`,
+            method: "POST",
+            data: listCard,
+          })) as AxiosResponse<string>;
+          return { data: data };
+        } catch (error) {
+          const err = error as AxiosError;
+          return {
+            error: {
+              status: err.response?.status,
+              data: err.response?.data || err.message,
+            },
+          };
+        }
+      },
+    }),
   }),
 });
 
 export const {
   useDeleteFlashCardMutation,
   useUpdateFlashcardInformationMutation,
+  useAddFlashCardToCollectionMutation,
 } = flashcardApi;

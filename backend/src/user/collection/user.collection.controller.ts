@@ -353,7 +353,7 @@ export class UserCollectionController {
     }
 
     @ApiOperation({ summary: 'add a flash card to collection' })
-    @Put(':id/flashcards')
+    @Post(':id/flashcards')
     async addFlashCards(
         @Request() req: { user: jwtPayloadDto },
         @Body() body: CreateFlashCardDto[],
@@ -367,9 +367,18 @@ export class UserCollectionController {
             throw new BadRequestException('Please provide flashcards');
         }
         try {
-            const newFlashCards = await this.flashCardModel.create([...body]);
+            // * get collection
             const updataCollection = await this.collectionModel.findById(param.id);
+
+            // * create flashcards with inCollection field
+            const newFlashCards = await this.flashCardModel.create([
+                ...body.map((flashCard) => ({ ...flashCard, inCollection: new ObjectId(updataCollection.id) })),
+            ]);
+
+            // * push flashcards to collection
             updataCollection.cards.push(...newFlashCards);
+
+            // * update collection
             await updataCollection.save();
         } catch (error) {
             this.logger.error(error.message, error.stack);

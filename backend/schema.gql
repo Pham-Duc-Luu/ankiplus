@@ -19,7 +19,7 @@ type FlashCardGQLObject {
   front: String!
   back: String!
   SRS: SRSGQLObject!
-  inCollection: String!
+  inCollection: String
 }
 
 type FlashCardQueryGQLObject {

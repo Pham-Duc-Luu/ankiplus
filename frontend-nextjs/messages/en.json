@@ -87,7 +87,12 @@
         "review": "review",
 
         "study": "study",
-        "test": "test"
+        "test": "test",
+        "add cards": "add cards",
+        "import": "import data"
+      },
+      "error": {
+        "no cards": "This collection has no cards yet"
       }
     },
     "edit": {}

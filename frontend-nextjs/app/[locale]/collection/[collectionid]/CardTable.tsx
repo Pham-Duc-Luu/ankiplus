@@ -13,33 +13,33 @@ import {
   Textarea,
 } from "@nextui-org/react";
 import { FaPen } from "react-icons/fa";
-import { IoEyeOutline } from "react-icons/io5";
 import { MdDeleteOutline } from "react-icons/md";
 import { useParams } from "next/navigation";
 import { Card, setSelectedCard } from "@/store/collectionSlice";
 import _ from "lodash";
 import {
   Modal,
-  ModalContent,
-  ModalHeader,
   ModalBody,
+  ModalContent,
   ModalFooter,
   useDisclosure,
 } from "@nextui-org/modal";
 import { useEffect, useState } from "react";
-import { useUpdateCollectionInformationMutation } from "@/store/RTK-query/collectionApi";
 import {
   useDeleteFlashCardMutation,
   useUpdateFlashcardInformationMutation,
 } from "@/store/RTK-query/flashcardApi";
 import { useDebounce } from "@uidotdev/usehooks";
 import { useGetFLashCardsInCollectionQuery } from "@/store/graphql/COLLECTION.modify";
+import { cn } from "@/lib/utils";
+
 export type TColumnKey = keyof Card | "action";
-import { useFullscreen } from "@mantine/hooks";
+
 export interface ICardsTableProps extends TableProps {
   cards?: Card[];
   refetchCard?: () => void;
 }
+
 const CardsTable = ({ cards, refetchCard }: ICardsTableProps) => {
   const { collectionid } = useParams<{ collectionid: string }>();
   const { selectedCard } = useAppSelector(
@@ -134,6 +134,7 @@ const CardsTable = ({ cards, refetchCard }: ICardsTableProps) => {
   useEffect(() => {
     deleteFlashCardResults.isSuccess && refetch();
   }, [deleteFlashCardResults.isSuccess]);
+
   return (
     <>
       <Table
@@ -158,6 +159,9 @@ const CardsTable = ({ cards, refetchCard }: ICardsTableProps) => {
           {(column) => (
             <TableColumn
               key={column.key}
+              className={cn(
+                column.key === "action" ? " text-end" : " text-start"
+              )}
               align={column.key === "action" ? "end" : "center"}
             >
               {column.label}

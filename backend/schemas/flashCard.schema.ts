@@ -40,7 +40,7 @@ export class FlashCardGQLObject extends FlashCard {
     @Field((type) => SRSGQLObject)
     SRS: SRS;
 
-    @Field((type) => String)
+    @Field((type) => String, { nullable: true })
     inCollection: String;
 }
 

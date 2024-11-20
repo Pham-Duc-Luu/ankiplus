@@ -167,15 +167,11 @@ export class UserController {
                 ignoreExpiration: true,
             });
 
-            const refreshPayload = await this.jwtService.verify(refresh_token, {
-                secret: this.configService.get('jwtConstant.secret.key'),
-                ignoreExpiration: true,
-            });
-
             const existToken = await this.tokenModel.find({
                 user_token: new ObjectId(accessPayload.sub),
                 token: refresh_token,
             });
+            console.log({ access_token, refresh_token, accessPayload });
 
             if (existToken.find((token) => token.token === refresh_token).user_token.toString() === accessPayload.sub) {
                 const payload: jwtPayloadDto = {

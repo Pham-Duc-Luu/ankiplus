@@ -8,28 +8,32 @@ import {
   MdNavigateNext,
   MdOutlineChangeCircle,
 } from "react-icons/md";
+import { TbCards, TbTableImport } from "react-icons/tb";
 import { PiCardsBold } from "react-icons/pi";
 import { SiSpeedtest } from "react-icons/si";
 import FlipCard from "@/components/ui/FlipCard";
 import { AnimatePresence, motion } from "framer-motion";
-import CardsTable from "./CardTable";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useRouter } from "@/i18n/routing";
 import { useGetFLashCardsInCollectionQuery } from "@/store/graphql/COLLECTION.generated";
 import { Card, setSelectedCard } from "@/store/collectionSlice";
 import _ from "lodash";
-import Navbar from "@/components/Navbar";
+import { IoIosAdd } from "react-icons/io";
+import { COLLECTION_EDIT, COLLECTION_LEARN } from "@/store/route.slice";
+import CardsTable from "./CardTable";
+
 const Page = () => {
   const t = useTranslations("collection.info");
-  const t1 = useTranslations("review");
   const { collection } = useAppSelector((state) => state.persistedReducer);
   const dispatch = useAppDispatch();
   const route = useRouter();
 
   const { collectionid } = useParams<{ collectionid: string }>();
-  const { data, isLoading, refetch } = useGetFLashCardsInCollectionQuery({
-    ID: collectionid,
-  });
+  const { data, isLoading, error, isError } = useGetFLashCardsInCollectionQuery(
+    {
+      ID: collectionid,
+    }
+  );
 
   const next = () => {
     if (data?.getCollectionFlashCards.data) {
@@ -60,6 +64,8 @@ const Page = () => {
       }
     }
   };
+  useEffect(() => {}, [isError, error]);
+
   useEffect(() => {
     if (data?.getCollectionFlashCards.data) {
       const card = data.getCollectionFlashCards.data[0];
@@ -72,6 +78,34 @@ const Page = () => {
       <div className=" flex justify-center m-6">
         <Spinner size="lg" />
       </div>
+    );
+  }
+  /**
+   * render this if the collection is empty
+   */
+  if (
+    data?.getCollectionFlashCards.data?.length === 0 ||
+    data?.getCollectionFlashCards.total === 0
+  ) {
+    return (
+      <>
+        <div className=" flex flex-col justify-center gap-6 items-center">
+          <div className=" flex flex-col justify-center items-center mt-10">
+            <TbCards size={40} />
+            <>{t("error.no cards")}</>
+          </div>
+          <Button
+            size="lg"
+            onPress={() => route.push(COLLECTION_EDIT(collectionid))}
+            startContent={<IoIosAdd size={40} />}
+          >
+            {t("function.add cards")}
+          </Button>
+          <Button size="lg" startContent={<TbTableImport size={40} />}>
+            {t("function.import")}
+          </Button>
+        </div>
+      </>
     );
   }
 
@@ -133,30 +167,18 @@ const Page = () => {
             <MdNavigateNext size={28} />
           </Button>
         </div>
-        <CardsTable
-          cards={data?.getCollectionFlashCards.data.map((item) => ({
-            _id: item._id,
-            back: item.back,
-            front: item.front,
-          }))}
-        ></CardsTable>
+        {data && (
+          <CardsTable
+            cards={data?.getCollectionFlashCards.data.map((item) => ({
+              _id: item._id,
+              back: item.back,
+              front: item.front,
+            }))}
+          ></CardsTable>
+        )}
       </div>
     </div>
   );
 };
-import SideBar from "@/components/SideBar";
-import { COLLECTION_LEARN } from "@/store/route.slice";
 
-export default function () {
-  return (
-    <div className=" ">
-      <Navbar position="static"></Navbar>
-      <div>
-        <SideBar></SideBar>
-        <div>
-          <Page></Page>
-        </div>
-      </div>
-    </div>
-  );
-}
+export default Page;

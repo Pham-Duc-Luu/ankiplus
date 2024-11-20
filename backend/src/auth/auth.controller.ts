@@ -30,6 +30,7 @@ import { jwtPayloadDto, JWTTokenDto } from 'dto/jwt.dto';
 import { ConfigService } from '@nestjs/config';
 import { config as dotenvConfig } from 'dotenv';
 import { OAuth2Client } from 'google-auth-library';
+import { Token } from 'schemas/token.schema';
 dotenvConfig({});
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_CLIENT_SECRET, 'postmessage');
 
@@ -41,6 +42,7 @@ export class AuthController {
         @Inject(LoggerKey) private logger: Logger,
         private jwtService: JwtService,
         private userService: UserService,
+        @InjectModel(Token.name, configuration().database.mongodb_main.name) private tokenModel: Model<Token>,
         private configService: ConfigService,
         @InjectModel(User.name, configuration().database.mongodb_main.name) private userModel: Model<User>,
     ) {}
@@ -88,6 +90,7 @@ export class AuthController {
     async googleVerify(@Body() { token }: { token: string }) {
         try {
             const { tokens } = await client.getToken(token);
+
             // Verify the ID token
             const ticket = (
                 await client.verifyIdToken({
@@ -96,29 +99,42 @@ export class AuthController {
                 })
             ).getPayload();
 
-            const existUser = await this.userModel.findOne({ email: ticket.email });
+            let user = await this.userModel.findOne({ email: ticket.email });
             let payload: jwtPayloadDto;
-            if (!existUser) {
-                const newUser = await this.userModel.create({
+
+            // Check if the user is already signed
+            if (!user) {
+                user = await this.userModel.create({
                     email: ticket.email,
                     username: ticket.given_name + ticket.family_name,
                     isGoogleUser: true,
                 });
 
                 payload = {
-                    sub: newUser.id,
-                    email: newUser.email,
+                    sub: user.id,
+                    email: user.email,
                 };
             } else {
                 payload = {
-                    sub: existUser._id.toString(),
-                    email: existUser.email,
+                    sub: user._id.toString(),
+                    email: user.email,
                 };
             }
 
             const refresh_token = await this.userService.getRefreshToken(payload);
             const access_token = await this.userService.getAccessToken(payload);
 
+            /**
+             * * save the token
+             */
+            const new_token = await this.tokenModel.create({ token: refresh_token, user_token: user._id });
+            user.Tokens.push(new_token);
+            await user.save();
+
+            /**
+             * * with the jwt
+             * @returns {access_token, refresh_token}
+             */
             return { access_token, refresh_token };
         } catch (error) {
             this.logger.error(error);

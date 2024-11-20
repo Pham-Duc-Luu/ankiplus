@@ -5,8 +5,10 @@ import { IsOptional, IsString } from 'class-validator';
 
 export class CreateFlashCardDto {
     @ApiProperty()
+    @IsString()
     front: any;
     @ApiProperty()
+    @IsString()
     back: any;
 }
 

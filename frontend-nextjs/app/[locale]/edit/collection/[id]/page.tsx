@@ -98,7 +98,7 @@ const page = () => {
         <div
           className=" cursor-pointer my-4"
           onClick={() => {
-            // add();
+            setFlashCardItems([...flashCardItems, { positionId: v4() }]);
           }}
         >
           <Card className=" flex justify-center items-center p-8  flex-row">
