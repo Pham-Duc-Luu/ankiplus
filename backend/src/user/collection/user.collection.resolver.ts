@@ -110,14 +110,14 @@ export class UserCollectionResolver {
         @Args('limit', { type: () => Int, defaultValue: 30 }) limit: number,
         @Args('skip', { type: () => Int, defaultValue: 0 }) skip: number,
         @Args('order', { type: () => String, defaultValue: 'desc' }) order: 'asc' | 'desc',
-        @Args('sortBy', { type: () => String, defaultValue: '_id' })
+        @Args('sortBy', { type: () => String, nullable: true })
         sortBy: FlashCardQueryOptionDto['sortBy'],
         @Args('filter', { type: () => String, nullable: true }) filter: string | null,
         @Args('collection_id', { type: () => String }) collection_id: string,
     ) {
         const { sub } = context.req.user;
         let sort = {};
-        sort[sortBy] = order;
+        sortBy ? (sort[sortBy] = order) : (sort = null);
 
         const collection = await this.collectionModel.findById(collection_id).populate({
             path: 'cards',
@@ -141,7 +141,9 @@ export class UserCollectionResolver {
             total: total,
             skip: skip,
             limit: total > limit ? limit : total,
-            data: _.filter(collection.cards, function (o: FlashCard) {
+            data: _.filter(collection.cards, async function (o: FlashCard) {
+                // * maybe f
+
                 if (filter === 'review') return !dayjs(o.SRS.nextReviewDate).isAfter(dayjs());
                 return true;
             }),
@@ -208,7 +210,6 @@ export class UserCollectionResolver {
 
             // remove the flashcards that have already existed in reivewSession
             _.pullAll(needToReviewCards, collection.reviewSession.cards);
-            console.log(needToReviewCards);
 
             // update the cards to review session
             await this.useCollectionService.pushToCardToReviewSession(collection_id, needToReviewCards);

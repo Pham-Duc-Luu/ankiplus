@@ -24,7 +24,6 @@ export class StudyCollectionController {
         const { sub } = req.user;
 
         try {
-            // console.log(await this.flashCardModel.findById(id).exec());
         } catch (error) {}
 
         return 'You have study a new flash card';

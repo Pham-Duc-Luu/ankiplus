@@ -36,10 +36,9 @@ async function bootstrap() {
             transform: true, // Automatically transform payloads to DTO instances
         }),
     );
+
     app.useLogger(app.get(NestjsLoggerServiceAdapter));
     app.useGlobalInterceptors(new TimeoutInterceptor(5000)); // 5000ms = 5 seconds
-    // app.useGlobalInterceptors(new LoggingInterceptor());
-    // app.useGlobalInterceptors(new DelayInterceptor(2000));
     await app.listen(configService.get('port'));
 }
 bootstrap();

@@ -60,6 +60,6 @@ type CollectionGQLObject {
 type Query {
   getUserCollections(limit: Int! = 30, skip: Int! = 0, order: String! = "desc", sortBy: String! = "createdAt"): CollectionQueryGQLObject!
   getCollectionById(id: String!): CollectionGQLObject!
-  getCollectionFlashCards(limit: Int! = 30, skip: Int! = 0, order: String! = "desc", sortBy: String! = "_id", filter: String, collection_id: String!): FlashCardQueryGQLObject!
+  getCollectionFlashCards(limit: Int! = 30, skip: Int! = 0, order: String! = "desc", sortBy: String, filter: String, collection_id: String!): FlashCardQueryGQLObject!
   getNeedToReviewFlashCards(limit: Int! = 30, skip: Int! = 0, order: String! = "desc", sortBy: String! = "_id", collection_id: String!): NeedToReviewFlashCardGQLObject!
 }

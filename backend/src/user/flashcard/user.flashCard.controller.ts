@@ -12,6 +12,7 @@ import {
     Delete,
     Patch,
     Body,
+    NotFoundException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
@@ -113,7 +114,7 @@ export class UserFlashCardController {
             });
 
             if (!collection) {
-                return new BadRequestException('Collection not found');
+                throw new BadRequestException('Collection not found');
             }
 
             const flashCard = await this.flashCardModel.findOne({
@@ -121,7 +122,7 @@ export class UserFlashCardController {
                 inCollection: collection._id,
             });
 
-            if (!flashCard) return new BadRequestException('FlashCard not found');
+            if (!flashCard) throw new NotFoundException('FlashCard not found');
 
             _.remove(collection.cards, function (o) {
                 return o.toString() === flashCard._id.toString();
@@ -147,33 +148,27 @@ export class UserFlashCardController {
         },
         @Body() body: EditFlashCardDto,
     ) {
-        try {
-            const collection = await this.collectionModel.findOne({
-                _id: new ObjectId(param.collectionId),
-                owner: new ObjectId(req.user.sub),
-            });
+        const collection = await this.collectionModel.findOne({
+            _id: new ObjectId(param.collectionId),
+            owner: new ObjectId(req.user.sub),
+        });
 
-            if (!collection) {
-                return new BadRequestException('Collection not found');
-            }
-
-            const flashCard = await this.flashCardModel.findOne({
-                _id: new ObjectId(param.flashCardId),
-                inCollection: new ObjectId(param.collectionId),
-            });
-
-            if (!flashCard) return new BadRequestException('flashCard not found');
-
-            if (body.front) flashCard.front = body.front;
-            if (body.back) flashCard.back = body.back;
-
-            await flashCard.save();
-
-            return 'FlashCard updated';
-        } catch (e) {
-            this.logger.error(e);
-
-            throw new InternalServerErrorException();
+        if (!collection) {
+            throw new NotFoundException('Collection not found');
         }
+
+        const flashCard = await this.flashCardModel.findOne({
+            _id: new ObjectId(param.flashCardId),
+            inCollection: new ObjectId(param.collectionId),
+        });
+
+        if (!flashCard) throw new NotFoundException('flashCard not found');
+
+        if (body.front) flashCard.front = body.front;
+        if (body.back) flashCard.back = body.back;
+
+        await flashCard.save();
+
+        return 'FlashCard updated';
     }
 }

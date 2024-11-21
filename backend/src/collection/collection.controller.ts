@@ -73,7 +73,7 @@ export class CollectionController {
     @ApiOperation({ summary: 'Search for collections by name' })
     async searchForCollection(@Query() query: QueryOptionDto, @Param() param: { name: string }) {
         if (!param?.name) {
-            return new BadRequestException();
+            throw new BadRequestException();
         }
         Logger.debug(param.name);
         try {

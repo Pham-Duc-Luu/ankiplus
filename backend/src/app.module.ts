@@ -7,7 +7,7 @@ import configuration from ' config/configuration';
 import { JwtModule } from '@nestjs/jwt';
 import { CollectionModule } from './collection/collection.module';
 import { UserModule } from './user/user.module';
-import { HttpExceptionFilter } from './middleware/http-exception.filter';
+import { HttpExceptionFilter } from './filter/http-exception.filter';
 import { UtilModule } from './util/util.module';
 import { LoggerModule } from 'libs/logger/logger/infrastructure/nestjs/loggerModule';
 import { ConfigModule } from 'libs/logger/config/infrastructure/nestjs/configModule';
@@ -64,7 +64,20 @@ import { AuthModule } from './auth/auth.module';
             buildSchemaOptions: {
                 fieldMiddleware: [],
             },
+            // formatError: (error) => {
+            //     console.log(error);
 
+            //     const graphQLError = {
+            //         message: error.message,
+            //         path: error.path,
+            //         locations: error.locations,
+            //         extensions: {
+            //             code: error.extensions?.code || 'INTERNAL_SERVER_ERROR',
+            //             originalError: error.extensions?.exception || null,
+            //         },
+            //     };
+            //     return graphQLError;
+            // },
             context: ({ req }) => ({ req }), // This ensures that the request object is available in the GraphQL context
         }),
         ScheduleModule.forRoot(),

@@ -66,7 +66,6 @@ export class UserCollectionService implements OnModuleInit {
         let cardIdsVerified = [];
         if (!collection?.reviewSession) {
             collection.reviewSession = { cards: [] };
-            console.log('re init');
         }
         const reviewSessionCards = collection.reviewSession.cards.map((item) => item.toString());
         // verify that the card exists in the collection's flashcards
@@ -96,7 +95,6 @@ export class UserCollectionService implements OnModuleInit {
 
     // @Cron(CronExpression.EVERY_12_HOURS)
     // async updateReviewSession() {
-    //     console.log(123);
     // }
 
     onModuleInit() {

@@ -2,8 +2,9 @@ import { ApiBody, ApiProperty } from '@nestjs/swagger';
 import { Collection, CollectionDocument } from 'schemas/collection.schema';
 import { QueryOptionDto } from './query-option.dto';
 import { ListResponseDto } from './ListResponse.dto';
-import { IsBoolean, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Type } from 'class-transformer';
 
 export class flashCardDto {
     @ApiProperty()
@@ -12,6 +13,21 @@ export class flashCardDto {
     @ApiProperty()
     @IsString()
     back: string;
+}
+
+export class PutFlashCardDto extends flashCardDto {
+    @ApiProperty()
+    @IsString()
+    @IsOptional()
+    id?: string;
+}
+
+export class FullUpdateFlashcardBodyDto {
+    @ApiProperty({ type: [PutFlashCardDto] }) // Swagger metadata
+    @IsArray() // Validates that this property is an array
+    @ValidateNested({ each: true }) // Validates each item in the array
+    @Type(() => PutFlashCardDto) // Transform each array element to `PutFlashCardDto` class
+    flashCards: PutFlashCardDto[];
 }
 
 export class CreateCollectionDto {

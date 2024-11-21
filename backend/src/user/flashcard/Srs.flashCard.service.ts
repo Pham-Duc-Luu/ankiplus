@@ -49,14 +49,11 @@ export class SRSService {
             if (!card) {
                 throw new Error('Flashcard not found');
             }
-            console.log({ efactor: card.SRS.efactor, quality });
 
             // Update the ease factor (SuperMemo SM2 formula)
             card.SRS.efactor = Number(
                 (card.SRS.efactor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02))).toFixed(2),
             );
-
-            console.log({ efactor: card.SRS.efactor, quality });
 
             // Ensure the ease factor does not fall below the minimum
             if (card.SRS.efactor < SRSService.MIN_EFACTOR) {
@@ -81,7 +78,6 @@ export class SRSService {
                     card.SRS.interval = 1;
                 }
                 card.SRS.interval = Number((card.SRS.interval * card.SRS.efactor).toFixed(2));
-                console.log(card.SRS.interval);
 
                 // }
                 const currentDate = dayjs();

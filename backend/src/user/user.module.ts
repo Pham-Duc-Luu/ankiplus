@@ -18,6 +18,7 @@ import { UserCollectionResolver } from './collection/user.collection.resolver';
 import { SRSService } from './flashcard/Srs.flashCard.service';
 import { UserCollectionService } from './collection/user.collection.service';
 import { MailerService } from './mailer.service';
+import { UserFlashCardService } from './flashcard/user.flashCard.service';
 
 @Module({
     imports: [
@@ -47,6 +48,8 @@ import { MailerService } from './mailer.service';
         UserCollectionService,
         SRSService,
         MailerService,
+        UserFlashCardService,
+        UserCollectionService,
     ],
 })
 export class UserModule {}

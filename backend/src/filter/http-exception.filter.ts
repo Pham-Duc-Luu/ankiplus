@@ -7,7 +7,7 @@ import FileTransport from 'libs/logger/logger/infrastructure/winston/transports/
 import WinstonLogger from 'libs/logger/logger/infrastructure/winston/winstonLogger';
 import * as _ from 'lodash';
 
-const formatErrorMessage = (message: string | string[]): string => {
+export const formatErrorMessage = (message: string | string[]): string => {
     if (_.isString(message)) {
         // If it's a string, return it directly
         return message;
@@ -21,8 +21,7 @@ const formatErrorMessage = (message: string | string[]): string => {
     return ''; // Return an empty string if it's neither a string nor an array
 };
 
-@Catch(HttpException)
-@Injectable()
+@Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
     constructor(@Inject(LoggerKey) private logger: Logger) {}
     catch(exception: HttpException, host: ArgumentsHost) {
@@ -35,6 +34,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
         //     .build();
         // logger.error(JSON.stringify(exception) + '\n');
+        console.log(exception);
 
         // Check if the request is for GraphQL
         const gqlHost = GqlArgumentsHost.create(host);
@@ -48,12 +48,15 @@ export class HttpExceptionFilter implements ExceptionFilter {
             path: request?.url,
             message: formatErrorMessage(validateErrorMessage) || exception.message || 'Internal server error',
         };
+
+        this.logger.error(JSON.stringify(exception, null, 4));
+
         if (isGraphQL) {
             // For GraphQL, just throw the exception directly.
+
             return exception;
         }
 
-        this.logger.error(JSON.stringify(exception, null, 4));
         response.status(status).json(errorResponse);
     }
 }

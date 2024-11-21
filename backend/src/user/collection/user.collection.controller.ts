@@ -26,6 +26,8 @@ import {
     CollectionDetailQueryDto,
     CollectionQueryOptionDto,
     CreateCollectionDto,
+    FullUpdateFlashcardBodyDto,
+    PutFlashCardDto,
     UpdateCollectionDto,
 } from 'dto/collection.dto';
 import { CreateFlashCardDto, FlashCardQueryOptionDto } from 'dto/flashcard.dto';
@@ -39,14 +41,13 @@ import { User } from 'schemas/user.schema';
 import { AuthGuard } from 'src/auth/guard/auth.guard';
 import { UtilService } from 'src/util/util.service';
 import { pickFields } from 'utils/utils';
-
+import * as _ from 'lodash';
 import { query } from 'express';
 import { UserAuthService } from '../user.service';
 import { ParamValidate } from 'src/auth/guard/param.validate.guard';
 import configuration from ' config/configuration';
 import { jwtPayloadDto } from 'dto/jwt.dto';
-
-var _ = require('lodash');
+import { UserFlashCardService } from '../flashcard/user.flashCard.service';
 
 @ApiTags('users/collections')
 @UseGuards(AuthGuard)
@@ -66,6 +67,7 @@ export class UserCollectionController {
         @InjectModel(User.name, configuration().database.mongodb_main.name) private userModel: Model<User>,
         @InjectModel(Collection.name, configuration().database.mongodb_main.name)
         private collectionModel: Model<Collection>,
+        private userFlashCardService: UserFlashCardService,
     ) {}
 
     /**
@@ -116,24 +118,15 @@ export class UserCollectionController {
                 .findById(sub)
                 .select('_id')
                 .populate({
-                    path: 'FlashCard',
-                    model: FlashCard.name,
+                    path: 'collections',
+                    model: Collection.name,
                     options: {
                         limit: limit,
 
                         skip: skip,
 
                         sort: sort,
-                        // populate: {
-                        //     path: 'cards',
-                        //     model: FlashCard.name,
-                        //     options: {
-                        //         limit: FLASHCARD_LIMIT,
-                        //         skip: FLASHCARD_SKIP,
-                        //         // sort: { createdAt: order === 'asc' ? 1 : -1 },
-                        //         select: 'id front',
-                        //     },
-                        // },
+
                         match: { isPublic: true },
                     },
                 });
@@ -183,7 +176,7 @@ export class UserCollectionController {
             //     .skip(query.skip || 0)
             //     .exec();
         } catch (error) {
-            this.logger.error(error.message, error.stack);
+            this.logger.error(error);
             throw new InternalServerErrorException();
         }
     }
@@ -274,33 +267,29 @@ export class UserCollectionController {
         if (!param?.id) {
             throw new BadRequestException('Collection ID must be provided');
         }
-        try {
-            const collection = await this.collectionModel.findOne({
-                $and: [{ owner: new ObjectId(req.user.sub) }, { _id: new ObjectId(param.id) }],
-            });
-            if (!collection) {
-                return new BadRequestException('Collection not found');
-            }
-            if (body.name) {
-                collection.name = body.name;
-            }
-            if (body.description) {
-                collection.description;
-            }
-            if (body.thumbnail) {
-                collection.thumbnail = body.thumbnail;
-            }
-            if (body.icon) {
-                collection.icon = body.icon;
-            }
-            if (body.isPublic) {
-                collection.isPublic = body.isPublic;
-            }
-            await collection.save();
-        } catch (error) {
-            this.logger.error(error);
-            throw new InternalServerErrorException();
+
+        const collection = await this.collectionModel.findOne({
+            $and: [{ owner: new ObjectId(req.user.sub) }, { _id: new ObjectId(param.id) }],
+        });
+        if (!collection) {
+            throw new BadRequestException('Collection not found');
         }
+        if (body.name) {
+            collection.name = body.name;
+        }
+        if (body.description) {
+            collection.description;
+        }
+        if (body.thumbnail) {
+            collection.thumbnail = body.thumbnail;
+        }
+        if (body.icon) {
+            collection.icon = body.icon;
+        }
+        if (body.isPublic) {
+            collection.isPublic = body.isPublic;
+        }
+        await collection.save();
 
         return 'Collection updated successfully';
     }
@@ -310,7 +299,6 @@ export class UserCollectionController {
     async createCollections(@Request() req: { user: jwtPayloadDto }, @Body() body: CreateCollectionDto) {
         const { name, flashCards, description, isPublic, thumnail, language, icon } = body;
         const { sub } = req.user;
-        console.log(flashCards);
 
         const user = await this.userModel.findById(sub);
         if (!user) {
@@ -427,10 +415,9 @@ export class UserCollectionController {
                 _id: new ObjectId(param.id),
                 owner: new ObjectId(req.user.sub),
             });
-            console.log(collection);
 
             if (!collection) {
-                return new BadRequestException('Collection not found');
+                throw new BadRequestException('Collection not found');
             }
             const user = await this.userModel.findById(req.user.sub);
 
@@ -446,5 +433,78 @@ export class UserCollectionController {
             this.logger.error(error);
             throw new InternalServerErrorException();
         }
+    }
+
+    @ApiOperation({
+        summary:
+            "update all of the collection's flashcards, including create new flashcards, delete old cards and upadate existing cards    ",
+    })
+    @Put(':id')
+    async fullUpdateFlashcard(
+        @Request() req: { user: jwtPayloadDto },
+        @Param() { id }: { id: string },
+        @Body() { flashCards }: FullUpdateFlashcardBodyDto,
+    ) {
+        try {
+            // * get collection
+            const collection = await this.collectionModel.findById(id);
+
+            if (!collection) {
+                throw new BadRequestException('Collection not found');
+            }
+
+            // * get the old flashcards in database
+            const oldCards = collection.cards as string[];
+
+            // * get the new flashcards for request's body
+            const newFlashCards = flashCards;
+
+            for (let index = 0; index < newFlashCards.length; index++) {
+                newFlashCards[index];
+
+                // * create a new flashcard if the flashcard's id is not already existing
+                if (!newFlashCards[index].id) {
+                    const newCard = await this.flashCardModel.create({
+                        front: newFlashCards[index].front,
+                        back: newFlashCards[index].back,
+                        inCollection: collection._id,
+                    });
+
+                    newFlashCards[index] = { id: newCard._id.toString(), ...newFlashCards[index] };
+                    continue;
+                }
+
+                // * update the flashcards contents
+                await this.userFlashCardService.updateFlashCardById(newFlashCards[index].id, {
+                    front: newFlashCards[index].front,
+                    back: newFlashCards[index].back,
+                });
+
+                _.remove(oldCards, function (o) {
+                    return o === newFlashCards[index].id;
+                });
+            }
+
+            collection.cards = newFlashCards.map((card) => card.id);
+
+            // * delete the old flashcards not in the new flashcards list
+            oldCards.forEach(async (cardId) => {
+                await this.flashCardModel.findByIdAndDelete(cardId);
+            });
+
+            // * save the collection with updated flashcards list
+            await collection.save();
+
+            return 'ok';
+        } catch (error) {
+            this.logger.error(error);
+
+            if (error instanceof HttpException) {
+                throw error;
+            }
+
+            throw new InternalServerErrorException();
+        }
+        return 'ok';
     }
 }

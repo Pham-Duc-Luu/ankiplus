@@ -7,6 +7,7 @@ import {
     HttpStatus,
     Inject,
     InternalServerErrorException,
+    NotFoundException,
     Post,
     Query,
     Req,
@@ -156,7 +157,6 @@ export class UserController {
         @Body() { access_token, refresh_token }: JWTTokenDto,
         @Req() req: ExpressRequest,
     ): Promise<JWTTokenDto> {
-        console.log(req.cookies['token']);
         if (!access_token || !refresh_token) {
             throw new BadRequestException('Missing token');
         }
@@ -171,7 +171,6 @@ export class UserController {
                 user_token: new ObjectId(accessPayload.sub),
                 token: refresh_token,
             });
-            console.log({ access_token, refresh_token, accessPayload });
 
             if (existToken.find((token) => token.token === refresh_token).user_token.toString() === accessPayload.sub) {
                 const payload: jwtPayloadDto = {
@@ -201,13 +200,12 @@ export class UserController {
     async sendOTP(@Body() { email }: SendOtpDto) {
         try {
             if (!email) {
-                return new BadRequestException('Email is required');
+                throw new BadRequestException('Email is required');
             }
             // Check if the email is valid
             const existUser = await this.userModel.findOne({ email });
 
             if (!existUser) throw new BadRequestException('The email does not exist');
-            console.log(existUser);
 
             const otp = otpGen.generate(6, { upperCaseAlphabets: false, specialChars: false });
 
@@ -239,15 +237,15 @@ export class UserController {
     async resetPassword(@Body() { email, password, otp }: ResetPasswordDto) {
         try {
             if (!email || !password || !otp) {
-                return new BadRequestException('Email, password and otp are required');
+                throw new BadRequestException('Email, password and otp are required');
             }
             // Check if the email is valid
             const existUser = await this.userModel.findOne({ email });
 
-            if (!existUser) return new BadRequestException('The email does not exist');
+            if (!existUser) throw new NotFoundException('The email does not exist');
 
             if (dayjs().isAfter(existUser.resetPasswordExpires) || existUser.resetPasswordToken !== otp) {
-                return new BadRequestException('Invalid OTP or expired time');
+                throw new BadRequestException('Invalid OTP or expired time');
             }
 
             existUser.password = this.util.hashSync(password);

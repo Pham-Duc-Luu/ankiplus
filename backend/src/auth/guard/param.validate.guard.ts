@@ -20,8 +20,6 @@ export class ParamValidate implements CanActivate {
             throw new BadRequestException('Invalid skip query parameter');
         }
 
-        console.log(isNumber(query.limit));
-
         return true; // Allow the request if no NaN found
     }
 }

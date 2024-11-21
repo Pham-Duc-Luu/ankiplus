@@ -52,7 +52,7 @@ export class AuthController {
     async googleAuthCallback(@Req() req: Request & { user?: IOAuthGoogleUser }, @Res() res: Response) {
         try {
             if (!req.user) {
-                return new BadRequestException('User not found');
+                throw new BadRequestException('User not found');
             }
 
             const { email, name } = req.user;
@@ -74,7 +74,6 @@ export class AuthController {
                     email: existUser.email,
                 };
             }
-            console.log(req.url);
 
             const refresh_token = await this.userService.getRefreshToken(payload);
             const access_token = await this.userService.getAccessToken(payload);
@@ -82,6 +81,9 @@ export class AuthController {
             res.redirect(`${this.configService.get('client.frontend.url')}/oauth?token=${JSON.stringify(jwtDto)}`);
         } catch (err) {
             this.logger.error(err);
+            if (err instanceof HttpException) {
+                throw err;
+            }
             return new InternalServerErrorException();
         }
     }

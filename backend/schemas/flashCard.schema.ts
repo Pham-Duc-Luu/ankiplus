@@ -13,7 +13,14 @@ export class FlashCard {
     @Prop({ required: true, type: mongoose.Schema.Types.Mixed })
     back: any;
 
-    @Prop({ type: SRS })
+    @Prop({
+        type: SRS,
+        default: {
+            nextReviewDate: new Date(), // Default current date
+            interval: 0, // Default interval
+            efactor: 2.5, // Default e-factor
+        },
+    })
     SRS: SRS;
 
     @Prop({ type: Types.ObjectId, ref: 'collection' })

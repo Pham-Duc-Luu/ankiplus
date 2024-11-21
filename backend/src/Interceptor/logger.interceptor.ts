@@ -14,7 +14,6 @@ export class LoggingInterceptor implements NestInterceptor {
 
         return next.handle().pipe(
             //   map((data) => {
-            //       console.log(`Response data: ${JSON.stringify(data)}`); // Log the response data
             //       return data; // Return the data (this will be sent back to the client)
             //   }),
             tap(() => {
