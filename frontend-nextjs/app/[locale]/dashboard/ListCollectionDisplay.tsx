@@ -27,13 +27,14 @@ const ListCollectionDisplay = ({
 }: ListCollectionDisplayProps) => {
   const { toast } = useToast();
   const { data, isLoading, isError, error, refetch, isFetching } =
-    useGetUserCollectionsQuery(
-      {
-        LIMIT,
-        SKIP,
-      },
-      {}
-    );
+    useGetUserCollectionsQuery({
+      LIMIT,
+      SKIP,
+    });
+
+  useEffect(() => {
+    refetch();
+  }, []); // IMPORTANT : re-render the collection every time component is been mounted
 
   if (isLoading || isFetching) {
     return (

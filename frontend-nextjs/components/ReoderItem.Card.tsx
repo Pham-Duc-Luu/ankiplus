@@ -1,5 +1,4 @@
 "use client";
-import { IReoderItemCard } from "@/app/[locale]/edit/collection/[id]/page";
 import { Card, CardProps } from "@nextui-org/react";
 import { Reorder, useDragControls } from "framer-motion";
 import React, { useEffect, useState } from "react";
@@ -21,11 +20,12 @@ import { useTranslations } from "next-intl";
 import { IReorderItemCard } from "@/app/[locale]/create/collection/page";
 import _ from "lodash";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
+
 import {
-  removeFlashCards,
-  setFlashCards,
-  updateFlashCard,
-} from "@/store/createCollectionSlice";
+  IReoderItemCard,
+  remove_card,
+  updateCard_Card,
+} from "@/store/collectionSlice";
 export interface IReoderItemCardProps extends CardProps {
   value: IReoderItemCard;
   order: number;
@@ -44,7 +44,14 @@ const ReoderItemCard = ({ value, className, order }: IReoderItemCardProps) => {
   );
 
   useEffect(() => {
-    dispatch(updateFlashCard({ ...value, front, back }));
+    dispatch(
+      updateCard_Card({
+        _id: value._id?.toString(),
+        positionId: value.positionId,
+        front,
+        back,
+      })
+    );
   }, [front, back]);
 
   return (
@@ -78,7 +85,8 @@ const ReoderItemCard = ({ value, className, order }: IReoderItemCardProps) => {
                 variant="faded"
                 className=" flex justify-center items-center"
                 onClick={() => {
-                  dispatch(removeFlashCards(value));
+                  // ! remove a flash cards using postion id
+                  dispatch(remove_card(value.positionId));
                 }}
               >
                 <MdDeleteOutline size={20}></MdDeleteOutline>

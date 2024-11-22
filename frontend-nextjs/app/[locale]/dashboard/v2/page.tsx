@@ -144,7 +144,7 @@ const Page = () => {
   const dispatch = useAppDispatch();
 
   const { user } = useAppSelector((state) => state.persistedReducer);
-  const { data } = useGetUserCollectionsQuery({});
+  const { data, refetch } = useGetUserCollectionsQuery({});
   const LIMIT = user?.amountOfCollectionPerPage;
   const SKIP =
     user.page && user.amountOfCollectionPerPage
@@ -156,6 +156,10 @@ const Page = () => {
       dispatch(setTotalCollectionAmount(data?.getUserCollections.total));
     }
   }, [data?.getUserCollections.total]);
+
+  useEffect(() => {
+    refetch();
+  }, []);
 
   return (
     <div className=" w-full min-h-screen flex flex-col items-center p-6">

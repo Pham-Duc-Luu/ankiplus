@@ -3,6 +3,7 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 import { AxiosError, AxiosResponse } from "axios";
 import {
   CreateCollectionDto,
+  IFlashCardDto,
   IQueryOptions,
   IUserProfileDto,
   UpdateCollectionDto,
@@ -74,7 +75,7 @@ export const collectionApi = createApi({
           name: newCollection.name,
           flashCards: newCollection.flashCards
             .filter((c) => c.front && c.back)
-            .map((c) => ({ front: c.front, back: c.back })),
+            .map((c) => ({ front: c.front || "", back: c.back || "" })),
         };
         try {
           const { data } = (await baseQuery({
@@ -96,6 +97,7 @@ export const collectionApi = createApi({
       },
     }),
 
+    // ! DELETE A COLLECTION APIs
     deleteCollection: builder.mutation({
       queryFn: async (
         arg: { id?: string | number },
@@ -130,6 +132,43 @@ export const collectionApi = createApi({
       },
       invalidatesTags: ["Collection"],
     }),
+
+    /**
+     * IMPORTANT
+     *
+     * this is a APIs for updating all of the colletion's flashcards,
+     * including modifications the content of each card, place and delete
+     *
+     *  */
+    updateAllFlashcards: builder.mutation({
+      queryFn: async (
+        arg: {
+          collectionId: string;
+          flashcards: (Pick<IFlashCardDto, "back" | "front"> &
+            Partial<Pick<IFlashCardDto, "id">>)[];
+        },
+        queryApi,
+        extraOptions,
+        baseQuery
+      ) => {
+        try {
+          const { data } = (await baseQuery({
+            url: `/users/collections/${arg.collectionId}`,
+            method: "PUT",
+            data: { flashCards: arg.flashcards },
+          })) as AxiosResponse<string>;
+          return { data: data };
+        } catch (error) {
+          const err = error as AxiosError;
+          return {
+            error: {
+              status: err.response?.status,
+              data: err.response?.data || err.message,
+            },
+          };
+        }
+      },
+    }),
   }),
 });
 
@@ -138,4 +177,6 @@ export const {
   useCreateNewCollectionMutation,
   useUpdateCollectionInformationMutation,
   useDeleteCollectionMutation,
+
+  useUpdateAllFlashcardsMutation,
 } = collectionApi;

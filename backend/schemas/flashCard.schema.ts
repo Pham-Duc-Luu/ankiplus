@@ -22,7 +22,6 @@ export class FlashCard {
         },
     })
     SRS: SRS;
-
     @Prop({ type: Types.ObjectId, ref: 'collection' })
     inCollection: String | Collection;
 }

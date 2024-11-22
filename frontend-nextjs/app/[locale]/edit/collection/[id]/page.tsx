@@ -1,7 +1,13 @@
 "use client";
 import ReoderItemCard from "@/components/ReoderItem.Card";
-import { Card as CardType } from "@/store/collectionSlice";
-import { Card, Spinner } from "@nextui-org/react";
+import {
+  Card as CardType,
+  collectionSlice,
+  collectionSliceAction,
+  IReoderItemCard,
+  setFlashCards_card,
+} from "@/store/collectionSlice";
+import { Button, Card, Spinner } from "@nextui-org/react";
 import { Reorder } from "framer-motion";
 import React, { useEffect, useRef, useState } from "react";
 import { v4 } from "uuid";
@@ -10,10 +16,12 @@ import { IoMdAdd } from "react-icons/io";
 import CreateButton from "./Create.button";
 import { useParams } from "next/navigation";
 import { useGetFLashCardsInCollectionQuery } from "@/store/graphql/COLLECTION.generated";
-
-export interface IReoderItemCard extends Partial<CardType> {
-  positionId: number | string;
-}
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { useDebounce } from "@uidotdev/usehooks";
+import { useUpdateAllFlashcardsMutation } from "@/store/RTK-query/collectionApi";
+import { useToast } from "@/hooks/use-toast";
+import { IoReload } from "react-icons/io5";
+import { useRouter } from "@/i18n/routing";
 
 const page = () => {
   const cardRefs = useRef<(HTMLDivElement | null)[]>([null, null]); // Array to store refs for each card
@@ -21,12 +29,16 @@ const page = () => {
   const { id } = useParams<{ id: string }>();
 
   const { data, isLoading } = useGetFLashCardsInCollectionQuery({ ID: id });
-
-  const [flashCardItems, setFlashCardItems] = useState<IReoderItemCard[]>([
-    { positionId: v4() },
-    { positionId: v4() },
-    { positionId: v4() },
-  ]);
+  const [
+    useUpdateAllFlashcardsMutationTrigger,
+    useUpdateAllFlashcardsMutationResult,
+  ] = useUpdateAllFlashcardsMutation();
+  const { cards } = useAppSelector(
+    (state) => state.persistedReducer.collection
+  );
+  const { toast } = useToast();
+  const debounecCards = useDebounce(cards, 1000);
+  const dispatch = useAppDispatch();
   const ref = useRef<HTMLElement | null>();
 
   const scrollToListItem = (id: string) => {
@@ -37,22 +49,59 @@ const page = () => {
       }
     }
   };
+  const router = useRouter();
+  useEffect(() => {
+    cards &&
+      useUpdateAllFlashcardsMutationTrigger({
+        collectionId: id,
+        flashcards: cards.map((item) => {
+          return {
+            id: item._id?.toString(),
+            back: item.back || "",
+            front: item.front || "",
+          };
+        }),
+      });
+  }, [debounecCards]);
 
   useEffect(() => {
     if (data?.getCollectionFlashCards.data) {
-      setFlashCardItems(
-        data.getCollectionFlashCards.data.map((item, index) => {
-          return {
-            front: item.front,
-            back: item.back,
-            _id: item._id,
-            positionId: v4(),
-          };
-        })
+      dispatch(
+        setFlashCards_card(
+          data.getCollectionFlashCards.data.map(
+            (item, index): IReoderItemCard => {
+              return {
+                front: item.front,
+                back: item.back,
+                _id: item._id,
+                positionId: v4(),
+              };
+            }
+          )
+        )
       );
     }
   }, [data?.getCollectionFlashCards.data]);
 
+  // * handle update card to server side-effects
+  useEffect(() => {
+    if (useUpdateAllFlashcardsMutationResult.isError) {
+      toast({
+        variant: "destructive",
+        title: "something went wrong",
+        action: (
+          <Button
+            startContent={<IoReload size={20} />}
+            onPress={() => {
+              router.refresh();
+            }}
+          >
+            Reload
+          </Button>
+        ),
+      });
+    }
+  }, [useUpdateAllFlashcardsMutationResult]);
   if (isLoading) {
     return (
       <div className=" flex justify-center m-6">
@@ -79,26 +128,30 @@ const page = () => {
             e.preventDefault();
           }}
         >
-          <Reorder.Group
-            axis="y"
-            values={flashCardItems}
-            onReorder={setFlashCardItems}
-            // ref={ref}
-          >
-            {flashCardItems.map((item, index) => (
-              <ReoderItemCard
-                order={index + 1}
-                value={item}
-                key={item.positionId}
-              ></ReoderItemCard>
-            ))}
-          </Reorder.Group>
+          {cards && (
+            <Reorder.Group
+              axis="y"
+              values={cards}
+              onReorder={(value) => {
+                dispatch(setFlashCards_card(value));
+              }}
+              // ref={ref}
+            >
+              {cards?.map((item, index) => (
+                <ReoderItemCard
+                  order={index + 1}
+                  value={item}
+                  key={item.positionId}
+                ></ReoderItemCard>
+              ))}
+            </Reorder.Group>
+          )}
         </div>
 
         <div
           className=" cursor-pointer my-4"
           onClick={() => {
-            setFlashCardItems([...flashCardItems, { positionId: v4() }]);
+            dispatch(collectionSliceAction.append_card());
           }}
         >
           <Card className=" flex justify-center items-center p-8  flex-row">
@@ -109,7 +162,8 @@ const page = () => {
         <div className="my-4 flex justify-end">
           <CreateButton
             onClick={() => {
-              scrollToListItem(flashCardItems[0]?.positionId.toString());
+              // TODO : scroll to top
+              cards && scrollToListItem(cards[0].positionId);
             }}
           ></CreateButton>
         </div>
