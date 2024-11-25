@@ -36,6 +36,7 @@ import { ForbiddenError } from 'apollo-server-express';
 import { ListResponseDto } from 'dto/ListResponse.dto';
 import * as dayjs from 'dayjs';
 import { UserCollectionService } from './user.collection.service';
+import { CollectionService } from 'src/collection/collection.service';
 
 @Resolver(() => CollectionGQLObject)
 @UseGuards(AuthGuardGraphqlServer)
@@ -48,6 +49,7 @@ export class UserCollectionResolver {
         @InjectModel(Collection.name, configuration().database.mongodb_main.name)
         private collectionModel: Model<Collection>,
         private useCollectionService: UserCollectionService,
+        private collectionService: CollectionService,
     ) {}
 
     /**
@@ -70,7 +72,6 @@ export class UserCollectionResolver {
     ) {
         const { sub } = context.req.user;
         let sort = {};
-
         sort[sortBy] = order;
 
         return new ListResponseDto({
@@ -97,6 +98,8 @@ export class UserCollectionResolver {
         @Context() context: Partial<{ req: { user: jwtPayloadDto } }>, // Use context to access the request
         @Args('id', { type: () => String }) id: string,
     ) {
+        await this.collectionService.removeUnexistedFlashCards(id);
+
         const collection = await this.collectionModel
             .findOne({ _id: new ObjectId(id), owner: new ObjectId(context.req.user.sub) })
             .exec();
@@ -115,6 +118,8 @@ export class UserCollectionResolver {
         @Args('filter', { type: () => String, nullable: true }) filter: string | null,
         @Args('collection_id', { type: () => String }) collection_id: string,
     ) {
+        await this.collectionService.removeUnexistedFlashCards(collection_id);
+
         const { sub } = context.req.user;
         let sort = {};
         sortBy ? (sort[sortBy] = order) : (sort = null);

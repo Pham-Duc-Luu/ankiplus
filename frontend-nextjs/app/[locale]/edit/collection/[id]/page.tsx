@@ -28,7 +28,9 @@ const page = () => {
 
   const { id } = useParams<{ id: string }>();
 
-  const { data, isLoading } = useGetFLashCardsInCollectionQuery({ ID: id });
+  const useGetFLashCardsInCollectionResult = useGetFLashCardsInCollectionQuery({
+    ID: id,
+  });
   const [
     useUpdateAllFlashcardsMutationTrigger,
     useUpdateAllFlashcardsMutationResult,
@@ -51,7 +53,8 @@ const page = () => {
   };
   const router = useRouter();
   useEffect(() => {
-    cards &&
+    useGetFLashCardsInCollectionResult.isSuccess &&
+      cards &&
       useUpdateAllFlashcardsMutationTrigger({
         collectionId: id,
         flashcards: cards.map((item) => {
@@ -62,13 +65,13 @@ const page = () => {
           };
         }),
       });
-  }, [debounecCards]);
+  }, [debounecCards, useGetFLashCardsInCollectionResult]);
 
   useEffect(() => {
-    if (data?.getCollectionFlashCards.data) {
+    if (useGetFLashCardsInCollectionResult.data?.getCollectionFlashCards.data) {
       dispatch(
         setFlashCards_card(
-          data.getCollectionFlashCards.data.map(
+          useGetFLashCardsInCollectionResult.data.getCollectionFlashCards.data.map(
             (item, index): IReoderItemCard => {
               return {
                 front: item.front,
@@ -81,7 +84,7 @@ const page = () => {
         )
       );
     }
-  }, [data?.getCollectionFlashCards.data]);
+  }, [useGetFLashCardsInCollectionResult.data?.getCollectionFlashCards.data]);
 
   // * handle update card to server side-effects
   useEffect(() => {
@@ -102,14 +105,15 @@ const page = () => {
       });
     }
   }, [useUpdateAllFlashcardsMutationResult]);
-  if (isLoading) {
+
+  if (useGetFLashCardsInCollectionResult.isLoading) {
     return (
       <div className=" flex justify-center m-6">
         <Spinner size="lg" />
       </div>
     );
   }
-  if (!data?.getCollectionFlashCards) {
+  if (!useGetFLashCardsInCollectionResult.data?.getCollectionFlashCards) {
     return <>Some thing when wrong</>;
   }
 

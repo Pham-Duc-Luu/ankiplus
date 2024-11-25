@@ -48,6 +48,7 @@ import { ParamValidate } from 'src/auth/guard/param.validate.guard';
 import configuration from ' config/configuration';
 import { jwtPayloadDto } from 'dto/jwt.dto';
 import { UserFlashCardService } from '../flashcard/user.flashCard.service';
+import { CollectionService } from 'src/collection/collection.service';
 
 @ApiTags('users/collections')
 @UseGuards(AuthGuard)
@@ -68,6 +69,7 @@ export class UserCollectionController {
         @InjectModel(Collection.name, configuration().database.mongodb_main.name)
         private collectionModel: Model<Collection>,
         private userFlashCardService: UserFlashCardService,
+        private collectionService: CollectionService,
     ) {}
 
     /**
@@ -395,7 +397,9 @@ export class UserCollectionController {
                 return typeof cards !== 'string';
             });
 
-            return reviewCard.filter((card) => new Date(card.SRS.nextReviewDate).getTime() <= new Date().getTime());
+            return reviewCard.filter(
+                (card: FlashCard) => new Date(card.SRS.nextReviewDate).getTime() <= new Date().getTime(),
+            );
         } catch (error) {
             this.logger.error(error);
             if (error instanceof HttpException) {
@@ -446,6 +450,9 @@ export class UserCollectionController {
         @Body() { flashCards }: FullUpdateFlashcardBodyDto,
     ) {
         try {
+            await this.collectionService.removeUnexistedFlashCards(id);
+            // * remove all of the cards that not exist in database
+
             // * get collection
             const collection = await this.collectionModel.findById(id);
 
@@ -462,15 +469,16 @@ export class UserCollectionController {
             for (let index = 0; index < newFlashCards.length; index++) {
                 newFlashCards[index];
 
-                // * create a new flashcard if the flashcard's id is not already existing
-                if (!newFlashCards[index].id) {
+                // * create a new flashcard if the flashcard's id is not already existing or not exist in the collection's card
+                if (!newFlashCards[index].id || _.findIndex(oldCards, newFlashCards[index].id) === -1) {
                     const newCard = await this.flashCardModel.create({
                         front: newFlashCards[index].front,
                         back: newFlashCards[index].back,
                         inCollection: collection._id,
                     });
 
-                    newFlashCards[index] = { id: newCard._id.toString(), ...newFlashCards[index] };
+                    newFlashCards[index] = { ...newFlashCards[index], id: newCard._id.toString() };
+
                     continue;
                 }
 
@@ -485,7 +493,7 @@ export class UserCollectionController {
                 });
             }
 
-            collection.cards = newFlashCards.map((card) => card.id);
+            collection.cards = newFlashCards.map((card) => new ObjectId(card.id));
 
             // * delete the old flashcards not in the new flashcards list
             oldCards.forEach(async (cardId) => {

@@ -9,8 +9,9 @@ import NestjsLoggerServiceAdapter from 'libs/logger/logger/infrastructure/nestjs
 import { TimeoutInterceptor } from './Interceptor/timeout.interceptor';
 import { ValidationPipe } from '@nestjs/common';
 import { DelayInterceptor } from './Interceptor/delay.interceptor';
+import { NestExpressApplication } from '@nestjs/platform-express';
 async function bootstrap() {
-    const app = await NestFactory.create(AppModule, { bufferLogs: true });
+    const app = await NestFactory.create<NestExpressApplication>(AppModule, { bufferLogs: true });
     app.setGlobalPrefix('api/v1');
 
     const configService = app.get(ConfigService);
@@ -28,7 +29,6 @@ async function bootstrap() {
         origin: 'http://localhost:3000',
         credentials: true,
     });
-
     app.useGlobalPipes(
         new ValidationPipe({
             // whitelist: true, // Remove properties not in the DTO

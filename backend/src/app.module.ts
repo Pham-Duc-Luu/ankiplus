@@ -12,13 +12,15 @@ import { UtilModule } from './util/util.module';
 import { LoggerModule } from 'libs/logger/logger/infrastructure/nestjs/loggerModule';
 import { ConfigModule } from 'libs/logger/config/infrastructure/nestjs/configModule';
 import { ContextModule } from 'libs/logger/context/infrastructure/nestjs/contextModule';
-import { APP_FILTER } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { join } from 'path';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AuthModule } from './auth/auth.module';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { GqlThrottlerGuard } from './guard/GqlThrottlerGuard';
 // import { LoggerModule } from '@nestjs-logger/shared/logger/infrastructure/nestjs/loggerModule';
 // import { ConfigModule } from '@nestjs-logger/shared/config/infrastructure/nestjs/configModule';
 // import { ContextModule } from '@nestjs-logger/shared/context/infrastructure/nestjs/contextModule';
@@ -80,6 +82,12 @@ import { AuthModule } from './auth/auth.module';
             // },
             context: ({ req }) => ({ req }), // This ensures that the request object is available in the GraphQL context
         }),
+        ThrottlerModule.forRoot([
+            {
+                ttl: 60000,
+                limit: 10,
+            },
+        ]),
         ScheduleModule.forRoot(),
         // UserAuthModule,
         CollectionModule,

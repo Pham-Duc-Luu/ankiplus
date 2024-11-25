@@ -34,7 +34,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
         //     .build();
         // logger.error(JSON.stringify(exception) + '\n');
-        console.log(exception);
+        console.error(exception);
 
         // Check if the request is for GraphQL
         const gqlHost = GqlArgumentsHost.create(host);

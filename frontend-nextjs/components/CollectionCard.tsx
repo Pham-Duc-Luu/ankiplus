@@ -27,7 +27,6 @@ import { MdOutlineDeleteOutline } from "react-icons/md";
 import { useRouter } from "@/i18n/routing";
 import { FaUser } from "react-icons/fa";
 import { useAppDispatch } from "@/store/hooks";
-import { setCollection } from "@/store/collectionSlice";
 import { Tooltip } from "@nextui-org/tooltip";
 import { useTranslations } from "next-intl";
 
@@ -69,9 +68,9 @@ export default function CollectionCard({
       <Card className="group/collectionCard cursor-pointer" {...props}>
         <CardBody
           onClick={() => {
-            dispatch(
-              setCollection({ id: _id, name: title, description: description })
-            );
+            // dispatch(
+            //   setCollection({ id: _id, name: title, description: description })
+            // );
             route.push(`/collection/${_id}`);
           }}
           className="  p-4  w-full  flex items-center  flex-row gap-4"

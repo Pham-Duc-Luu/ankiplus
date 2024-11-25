@@ -46,7 +46,7 @@ export class Collection {
     language: string;
 
     @Prop({ type: [{ type: Types.ObjectId, ref: 'FlashCard' }] })
-    cards?: (FlashCard | string)[];
+    cards?: (FlashCard | string | Types.ObjectId)[];
 
     @Prop({ type: ReviewSession })
     reviewSession: ReviewSession;

@@ -19,6 +19,7 @@ import { SRSService } from './flashcard/Srs.flashCard.service';
 import { UserCollectionService } from './collection/user.collection.service';
 import { MailerService } from './mailer.service';
 import { UserFlashCardService } from './flashcard/user.flashCard.service';
+import { CollectionService } from 'src/collection/collection.service';
 
 @Module({
     imports: [
@@ -46,6 +47,7 @@ import { UserFlashCardService } from './flashcard/user.flashCard.service';
         UserAuthService,
         UserCollectionResolver,
         UserCollectionService,
+        CollectionService,
         SRSService,
         MailerService,
         UserFlashCardService,
