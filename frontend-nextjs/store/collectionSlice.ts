@@ -36,6 +36,7 @@ export const collectionSlice = createSlice({
   name: "collection",
   initialState,
   reducers: {
+    setCollection: () => {},
     setSelectedCard: (
       state,
       { payload }: PayloadAction<Collection["selectedCard"]>
