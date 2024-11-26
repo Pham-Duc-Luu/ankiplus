@@ -49,7 +49,7 @@ export class Collection {
     cards?: (FlashCard | string | Types.ObjectId)[];
 
     @Prop({ type: ReviewSession })
-    reviewSession: ReviewSession;
+    reviewSession?: ReviewSession;
 
     @Prop({ type: Types.ObjectId, ref: 'User', required: true }) // Add reference to User
     owner: User | string; // Reference to the User schema

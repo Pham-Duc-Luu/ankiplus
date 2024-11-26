@@ -40,7 +40,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
         const gqlHost = GqlArgumentsHost.create(host);
         const isGraphQL = gqlHost.getType().toString() === 'graphql';
 
-        const validateErrorMessage = Object(exception.getResponse()).message as string | string[];
+        const validateErrorMessage = Object(exception?.getResponse()).message as string | string[];
 
         const errorResponse = {
             statusCode: status,

@@ -174,50 +174,35 @@ export class UserCollectionResolver {
             //  * find all the flashcards that have nextReviewDate before the current date
             //  */
 
-            // const flashcards = collection.cards as FlashCardDocument[];
-
-            // const today = dayjs();
-
-            // // the card that has nextReviewDate before the current date
-            // const todayReviewFlashCards = _.filter(flashcards, function (o) {
-            //     return !today.isBefore(dayjs(o.SRS.nextReviewDate));
-            // });
-
-            // // add the flashcards to the review session if the review session does not exist
-            // todayReviewFlashCards.forEach((item) => {
-            //     if (!collection?.reviewSession) {
-            //         // initialize review session
-            //         collection.reviewSession = { cards: [] };
-            //     }
-
-            //     // check if the card exist in review session
-            //     if (!_.includes(collection.reviewSession.cards, item._id.toString())) {
-            //         collection.reviewSession.cards.push(item._id.toString());
-            //     }
-            // });
-
-            // await collection.save();
-
-            // await this.useCollectionService.updateCardToReviewSession(
-            //     collection_id,
-            //     await this.useCollectionService.findReviewFlashcards(collection_id),
-            // );
-
             /**
              * check if the collection exist
              */
             const collection = await this.collectionModel.findById(collection_id);
+
+            // * remove cards don't need to be reviewed today
+            await this.collectionService.removeNotYetExpiredCardInReviewSession(collection_id);
 
             /**
              * find all of the flashcards that need to be reviewed today
              */
             const needToReviewCards = await this.useCollectionService.findReviewFlashcards(collection_id);
 
+            // * initialize the review session if not exist
+            if (!collection?.reviewSession) {
+                collection.reviewSession = {
+                    cards: [],
+                };
+            }
+
             // remove the flashcards that have already existed in reivewSession
             _.pullAll(needToReviewCards, collection.reviewSession.cards);
 
             // update the cards to review session
             await this.useCollectionService.pushToCardToReviewSession(collection_id, needToReviewCards);
+            // remove unexpected cards
+            await this.collectionService.removeUnexistedCardsInReviewSession(collection_id);
+
+            // query the collection
             const updatedColletion = await this.collectionModel.findById(collection_id);
 
             return new NeedToReviewFlashCardGQLObject({
@@ -227,6 +212,9 @@ export class UserCollectionResolver {
                 data: await Promise.all(
                     updatedColletion.reviewSession.cards.map(async (item): Promise<FlashCardGQLObject> => {
                         const card = await this.flashCardModel.findById(item).lean().exec();
+                        if (!card) {
+                            throw new BadRequestException('Card not found');
+                        }
                         return {
                             _id: card._id.toString(),
                             front: card.front,

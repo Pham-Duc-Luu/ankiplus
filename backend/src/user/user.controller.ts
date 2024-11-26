@@ -115,40 +115,52 @@ export class UserController {
     @ApiTags(AUTHENTICATION, 'User')
     @Post('/sign-in')
     async findUser(@Body() loginProperty: LoginUserDto): Promise<JWTTokenDto> {
-        const { email, password } = loginProperty;
-        if (!email || !password) {
-            throw new BadRequestException('Missing email or password');
+        try {
+            const { email, password } = loginProperty;
+            if (!email || !password) {
+                throw new BadRequestException('Missing email or password');
+            }
+
+            const user = await this.userModel.findOne({ email: email });
+            if (!user) {
+                throw new BadRequestException('User not found');
+            }
+
+            // * check if the user's password exists
+            if (!user.password) throw new BadRequestException('Password not found');
+
+            // * check if the password is correct
+            if (!this.util.compareSync(password, user.password)) {
+                throw new BadRequestException('Wrong password!');
+            }
+
+            const payload: jwtPayloadDto = {
+                sub: user.id,
+                email: user.email,
+            };
+
+            const refresh_token = await this.userService.getRefreshToken(payload);
+            const access_token = await this.userService.getAccessToken(payload);
+
+            /**
+             * * save the token
+             */
+
+            const new_token = await this.tokenModel.create({ token: refresh_token, user_token: user._id });
+            user.Tokens.push(new_token);
+            await user.save();
+            /**
+             * * with the jwt
+             * @returns {access_token, refresh_token}
+             */
+            return new JWTTokenDto(access_token, refresh_token);
+        } catch (error) {
+            this.logger.error(error);
+            if (error instanceof HttpException) {
+                throw error;
+            }
+            throw new InternalServerErrorException();
         }
-
-        const user = await this.userModel.findOne({ email: email });
-        if (!user) {
-            throw new BadRequestException('User not found');
-        }
-
-        if (!this.util.compareSync(password, user.password)) {
-            throw new BadRequestException('Wrong password!');
-        }
-
-        const payload: jwtPayloadDto = {
-            sub: user.id,
-            email: user.email,
-        };
-
-        const refresh_token = await this.userService.getRefreshToken(payload);
-        const access_token = await this.userService.getAccessToken(payload);
-
-        /**
-         * * save the token
-         */
-
-        const new_token = await this.tokenModel.create({ token: refresh_token, user_token: user._id });
-        user.Tokens.push(new_token);
-        await user.save();
-        /**
-         * * with the jwt
-         * @returns {access_token, refresh_token}
-         */
-        return new JWTTokenDto(access_token, refresh_token);
     }
 
     @ApiTags(AUTHENTICATION)
