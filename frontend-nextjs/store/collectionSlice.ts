@@ -8,6 +8,19 @@ export interface Card {
   back: string;
   _id?: string | number;
 }
+export interface ReviewCard {
+  _id: string | number;
+  front: string;
+  back: string;
+  inCollection: string | number;
+  SRS: {
+    _id: string | number;
+    nextReviewDate: string;
+
+    interval: number;
+    efactor: number;
+  };
+}
 
 // * this is for edit cards
 export interface IReoderItemCard extends Partial<Card> {
@@ -18,16 +31,14 @@ interface Collection {
   name?: string;
   description?: string;
   cards?: IReoderItemCard[];
-  reviewCard: {
-    index: number;
-    _id: string | number;
-  };
+  reviewCard?: ReviewCard;
+  listReviewCards?: ReviewCard[];
   selectedCard?: Card;
+  displaying_reviewCard?: "front" | "back";
 }
 // Define the initial state using that type
 const initialState: Collection = {
   _id: 1,
-  reviewCard: { index: 0, _id: 0 },
   name: "Example collection name",
   cards: [{ positionId: uuv4() }],
 };
@@ -48,24 +59,29 @@ export const collectionSlice = createSlice({
     ) => {
       state.cards = payload;
     },
+    setListReviewCard_card: (
+      state,
+      { payload }: PayloadAction<Collection["listReviewCards"]>
+    ) => {
+      state.listReviewCards = payload;
+    },
     setCollection: (state, { payload }: PayloadAction<Partial<Collection>>) => {
       state.name = payload.name;
       state.description = payload.description;
       state._id = payload._id;
     },
     startReview: (state) => {
-      if (state.cards) {
-        state.reviewCard = { _id: state.cards[0]._id || 0, index: 0 };
-      }
+      // Important : start review only when review card exists
+      state?.listReviewCards && (state.reviewCard = state.listReviewCards[0]);
+      state.displaying_reviewCard = "front";
     },
-    nextReview: (state) => {
-      if (state.cards && state.reviewCard.index < state.cards.length - 1) {
-        state.reviewCard = {
-          _id: state.cards[state.reviewCard.index + 1]._id || 0,
-          index: state.reviewCard.index + 1,
-        };
-      }
+    display_back_reivewCard: (state) => {
+      state.displaying_reviewCard = "back";
     },
+    display_front_reivewCard: (state) => {
+      state.displaying_reviewCard = "front";
+    },
+    nextReview: (state) => {},
     insert_card: (state, payload?: PayloadAction<Collection["cards"]>) => {
       const need_to_unshift_cards = payload?.payload
         ? payload.payload
@@ -118,6 +134,9 @@ export const {
   startReview,
   insert_card,
   append_card,
+  setListReviewCard_card,
+  display_back_reivewCard,
+  display_front_reivewCard,
   remove_card,
   updateCard_Card,
   setFlashCards_card,

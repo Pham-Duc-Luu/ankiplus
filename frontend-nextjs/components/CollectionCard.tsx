@@ -89,11 +89,11 @@ export default function CollectionCard({
             <small className="text-default-500 truncate">{description}</small>
           </CardBody>
           <div className="flex gap-4 group-hover/collectionCard:visible invisible">
-            <Tooltip content={t_utils("add")} color="secondary" size="lg">
+            {/* <Tooltip content={t_utils("add")} color="secondary" size="lg">
               <Button isIconOnly variant="light">
                 <IoIosAddCircleOutline size={24} />
               </Button>
-            </Tooltip>
+            </Tooltip> */}
             <Tooltip content={t_utils("edit")} color="secondary" size="lg">
               <Button
                 isIconOnly
@@ -154,7 +154,9 @@ export default function CollectionCard({
                 </>
               </ModalBody>
               <ModalFooter>
-                <Button color="primary">Cancel</Button>
+                <Button onPress={onClose} color="primary">
+                  Cancel
+                </Button>
                 <Button
                   color="danger"
                   onClick={() => {

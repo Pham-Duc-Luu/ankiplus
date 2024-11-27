@@ -4,55 +4,56 @@ import { useAppSelector } from "@/store/hooks";
 import { AnimatePresence, motion } from "framer-motion";
 import React, { useEffect } from "react";
 import ReviewTimeOption from "./ReviewTimeOption";
-import Proccess from "./LearningProgress";
 import { useDispatch } from "react-redux";
-import { setFlashCards, startReview } from "@/store/collectionSlice";
+import {
+  display_back_reivewCard,
+  setListReviewCard_card,
+  startReview,
+} from "@/store/collectionSlice";
 import { initReviewCard } from "@/store/reviewCardSlice";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/routing";
-import { Button } from "@nextui-org/react";
+import { Button, Kbd, Tooltip } from "@nextui-org/react";
 import { useParams } from "next/navigation";
 import { useGetFLashCardsInCollectionQuery } from "@/store/graphql/COLLECTION.modify";
 import {
   useGetCollectionDetailQuery,
   useGetNeedToReviewFlashCardsQuery,
 } from "@/store/graphql/COLLECTION.generated";
+import LoadingSpinnerReplace from "@/components/LoadingSpinnerReplace";
 
 const Page = () => {
-  const { collection, reviewCard } = useAppSelector(
-    (state) => state.persistedReducer
-  );
+  const { collection } = useAppSelector((state) => state.persistedReducer);
   const dispatch = useDispatch();
   const { collectionid } = useParams<{ collectionid: string }>();
 
-  const GetFLashCardsInCollectionQuery = useGetNeedToReviewFlashCardsQuery({
+  // IMPORTANT : handle query need to review flashcards in collection
+  const useGetNeedToReviewFlashCardsQueryResult =
+    useGetNeedToReviewFlashCardsQuery({
+      ID: collectionid,
+    });
+
+  // IMPORTANT : handle collection detail
+  const useGetCollectionDetailQueryResult = useGetCollectionDetailQuery({
     ID: collectionid,
   });
 
-  const GetCollectionDetailQuery = useGetCollectionDetailQuery({
-    ID: collectionid,
-  });
-
+  // IMPORTANT : update the list of review cards only once time when component is rendered
   useEffect(() => {
-    dispatch(startReview());
-
-    if (collection?.cards) dispatch(initReviewCard(collection.cards[0]));
-  }, [collection.cards]);
-
-  useEffect(() => {
-    if (collection.cards)
-      dispatch(initReviewCard(collection.cards[collection.reviewCard.index]));
-  }, [collection.reviewCard]);
-
-  useEffect(() => {
-    if (GetFLashCardsInCollectionQuery.data?.getNeedToReviewFlashCards.data) {
+    if (
+      useGetNeedToReviewFlashCardsQueryResult.data?.getNeedToReviewFlashCards
+        .data
+    ) {
       dispatch(
-        setFlashCards(
-          GetFLashCardsInCollectionQuery.data?.getNeedToReviewFlashCards.data
+        setListReviewCard_card(
+          useGetNeedToReviewFlashCardsQueryResult.data
+            ?.getNeedToReviewFlashCards.data
         )
       );
+
+      dispatch(startReview());
     }
-  }, [GetFLashCardsInCollectionQuery.data]);
+  }, [useGetNeedToReviewFlashCardsQueryResult.data]);
 
   const t = useTranslations("review");
 
@@ -65,17 +66,20 @@ const Page = () => {
     route.push("finish");
   };
 
+  if (useGetNeedToReviewFlashCardsQueryResult.isLoading) {
+    return <LoadingSpinnerReplace></LoadingSpinnerReplace>;
+  }
+
   return (
     <div className="w-full flex flex-col items-center">
       <div className="lg:w-[1200px] flex flex-col gap-8 items-center p-6">
         <div className=" w-full">
-          {GetCollectionDetailQuery.data?.getCollectionById.name}
+          {useGetCollectionDetailQueryResult.data?.getCollectionById.name}
         </div>
         {/* <Proccess></Proccess> */}
         <main className="w-full">
           <AnimatePresence mode="wait">
             <motion.div
-              key={reviewCard._id}
               animate={{ opacity: 1, y: 0 }}
               initial={{ opacity: 0, y: 20 }}
               exit={{ opacity: 0, y: -20 }}
@@ -83,16 +87,24 @@ const Page = () => {
             >
               <FlipCard
                 className="w-full"
-                front={reviewCard.front}
-                back={reviewCard.back}
+                front={collection.reviewCard?.front}
+                back={collection.reviewCard?.back}
               ></FlipCard>
             </motion.div>
           </AnimatePresence>
         </main>
-        <></>
-        <ReviewTimeOption className=""></ReviewTimeOption>
+        {collection.displaying_reviewCard === "front" && (
+          <Tooltip content={<Kbd>{"Space"}</Kbd>}>
+            <Button onClick={() => dispatch(display_back_reivewCard())}>
+              {t("function.tab to show")}
+            </Button>
+          </Tooltip>
+        )}
+        {collection.displaying_reviewCard === "back" && (
+          <ReviewTimeOption className=""></ReviewTimeOption>
+        )}
       </div>
-      <Button onClick={() => finish()}>{t("function.finish")}</Button>
+      {/* <Button onClick={() => finish()}>{t("function.finish")}</Button> */}
     </div>
   );
 };

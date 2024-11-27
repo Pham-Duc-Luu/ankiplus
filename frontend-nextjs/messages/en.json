@@ -106,7 +106,13 @@
     },
     "left": "left",
     "function": {
-      "finish": "finish"
+      "finish": "finish",
+      "tab to show": "tab to show the answer"
+    },
+    "review state": {
+      "bad": "bad",
+      "ok": "ok",
+      "good": "good"
     },
     "next": {
       "title": "next step",
