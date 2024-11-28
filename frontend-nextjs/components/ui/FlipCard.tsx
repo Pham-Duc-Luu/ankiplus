@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ReactCardFlip from "react-card-flip";
 
 import {
@@ -14,6 +14,8 @@ import { MdOutlineModeEdit } from "react-icons/md";
 import { PiStarThin } from "react-icons/pi";
 import { cn } from "@/lib/utils";
 import { motion, useAnimation } from "framer-motion";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { display_back_reivewCard } from "@/store/collectionSlice";
 export interface FlipCardProps extends CardProps {
   front?: string;
   back?: string;
@@ -57,7 +59,10 @@ const FlipCard = ({
 }: FlipCardProps) => {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
-
+  const { displaying_reviewCard } = useAppSelector(
+    (state) => state.persistedReducer.collection
+  );
+  const dispatch = useAppDispatch();
   function handleFlip() {
     if (!isAnimating) {
       setIsFlipped(!isFlipped);
@@ -65,11 +70,23 @@ const FlipCard = ({
     }
   }
 
+  useEffect(() => {
+    // if (displaying_reviewCard === "front") {
+    //   setIsFlipped(false);
+    // }
+    if (displaying_reviewCard === "back") {
+      setIsFlipped(true);
+    }
+  }, [displaying_reviewCard]);
+
   return (
     <div className="flex items-center justify-center  cursor-pointer">
       <div
         className="flip-card w-[800px] h-[360px] rounded-md"
         // onClick={handleFlip}
+        onClick={() => {
+          dispatch(display_back_reivewCard());
+        }}
       >
         <motion.div
           className="w-[100%] h-[100%]"

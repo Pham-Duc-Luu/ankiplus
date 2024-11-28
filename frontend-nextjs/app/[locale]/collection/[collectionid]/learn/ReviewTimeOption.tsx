@@ -6,8 +6,7 @@ import { Button, ButtonProps, Kbd, Tooltip } from "@nextui-org/react";
 import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import * as dayjs from "dayjs";
-import { getSpaceBetweenStudyDate } from "@/utils/getNextStudySpace";
-import { color } from "framer-motion";
+
 import { useTranslations } from "next-intl";
 const ReviewTimeOption = ({ className }: { className?: string }) => {
   const { reviewCard } = useAppSelector(
@@ -18,8 +17,15 @@ const ReviewTimeOption = ({ className }: { className?: string }) => {
   const dispatch = useDispatch();
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
-      if (e.key === "1" && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
+      if (e.key === "1") {
+        dispatch(nextReview());
+      }
+      if (e.key === "2") {
+        dispatch(nextReview());
+      }
+
+      if (e.key === "3") {
+        dispatch(nextReview());
       }
     };
 
@@ -28,6 +34,7 @@ const ReviewTimeOption = ({ className }: { className?: string }) => {
   }, []);
 
   const qualities = [1, 3, 5];
+
   const hanldeButtonColor = (number: number): ButtonProps["color"] => {
     switch (number) {
       case 1:
@@ -69,16 +76,17 @@ const ReviewTimeOption = ({ className }: { className?: string }) => {
     <div className={cn(className, " flex gap-6")}>
       {qualities.map((quality, index) => {
         return (
-          <Tooltip content={<Kbd>{handleDisplayTooltip(index + 1)}</Kbd>}>
+          <Tooltip content={<Kbd>{index + 1}</Kbd>}>
             <Button
               // variant=
+
               key={index}
               color={hanldeButtonColor(index + 1)}
               onClick={() => {
                 dispatch(nextReview());
               }}
             >
-              {index + 1}
+              {handleDisplayTooltip(index + 1)}
             </Button>
           </Tooltip>
         );

@@ -32,6 +32,8 @@ interface Collection {
   description?: string;
   cards?: IReoderItemCard[];
   reviewCard?: ReviewCard;
+  numberOfStudiedCards?: number;
+  reviewCardIndex?: number;
   listReviewCards?: ReviewCard[];
   selectedCard?: Card;
   displaying_reviewCard?: "front" | "back";
@@ -39,8 +41,10 @@ interface Collection {
 // Define the initial state using that type
 const initialState: Collection = {
   _id: 1,
+  reviewCardIndex: 0,
   name: "Example collection name",
   cards: [{ positionId: uuv4() }],
+  numberOfStudiedCards: 0,
 };
 
 export const collectionSlice = createSlice({
@@ -70,9 +74,23 @@ export const collectionSlice = createSlice({
       state.description = payload.description;
       state._id = payload._id;
     },
+    previousReviewCard: (state) => {
+      // IMPORTANT : back to the previous review card
+      state?.reviewCardIndex &&
+        (state.reviewCardIndex = state.reviewCardIndex - 1);
+
+      state?.listReviewCards &&
+        (state.reviewCard =
+          state.listReviewCards[state.listReviewCards.length - 1 || 0]);
+    },
     startReview: (state) => {
       // Important : start review only when review card exists
-      state?.listReviewCards && (state.reviewCard = state.listReviewCards[0]);
+      state.reviewCardIndex = 0;
+
+      // Important : get the first review card from the listReviewCards
+
+      state?.listReviewCards &&
+        (state.reviewCard = state.listReviewCards[state.reviewCardIndex]);
       state.displaying_reviewCard = "front";
     },
     display_back_reivewCard: (state) => {
@@ -81,7 +99,13 @@ export const collectionSlice = createSlice({
     display_front_reivewCard: (state) => {
       state.displaying_reviewCard = "front";
     },
-    nextReview: (state) => {},
+    nextReview: (state) => {
+      state.displaying_reviewCard = "front";
+
+      state.reviewCardIndex = state.reviewCardIndex + 1;
+      state?.listReviewCards &&
+        (state.reviewCard = state.listReviewCards[state.reviewCardIndex || 0]);
+    },
     insert_card: (state, payload?: PayloadAction<Collection["cards"]>) => {
       const need_to_unshift_cards = payload?.payload
         ? payload.payload
@@ -134,6 +158,7 @@ export const {
   startReview,
   insert_card,
   append_card,
+  previousReviewCard,
   setListReviewCard_card,
   display_back_reivewCard,
   display_front_reivewCard,

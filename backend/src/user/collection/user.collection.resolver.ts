@@ -10,6 +10,7 @@ import {
 import {
     BadRequestException,
     ForbiddenException,
+    HttpException,
     Inject,
     InternalServerErrorException,
     Logger,
@@ -178,6 +179,13 @@ export class UserCollectionResolver {
              * check if the collection exist
              */
             const collection = await this.collectionModel.findById(collection_id);
+            // * initialize the review session if not exist
+            if (!collection?.reviewSession?.cards) {
+                collection.reviewSession = {
+                    cards: [],
+                };
+                await collection.save();
+            }
 
             // * remove cards don't need to be reviewed today
             await this.collectionService.removeNotYetExpiredCardInReviewSession(collection_id);
@@ -186,13 +194,6 @@ export class UserCollectionResolver {
              * find all of the flashcards that need to be reviewed today
              */
             const needToReviewCards = await this.useCollectionService.findReviewFlashcards(collection_id);
-
-            // * initialize the review session if not exist
-            if (!collection?.reviewSession) {
-                collection.reviewSession = {
-                    cards: [],
-                };
-            }
 
             // remove the flashcards that have already existed in reivewSession
             _.pullAll(needToReviewCards, collection.reviewSession.cards);
@@ -227,6 +228,9 @@ export class UserCollectionResolver {
             });
         } catch (error) {
             this.logger.error(error);
+            if (error instanceof HttpException) {
+                throw error;
+            }
             throw new InternalServerErrorException();
         }
     }

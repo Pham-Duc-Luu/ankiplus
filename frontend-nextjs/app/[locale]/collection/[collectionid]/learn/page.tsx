@@ -21,6 +21,7 @@ import {
   useGetNeedToReviewFlashCardsQuery,
 } from "@/store/graphql/COLLECTION.generated";
 import LoadingSpinnerReplace from "@/components/LoadingSpinnerReplace";
+import ReviewNavbar from "@/components/ReviewNavbar";
 
 const Page = () => {
   const { collection } = useAppSelector((state) => state.persistedReducer);
@@ -65,6 +66,21 @@ const Page = () => {
   const finish = () => {
     route.push("finish");
   };
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.code === "Space") {
+        dispatch(dispatch(display_back_reivewCard()));
+      }
+    };
+
+    document.addEventListener("keydown", down);
+    return () => document.removeEventListener("keydown", down);
+  }, []);
+  useEffect(() => {
+    if (collection.reviewCardIndex === collection.listReviewCards?.length) {
+      finish();
+    }
+  }, [collection]);
 
   if (useGetNeedToReviewFlashCardsQueryResult.isLoading) {
     return <LoadingSpinnerReplace></LoadingSpinnerReplace>;
@@ -74,16 +90,17 @@ const Page = () => {
     <div className="w-full flex flex-col items-center">
       <div className="lg:w-[1200px] flex flex-col gap-8 items-center p-6">
         <div className=" w-full">
-          {useGetCollectionDetailQueryResult.data?.getCollectionById.name}
+          <ReviewNavbar></ReviewNavbar>
         </div>
         {/* <Proccess></Proccess> */}
         <main className="w-full">
           <AnimatePresence mode="wait">
             <motion.div
-              animate={{ opacity: 1, y: 0 }}
-              initial={{ opacity: 0, y: 20 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.15 }}
+              key={collection.reviewCardIndex}
+              initial={{ y: 10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -10, opacity: 0 }}
+              transition={{ duration: 0.2 }}
             >
               <FlipCard
                 className="w-full"
