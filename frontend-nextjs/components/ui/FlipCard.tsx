@@ -25,10 +25,13 @@ export interface FlipCardProps extends CardProps {
       back: boolean | string;
     };
   };
+  displaySide?: "front" | "back";
   CustomCard?: {
     FrontCard?: React.JSX.Element;
     BackCard?: React.JSX.Element;
   };
+  onPress?: () => void;
+  isFlipByPress?: boolean;
   text?: string;
 }
 
@@ -56,13 +59,16 @@ const FlipCard = ({
   className,
   CustomCard,
   options,
+  onPress = () => {},
+  isFlipByPress = true,
+  displaySide = "front",
+  ...props
 }: FlipCardProps) => {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
-  const { displaying_reviewCard } = useAppSelector(
-    (state) => state.persistedReducer.collection
-  );
+
   const dispatch = useAppDispatch();
+
   function handleFlip() {
     if (!isAnimating) {
       setIsFlipped(!isFlipped);
@@ -71,21 +77,21 @@ const FlipCard = ({
   }
 
   useEffect(() => {
-    // if (displaying_reviewCard === "front") {
-    //   setIsFlipped(false);
-    // }
-    if (displaying_reviewCard === "back") {
+    if (displaySide === "front") {
+      setIsFlipped(false);
+    }
+    if (displaySide === "back") {
       setIsFlipped(true);
     }
-  }, [displaying_reviewCard]);
+  }, [displaySide]);
 
   return (
     <div className="flex items-center justify-center  cursor-pointer">
       <div
         className="flip-card w-[800px] h-[360px] rounded-md"
-        // onClick={handleFlip}
-        onClick={() => {
-          dispatch(display_back_reivewCard());
+        onClick={(e) => {
+          isFlipByPress && handleFlip();
+          onPress();
         }}
       >
         <motion.div

@@ -23,7 +23,8 @@ import React, { useEffect, useState } from "react";
 import { MdOutlineNavigateNext } from "react-icons/md";
 import { MdAddCircleOutline } from "react-icons/md";
 import { useQuery } from "@apollo/client";
-export const IViewOptions = ["latest", "created"] as const;
+
+const IViewOptions = ["latest", "created"] as const;
 
 const ViewOptions = ({ className }: Partial<ButtonProps>) => {
   const t = useTranslations("dashboard");

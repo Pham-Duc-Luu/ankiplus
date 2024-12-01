@@ -1,6 +1,5 @@
 // app/providers.tsx
 "use client";
-import { ToastProvider } from "@/components/ui/toast";
 import { Toaster } from "@/components/ui/toaster";
 import MouseContextProvider from "@/context/mouse-context";
 import createApolloClient from "@/lib/apolloClient";

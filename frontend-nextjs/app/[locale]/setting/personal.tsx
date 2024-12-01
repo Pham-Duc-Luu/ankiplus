@@ -53,7 +53,7 @@ const AvatarIcon = ({ data, ...props }: AvatarIconProps) => {
 
   const dispatch = useAppDispatch();
 
-  let xmlDataStr = builder.build(data);
+  const xmlDataStr = builder.build(data);
 
   return (
     <ShadcnAvatar

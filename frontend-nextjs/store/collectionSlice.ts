@@ -83,6 +83,19 @@ export const collectionSlice = createSlice({
         (state.reviewCard =
           state.listReviewCards[state.listReviewCards.length - 1 || 0]);
     },
+    reviewAgain: (state) => {
+      state.displaying_reviewCard = "front";
+
+      if (state.listReviewCards) {
+        const itemToMove = _.pullAt(
+          state.listReviewCards,
+          state.reviewCardIndex
+        );
+
+        state.listReviewCards.push(itemToMove[0]);
+        state.reviewCard = state.listReviewCards[state.reviewCardIndex];
+      }
+    },
     startReview: (state) => {
       // Important : start review only when review card exists
       state.reviewCardIndex = 0;
@@ -150,6 +163,8 @@ export const collectionSlice = createSlice({
       }
     },
   },
+
+  extraReducers(builder) {},
 });
 
 export const {
@@ -162,6 +177,7 @@ export const {
   setListReviewCard_card,
   display_back_reivewCard,
   display_front_reivewCard,
+  reviewAgain,
   remove_card,
   updateCard_Card,
   setFlashCards_card,

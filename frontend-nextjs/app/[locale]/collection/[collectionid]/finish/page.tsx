@@ -81,9 +81,9 @@ const Page = () => {
   return (
     <div className=" w-full flex flex-col items-center p-6">
       <div className="lg:w-[1200px] w-full">
-        <div className=" w-full text-2xl font-bold">
+        {/* <div className=" w-full text-2xl font-bold">
           {GetCollectionDetailQuery.data?.getCollectionById.name}
-        </div>
+        </div> */}
         <Card isBlurred className="p-4">
           <CardBody className=" flex-row gap-12 justify-between items-center">
             <div className="">

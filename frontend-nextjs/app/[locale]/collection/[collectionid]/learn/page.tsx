@@ -2,7 +2,7 @@
 import FlipCard from "@/components/ui/FlipCard";
 import { useAppSelector } from "@/store/hooks";
 import { AnimatePresence, motion } from "framer-motion";
-import React, { useEffect } from "react";
+import React, { useEffect, useLayoutEffect } from "react";
 import ReviewTimeOption from "./ReviewTimeOption";
 import { useDispatch } from "react-redux";
 import {
@@ -66,6 +66,7 @@ const Page = () => {
   const finish = () => {
     route.push("finish");
   };
+
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.code === "Space") {
@@ -76,11 +77,14 @@ const Page = () => {
     document.addEventListener("keydown", down);
     return () => document.removeEventListener("keydown", down);
   }, []);
+
+  // IMPORTANT : member to remove all of the review cards before rendering
   useEffect(() => {
     if (collection.reviewCardIndex === collection.listReviewCards?.length) {
+      dispatch(setListReviewCard_card());
       finish();
     }
-  }, [collection]);
+  }, [collection, useGetNeedToReviewFlashCardsQueryResult]);
 
   if (useGetNeedToReviewFlashCardsQueryResult.isLoading) {
     return <LoadingSpinnerReplace></LoadingSpinnerReplace>;
@@ -96,13 +100,16 @@ const Page = () => {
         <main className="w-full">
           <AnimatePresence mode="wait">
             <motion.div
-              key={collection.reviewCardIndex}
+              key={JSON.stringify(collection.reviewCard)}
               initial={{ y: 10, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: -10, opacity: 0 }}
               transition={{ duration: 0.2 }}
             >
               <FlipCard
+                isFlipByPress={false}
+                onPress={() => dispatch(display_back_reivewCard())}
+                displaySide={collection.displaying_reviewCard}
                 className="w-full"
                 front={collection.reviewCard?.front}
                 back={collection.reviewCard?.back}

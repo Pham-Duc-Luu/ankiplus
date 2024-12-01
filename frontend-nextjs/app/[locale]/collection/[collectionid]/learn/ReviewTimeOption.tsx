@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { nextReview } from "@/store/collectionSlice";
+import { nextReview, reviewAgain } from "@/store/collectionSlice";
 import { useAppSelector } from "@/store/hooks";
 import { Button, ButtonProps, Kbd, Tooltip } from "@nextui-org/react";
 import React, { useEffect } from "react";
@@ -8,24 +8,36 @@ import { useDispatch } from "react-redux";
 import * as dayjs from "dayjs";
 
 import { useTranslations } from "next-intl";
+import { useReviewFlashcardMutation } from "@/store/RTK-query/flashcardApi";
+import { useParams } from "next/navigation";
 const ReviewTimeOption = ({ className }: { className?: string }) => {
   const { reviewCard } = useAppSelector(
     (state) => state.persistedReducer.collection
   );
+  const { collectionid } = useParams<{ collectionid: string }>();
+
+  // IMPORTANT : this will handle call api when choose a review quality's options
+  const handleQualityChooseOption = (quality: number) => {
+    useReviewFlashcardMutationTrigger({ collectionId: collectionid, quality });
+  };
+
+  // * init review card mutation
+  const [useReviewFlashcardMutationTrigger, useReviewFlashcardMutationResult] =
+    useReviewFlashcardMutation();
 
   const t = useTranslations("review");
   const dispatch = useDispatch();
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.key === "1") {
-        dispatch(nextReview());
+        handleQualityChooseOption(qualities[0]);
       }
       if (e.key === "2") {
-        dispatch(nextReview());
+        handleQualityChooseOption(qualities[1]);
       }
 
       if (e.key === "3") {
-        dispatch(nextReview());
+        handleQualityChooseOption(qualities[2]);
       }
     };
 
@@ -83,7 +95,7 @@ const ReviewTimeOption = ({ className }: { className?: string }) => {
               key={index}
               color={hanldeButtonColor(index + 1)}
               onClick={() => {
-                dispatch(nextReview());
+                handleQualityChooseOption(quality);
               }}
             >
               {handleDisplayTooltip(index + 1)}

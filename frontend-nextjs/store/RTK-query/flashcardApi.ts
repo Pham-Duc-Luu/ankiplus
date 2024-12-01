@@ -2,6 +2,8 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 import axiosBaseQuery from "./axios/axiosBaseQuery";
 import { AxiosError, AxiosResponse } from "axios";
 import { flashCardDto } from "../dto/dto.type";
+import { RootState } from "../store";
+import { nextReview, reviewAgain } from "../collectionSlice";
 
 export const flashcardApi = createApi({
   reducerPath: "flashcardApi",
@@ -98,6 +100,55 @@ export const flashcardApi = createApi({
         }
       },
     }),
+    reviewFlashcard: builder.mutation({
+      queryFn: async (
+        {
+          collectionId,
+          quality,
+          cardId,
+        }: { collectionId: string; cardId?: string; quality: number },
+        queryApi,
+        extraOptions,
+        baseQuery
+      ) => {
+        try {
+          const baseState = queryApi.getState() as RootState;
+          const dispatch = queryApi.dispatch;
+
+          const flashCardId =
+            cardId || baseState.persistedReducer.collection.reviewCard?._id;
+
+          if (!flashCardId) {
+            throw new AxiosError(`Invalid flashcard's id`);
+          }
+
+          // IMPORTANT : check the quality is between 1 and 5
+          if (quality > 5 || quality < 1) {
+            throw new AxiosError(`Invalid quality`);
+          }
+          if (quality === 1) {
+            dispatch(reviewAgain());
+          } else {
+            dispatch(nextReview());
+          }
+
+          const { data } = (await baseQuery({
+            url: `/users/collections/${collectionId}/flashcards/${flashCardId}/review/${quality}`,
+            method: "GET",
+          })) as AxiosResponse<string>;
+
+          return { data: "ok" };
+        } catch (error) {
+          const err = error as AxiosError;
+          return {
+            error: {
+              status: err.response?.status,
+              data: err.response?.data || err.message,
+            },
+          };
+        }
+      },
+    }),
   }),
 });
 
@@ -105,4 +156,5 @@ export const {
   useDeleteFlashCardMutation,
   useUpdateFlashcardInformationMutation,
   useAddFlashCardToCollectionMutation,
+  useReviewFlashcardMutation,
 } = flashcardApi;

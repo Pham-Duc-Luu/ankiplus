@@ -72,10 +72,7 @@ export default function IconCloudDemo() {
     /**
      * if the response is error
      */
-    if (
-      useSignInMutationResult.isError &&
-      useSignInMutationResult.error?.data
-    ) {
+    if (useSignInMutationResult.isError && useSignInMutationResult.error) {
       const error = useSignInMutationResult.error
         .data as AxiosError<ErrResponse>;
 

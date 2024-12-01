@@ -14,6 +14,7 @@ import {
     Inject,
     InternalServerErrorException,
     Logger,
+    NotFoundException,
     UseGuards,
 } from '@nestjs/common';
 import { AuthGuard, AuthGuardGraphqlServer } from 'src/auth/guard/auth.guard';
@@ -179,6 +180,16 @@ export class UserCollectionResolver {
              * check if the collection exist
              */
             const collection = await this.collectionModel.findById(collection_id);
+
+            // IMPORTANT : check if the user have access to this
+            if (!collection) {
+                throw new NotFoundException('Not found collection');
+            }
+
+            if (collection.owner.toString() !== sub) {
+                throw new ForbiddenException('You are not allowed to access this collection');
+            }
+
             // * initialize the review session if not exist
             if (!collection?.reviewSession?.cards) {
                 collection.reviewSession = {

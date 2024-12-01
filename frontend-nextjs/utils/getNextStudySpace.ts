@@ -1,11 +1,9 @@
 import { ReviewCard } from "@/store/collectionSlice";
-import dayjs from "dayjs";
 export function getSpaceBetweenStudyDate(quality: number, card: ReviewCard) {
   try {
     let interval = card.SRS.interval;
     let efactor = card.SRS.efactor;
 
-    const MIN_EFACTOR = 1.3;
     quality = Math.round(quality);
     // Ensure the quality is in the range of 1 to 5
 
