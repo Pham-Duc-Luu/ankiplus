@@ -11,18 +11,21 @@ import { useTranslations } from "next-intl";
 import React, { useEffect } from "react";
 import { MdAddToPhotos } from "react-icons/md";
 
-const CreateButton = (props: ButtonProps) => {
+const CreateButton = ({ ...props }: ButtonProps) => {
   const t = useTranslations("collection.create");
   const { toast } = useToast();
   const dispatch = useAppDispatch();
-  const [dataMutationTrigger, dataMutation] = useCreateNewCollectionMutation();
+  const [
+    useCreateNewCollectionMutationTrigger,
+    useCreateNewCollectionMutationResult,
+  ] = useCreateNewCollectionMutation();
   const mutationtrigger = useAppSelector(
     (state) => state.collectionApi.mutations["createNewCollectionMutaion"]
   );
 
   const router = useRouter();
   useEffect(() => {
-    if (dataMutation.isLoading) {
+    if (useCreateNewCollectionMutationResult.isLoading) {
       toast({
         variant: "default",
 
@@ -36,7 +39,7 @@ const CreateButton = (props: ButtonProps) => {
       });
     }
 
-    if (dataMutation.isSuccess) {
+    if (useCreateNewCollectionMutationResult.isSuccess) {
       toast({
         variant: "success",
 
@@ -46,19 +49,18 @@ const CreateButton = (props: ButtonProps) => {
       });
       router.push(DASHBOARD_ROUTE());
     }
-  }, [dataMutation]);
+  }, [useCreateNewCollectionMutationResult]);
 
   return (
     <>
       <Button
         color="success"
         onClick={() => {
-          dataMutationTrigger({});
+          useCreateNewCollectionMutationTrigger({});
         }}
         variant="bordered"
         className="text-xl"
         startContent={<MdAddToPhotos size={20}></MdAddToPhotos>}
-        {...props}
       >
         {t("function.create")}
       </Button>

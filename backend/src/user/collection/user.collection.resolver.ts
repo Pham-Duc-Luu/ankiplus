@@ -223,9 +223,14 @@ export class UserCollectionResolver {
                 limit,
                 data: await Promise.all(
                     updatedColletion.reviewSession.cards.map(async (item): Promise<FlashCardGQLObject> => {
-                        const card = await this.flashCardModel.findById(item).lean().exec();
+                        const card = await this.flashCardModel.findById(item);
                         if (!card) {
                             throw new BadRequestException('Card not found');
+                        }
+                        // * check if the card's inCollection field is empty
+                        if (!card.inCollection) {
+                            card.inCollection = collection._id;
+                            await card.save();
                         }
                         return {
                             _id: card._id.toString(),

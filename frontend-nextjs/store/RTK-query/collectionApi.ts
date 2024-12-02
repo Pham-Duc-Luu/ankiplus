@@ -62,20 +62,23 @@ export const collectionApi = createApi({
         // For the success case, the return type for the `data` property
         // must match `ResultType`
         //              v
-        const { newCollection } = (queryApi.getState() as RootState)
-          .persistedReducer.createNewCollection;
+        const { collection } = (queryApi.getState() as RootState)
+          .persistedReducer;
 
-        if (!newCollection.name) {
-          return { error: "Invalid collection name" };
+        if (!collection.name) {
+          throw new AxiosError("Collection name must be provided");
         }
-        const list = newCollection.flashCards.filter((c) => c.front && c.back);
+        if (!collection.cards) {
+          throw new AxiosError("Collection cards must be provided");
+        }
 
         const dataDto: CreateCollectionDto = {
-          ...newCollection,
-          name: newCollection.name,
-          flashCards: newCollection.flashCards
-            .filter((c) => c.front && c.back)
-            .map((c) => ({ front: c.front || "", back: c.back || "" })),
+          name: collection.name,
+          description: collection.description,
+          flashCards: collection.cards.map((c) => ({
+            front: c.front || "",
+            back: c.back || "",
+          })),
         };
         try {
           const { data } = (await baseQuery({

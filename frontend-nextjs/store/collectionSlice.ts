@@ -42,7 +42,6 @@ interface Collection {
 const initialState: Collection = {
   _id: 1,
   reviewCardIndex: 0,
-  name: "Example collection name",
   cards: [{ positionId: uuv4() }],
   numberOfStudiedCards: 0,
 };
@@ -51,6 +50,29 @@ export const collectionSlice = createSlice({
   name: "collection",
   initialState,
   reducers: {
+    resetCollectionState: (state) => {
+      state.cards = [{ positionId: uuv4() }, { positionId: uuv4() }];
+      state.numberOfStudiedCards = 0;
+      state.reviewCardIndex = 0;
+      state.listReviewCards = [];
+      state.selectedCard = undefined;
+      state.displaying_reviewCard = "front";
+      state.name = "";
+      state.description = "";
+      state._id = undefined;
+    },
+    setCollectioName: (
+      state,
+      { payload }: PayloadAction<Collection["name"]>
+    ) => {
+      state.name = payload;
+    },
+    setCollectionDescription: (
+      state,
+      { payload }: PayloadAction<Collection["description"]>
+    ) => {
+      state.description = payload;
+    },
     setSelectedCard: (
       state,
       { payload }: PayloadAction<Collection["selectedCard"]>
@@ -181,6 +203,9 @@ export const {
   remove_card,
   updateCard_Card,
   setFlashCards_card,
+  resetCollectionState,
+  setCollectioName,
+  setCollectionDescription,
 } = collectionSlice.actions;
 
 export const collectionSliceAction = collectionSlice.actions;

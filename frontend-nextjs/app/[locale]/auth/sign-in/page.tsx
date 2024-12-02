@@ -140,73 +140,75 @@ export default function IconCloudDemo() {
     }
   }, [useGoogleOAuth2MutationResult]);
   return (
-    <div>
-      <Card isFooterBlurred radius="lg" className="border-none p-6 lg:mx-32  ">
-        <div className=" p-6 text-2xl  font-bold">{t("sign in.label")}</div>
-        <form
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              handleSubmit();
-            }
-          }}
-          onSubmit={(e) => {
-            e.preventDefault();
+    <Card
+      isFooterBlurred
+      radius="lg"
+      className="border-none p-6 lg:mx-32 max-w-[500px] lg:w-[500px]   "
+    >
+      <div className=" p-6 text-2xl  font-bold">{t("sign in.label")}</div>
+      <form
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
             handleSubmit();
-          }}
-          autoComplete="on"
-        >
-          <div className=" flex flex-col gap-4 mb-6 ">
-            <Input
-              onChange={(e) => {
-                setemail(e.target.value);
-              }}
-              id="email"
-              autoComplete="email"
-              value={email}
-              type="email"
-              label={"email"}
-              name="email"
-              placeholder={t("sign in.email.placeholder")}
-              required
-            />
-            <Input
-              onChange={(e) => {
-                setpassword(e.target.value);
-              }}
-              value={password}
-              type="password"
-              label={"password"}
-              required
-              name="password"
-              id="password"
-              autoComplete="password"
-              placeholder={t("sign in.password.placeholder")}
-            />
-            <Button type="submit" color="secondary">
-              {t("sign in.action")}
+          }
+        }}
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSubmit();
+        }}
+        autoComplete="on"
+      >
+        <div className=" flex flex-col gap-4 mb-6 ">
+          <Input
+            onChange={(e) => {
+              setemail(e.target.value);
+            }}
+            id="email"
+            autoComplete="email"
+            value={email}
+            type="email"
+            label={"email"}
+            name="email"
+            placeholder={t("sign in.email.placeholder")}
+            required
+          />
+          <Input
+            onChange={(e) => {
+              setpassword(e.target.value);
+            }}
+            value={password}
+            type="password"
+            label={"password"}
+            required
+            name="password"
+            id="password"
+            autoComplete="password"
+            placeholder={t("sign in.password.placeholder")}
+          />
+          <Button type="submit" color="secondary">
+            {t("sign in.action")}
+          </Button>
+          <div className=" flex w-full justify-center gap-4">
+            <Button className=" flex-1" onClick={() => GoogleLogin()}>
+              <FaGoogle />
             </Button>
-            <div className=" flex w-full justify-center gap-4">
-              <Button className=" flex-1" onClick={() => GoogleLogin()}>
-                <FaGoogle />
-              </Button>
-              <Button className="flex-1">
-                <FaFacebook />
-              </Button>
-            </div>
+            <Button className="flex-1">
+              <FaFacebook />
+            </Button>
           </div>
-          <div className=" flex justify-between items-center">
-            <Link
-              onPress={(e) => {
-                router.push(AUTH_SIGN_UP());
-              }}
-              underline="always"
-            >
-              {t("sign up.action")}
-            </Link>
-            <ResetPasswordButton></ResetPasswordButton>
-          </div>
-        </form>
-      </Card>
-    </div>
+        </div>
+        <div className=" flex justify-between items-center">
+          <Link
+            onPress={(e) => {
+              router.push(AUTH_SIGN_UP());
+            }}
+            underline="always"
+          >
+            {t("sign up.action")}
+          </Link>
+          <ResetPasswordButton></ResetPasswordButton>
+        </div>
+      </form>
+    </Card>
   );
 }

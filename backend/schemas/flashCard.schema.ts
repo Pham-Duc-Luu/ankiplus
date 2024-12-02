@@ -23,7 +23,7 @@ export class FlashCard {
     })
     SRS: SRS;
     @Prop({ type: Types.ObjectId, ref: 'collection' })
-    inCollection: String | Collection;
+    inCollection: String | Collection | Types.ObjectId;
 }
 
 export type FlashCardDocument = HydratedDocument<FlashCard> & {

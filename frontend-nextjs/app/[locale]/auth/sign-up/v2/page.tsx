@@ -56,57 +56,6 @@ const signUpSchema = z
     message: "Passwords do not match",
     path: ["confirmPassword"],
   });
-const PasswordInput = ({ ...props }: InputProps) => {
-  const [isVisible, setIsVisible] = useState(false);
-  const toggleVisibility = () => setIsVisible(!isVisible);
-
-  return (
-    <Input
-      {...props}
-      endContent={
-        <button
-          className="focus:outline-none"
-          type="button"
-          onClick={toggleVisibility}
-          aria-label="toggle password visibility"
-        >
-          {isVisible ? (
-            <MdOutlineVisibilityOff className="text-2xl text-default-400 pointer-events-none" />
-          ) : (
-            <MdOutlineVisibility className="text-2xl text-default-400 pointer-events-none" />
-          )}
-        </button>
-      }
-      type={isVisible ? "text" : "password"}
-    />
-  );
-};
-
-const ConfirmPasswordInput = (props: InputProps) => {
-  const [isVisible, setIsVisible] = useState(false);
-  const toggleVisibility = () => setIsVisible(!isVisible);
-
-  return (
-    <Input
-      {...props}
-      endContent={
-        <button
-          className="focus:outline-none"
-          type="button"
-          onClick={toggleVisibility}
-          aria-label="toggle password visibility"
-        >
-          {isVisible ? (
-            <MdOutlineVisibilityOff className="text-2xl text-default-400 pointer-events-none" />
-          ) : (
-            <MdOutlineVisibility className="text-2xl text-default-400 pointer-events-none" />
-          )}
-        </button>
-      }
-      type={isVisible ? "text" : "password"}
-    />
-  );
-};
 const Page = () => {
   const t = useTranslations("auth");
   const [useSignUpMutationTrigger, useSignUpMutationResult] =

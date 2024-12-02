@@ -1,9 +1,14 @@
 "use client";
 import ReoderItemCard from "@/components/ReoderItem.Card";
-import { Card as CardType } from "@/store/collectionSlice";
+import {
+  append_card,
+  Card as CardType,
+  resetCollectionState,
+  setFlashCards_card,
+} from "@/store/collectionSlice";
 import { Card, Spinner } from "@nextui-org/react";
 import { Reorder } from "framer-motion";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { v4 } from "uuid";
 import Header from "./Header";
 import { IoMdAdd } from "react-icons/io";
@@ -11,7 +16,6 @@ import CreateButton from "./Create.button";
 import { useParams } from "next/navigation";
 import { useGetFLashCardsInCollectionQuery } from "@/store/graphql/COLLECTION.generated";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { addFlashCard, setFlashCards } from "@/store/createCollectionSlice";
 
 export interface IReorderItemCard extends Partial<CardType> {
   positionId: number | string;
@@ -21,9 +25,7 @@ const page = () => {
   const cardRefs = useRef<(HTMLDivElement | null)[]>([null, null]); // Array to store refs for each card
   const dispatch = useAppDispatch();
   const { id } = useParams<{ id: string }>();
-  const { newCollection } = useAppSelector(
-    (state) => state.persistedReducer.createNewCollection
-  );
+  const { collection } = useAppSelector((state) => state.persistedReducer);
   // const [flashCardItems, setFlashCardItems] = useState<IReorderItemCard[]>([
   //   { positionId: v4() },
   //   { positionId: v4() },
@@ -39,6 +41,13 @@ const page = () => {
       }
     }
   };
+
+  // IMPORTANT : remove all of collection state before re-use
+  useEffect(() => {
+    if (!collection?.cards) {
+      dispatch(resetCollectionState());
+    }
+  }, [collection.cards]);
 
   // useEffect(() => {
   //   dispatch(setFlashCards(flashCardItems));
@@ -59,29 +68,31 @@ const page = () => {
         //   e.preventDefault();
         // }}
         >
-          <Reorder.Group
-            axis="y"
-            values={newCollection.flashCards}
-            onReorder={(values) => {
-              dispatch(setFlashCards(values));
-            }}
-            // ref={ref}
-          >
-            {newCollection.flashCards.map((item, index) => (
-              <ReoderItemCard
-                order={index + 1}
-                value={item}
-                key={item.positionId}
-              ></ReoderItemCard>
-            ))}
-          </Reorder.Group>
+          {collection.cards && (
+            <Reorder.Group
+              axis="y"
+              values={collection.cards}
+              onReorder={(values) => {
+                dispatch(setFlashCards_card(values));
+              }}
+              // ref={ref}
+            >
+              {collection.cards.map((item, index) => (
+                <ReoderItemCard
+                  order={index + 1}
+                  value={item}
+                  key={item.positionId}
+                ></ReoderItemCard>
+              ))}
+            </Reorder.Group>
+          )}
         </div>
 
         <div
           className=" cursor-pointer my-4"
           onClick={() => {
             // add();
-            dispatch(addFlashCard({}));
+            dispatch(append_card());
           }}
         >
           <Card className=" flex justify-center items-center p-8  flex-row">

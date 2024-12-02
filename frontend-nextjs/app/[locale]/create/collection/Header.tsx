@@ -1,7 +1,11 @@
 "use client";
 import { cn } from "@/lib/utils";
+import {
+  setCollectioName,
+  setCollectionDescription,
+} from "@/store/collectionSlice";
 import { addCollectionInformation } from "@/store/createCollectionSlice";
-import { useAppDispatch } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { Button, Card, CardHeader, Input, Navbar } from "@nextui-org/react";
 import { useTranslations } from "next-intl";
 import React, { useEffect, useState } from "react";
@@ -12,22 +16,11 @@ export interface IHeaderProps {
   onChange?: (title: string, description?: string) => void;
 }
 const Header = ({ className, onChange }: IHeaderProps) => {
-  const [title, settitle] = useState<string>();
-  const [description, setdescription] = useState<string>();
   const dispatch = useAppDispatch();
   const t = useTranslations("collection.create");
 
-  const handleUpdate = () => {
-    if (onChange && title) onChange(title, description);
+  const { collection } = useAppSelector((state) => state.persistedReducer);
 
-    dispatch(
-      addCollectionInformation({ name: title, description: description })
-    );
-  };
-
-  useEffect(() => {
-    handleUpdate();
-  }, [title, description]);
   return (
     <div className=" relative">
       <Card className={cn(className)}>
@@ -38,17 +31,17 @@ const Header = ({ className, onChange }: IHeaderProps) => {
           <Input
             label={"Title"}
             onChange={(e) => {
-              settitle(e.target.value);
+              dispatch(setCollectioName(e.target.value));
             }}
-            value={title}
+            value={collection.name}
             placeholder={t("form.title")}
             variant="bordered"
           ></Input>
           <Input
-            value={description}
+            value={collection.description}
             label={"Descreption"}
             onChange={(e) => {
-              setdescription(e.target.value);
+              dispatch(setCollectionDescription(e.target.value));
             }}
             placeholder={t("form.title")}
             variant="bordered"

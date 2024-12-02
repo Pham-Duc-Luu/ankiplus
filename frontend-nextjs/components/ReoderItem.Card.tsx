@@ -39,9 +39,6 @@ const ReoderItemCard = ({ value, className, order }: IReoderItemCardProps) => {
 
   const [isGrapping, setisGrapping] = useState(false);
   const dispatch = useAppDispatch();
-  const { newCollection } = useAppSelector(
-    (state) => state.persistedReducer.createNewCollection
-  );
 
   useEffect(() => {
     dispatch(
