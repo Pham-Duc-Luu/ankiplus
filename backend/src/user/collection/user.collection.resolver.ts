@@ -172,9 +172,6 @@ export class UserCollectionResolver {
             let sort = {};
             sort[sortBy] = order;
 
-            // /**
-            //  * find all the flashcards that have nextReviewDate before the current date
-            //  */
 
             /**
              * check if the collection exist
@@ -198,8 +195,11 @@ export class UserCollectionResolver {
                 await collection.save();
             }
 
+            await this.collectionService.removeDuplicatesInReviewSession(collection_id)
+
             // * remove cards don't need to be reviewed today
             await this.collectionService.removeNotYetExpiredCardInReviewSession(collection_id);
+
 
             /**
              * find all of the flashcards that need to be reviewed today
@@ -211,6 +211,7 @@ export class UserCollectionResolver {
 
             // update the cards to review session
             await this.useCollectionService.pushToCardToReviewSession(collection_id, needToReviewCards);
+
             // remove unexpected cards
             await this.collectionService.removeUnexistedCardsInReviewSession(collection_id);
 

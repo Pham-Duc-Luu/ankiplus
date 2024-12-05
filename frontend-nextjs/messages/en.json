@@ -67,7 +67,8 @@
       },
       "function": {
         "create": "Create",
-        "pending": "The collection is creating..."
+        "pending": "The collection is creating...",
+        "import" : "import" 
       },
       "card": {
         "front": {

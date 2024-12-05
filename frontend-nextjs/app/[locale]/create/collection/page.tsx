@@ -16,6 +16,7 @@ import CreateButton from "./Create.button";
 import { useParams } from "next/navigation";
 import { useGetFLashCardsInCollectionQuery } from "@/store/graphql/COLLECTION.generated";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import FileImportButton from "./FileImportButton";
 
 export interface IReorderItemCard extends Partial<CardType> {
   positionId: number | string;
@@ -62,6 +63,7 @@ const page = () => {
     >
       <div className="lg:w-[1200px] mb-8">
         <Header></Header>
+        <FileImportButton></FileImportButton>
         {/* <Functions></Functions> */}
         <div
         // onMouseEnter={(e) => {

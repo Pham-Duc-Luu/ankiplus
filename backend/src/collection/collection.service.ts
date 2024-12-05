@@ -39,6 +39,25 @@ export class CollectionService {
         await collection.save();
     }
 
+    // * remove duplicates cards in review section collection
+    async removeDuplicatesInReviewSession(collectionId: string) {
+        const collection = await this.collectionModel.findById(collectionId);
+        if (!collection?.reviewSession ||!collection.reviewSession.cards) {
+            throw new BadRequestException('Review session not found');
+        }
+
+
+        const duplicatesCards = collection.reviewSession.cards as string[]
+
+        const setCard =Array.from(new Set(duplicatesCards))
+        
+        collection.reviewSession.cards = setCard
+        await collection.save();
+        
+        
+        return;
+    }
+
     // * remove card'id in review session that is not exist in collection's card
     async removeUnexistedCardsInReviewSession(collectionId: string) {
         const collection = await this.collectionModel.findById(collectionId);

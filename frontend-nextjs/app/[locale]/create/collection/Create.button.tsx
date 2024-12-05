@@ -7,6 +7,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { DASHBOARD_ROUTE } from "@/store/route.slice";
 import { useCreateNewCollectionMutation } from "@/store/RTK-query/collectionApi";
 import { Button, ButtonProps, Spinner } from "@nextui-org/react";
+import { AxiosError } from "axios";
 import { useTranslations } from "next-intl";
 import React, { useEffect } from "react";
 import { MdAddToPhotos } from "react-icons/md";
@@ -48,6 +49,14 @@ const CreateButton = ({ ...props }: ButtonProps) => {
         // action: <ToastAction altText="Try again">Try again</ToastAction>,
       });
       router.push(DASHBOARD_ROUTE());
+    }
+
+    if (useCreateNewCollectionMutationResult.isError) {
+      toast({
+        variant: "destructive",
+        title: (useCreateNewCollectionMutationResult.error as AxiosError)
+          ?.message,
+      });
     }
   }, [useCreateNewCollectionMutationResult]);
 

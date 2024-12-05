@@ -26,6 +26,7 @@ import {
   remove_card,
   updateCard_Card,
 } from "@/store/collectionSlice";
+import ImageFileZone from "./cuicui/ImageFileZone";
 export interface IReoderItemCardProps extends CardProps {
   value: IReoderItemCard;
   order: number;
@@ -97,43 +98,49 @@ const ReoderItemCard = ({ value, className, order }: IReoderItemCardProps) => {
             </div>
           </CardHeader>
           <Divider />
-          <CardBody className=" flex flex-row gap-4 items-baseline p-8">
-            <Input
-              variant="underlined"
-              labelPlacement="outside"
-              // label={t("front.title")}
-              // onBlur={handleUpdate} // Call onChange when input loses focus
-              onChange={(e) => {
-                setfront(e.target.value);
-              }}
-              onClear={() => setfront("")}
-              value={front}
-              // onClear={() => setcardFront(undefined)}
-              isClearable
-            ></Input>
-            <Input
-              isClearable
-              value={back}
-              onClear={() => setback("")}
-              variant="underlined"
-              labelPlacement="outside"
-              // onBlur={handleUpdate} // Call onChange when input loses focus
-              onChange={(e) => {
-                setback(e.target.value);
-              }}
-              // onClear={() => setcardBack(undefined)}
-              label={t("back.title")}
-            ></Input>
-            <div>
-              <Button
+          <CardBody className=" flex flex-row gap-4  justify-center p-8">
+            <div className=" flex flex-1 justify-center items-baseline gap-10">
+              <Input
+                variant="underlined"
+                className=" flex-1"
+                labelPlacement="outside"
+                // label={t("front.title")}
+                // onBlur={handleUpdate} // Call onChange when input loses focus
+                onChange={(e) => {
+                  setfront(e.target.value);
+                }}
+                onClear={() => setfront("")}
+                value={front}
+                // onClear={() => setcardFront(undefined)}
+                isClearable
+              ></Input>
+              <Input
+                className=" flex-1"
+                isClearable
+                value={back}
+                onClear={() => setback("")}
+                variant="underlined"
+                labelPlacement="outside"
+                // onBlur={handleUpdate} // Call onChange when input loses focus
+                onChange={(e) => {
+                  setback(e.target.value);
+                }}
+                // onClear={() => setcardBack(undefined)}
+                label={t("back.title")}
+              ></Input>
+            </div>
+            {/*  
+                IMPORTANT NOTE: This a apply for images upload button
+               */}
+            <ImageFileZone></ImageFileZone>
+            {/* <Button
                 color="warning"
                 variant="bordered"
                 endContent={<MdOutlineAddPhotoAlternate />}
                 startContent={<CiLock color={"warning"} />}
               >
                 {t("picture.title")}
-              </Button>
-            </div>
+              </Button> */}
           </CardBody>
           {/* <Divider /> */}
           {/* <CardFooter>
