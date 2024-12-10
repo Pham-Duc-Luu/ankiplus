@@ -10,6 +10,7 @@ public class DotenvConfig {
             .filename(".env") // Change filename if necessary
             .load();
 
+
     /**
      * Retrieve environment variable by key.
      *
@@ -18,5 +19,22 @@ public class DotenvConfig {
      */
     public static String getEnv(String key) {
         return dotenv.get(key);
+    }
+
+
+    public static String getS3BucketName() {
+        return getEnv("AWS_S3_BUCKET_NAME");
+    }
+
+    public static String getS3BucketKey() {
+        return getEnv("AWS_S3_BUCKET_KEY");
+    }
+
+    public static String getS3BucketRegion() {
+        return getEnv("AWS_S3_REGION");
+    }
+
+    public static String getS3BucketSecret() {
+        return getEnv("AWS_S3_BUCKET_SECRET");
     }
 }

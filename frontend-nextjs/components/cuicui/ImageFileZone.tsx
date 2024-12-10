@@ -88,6 +88,7 @@ export function ImageFileZone() {
           ref={fileInputRef}
           type="file"
         />
+        {}
         <AnimatePresence>
           {isDragActive ? (
             <motion.div

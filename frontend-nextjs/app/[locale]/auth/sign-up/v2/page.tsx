@@ -37,7 +37,12 @@ import { useGoogleLogin } from "@react-oauth/google";
 import { setAccessToken, setRefreshToken } from "@/store/authSilce";
 import { useAppDispatch } from "@/store/hooks";
 import { useRouter } from "@/i18n/routing";
-import { AUTH_SIGN_IN, DASHBOARD_ROUTE } from "@/store/route.slice";
+import {
+  AUTH_FORGOTPASSWORD,
+  AUTH_SIGN_IN,
+  DASHBOARD_ROUTE,
+} from "@/store/route.slice";
+import ResetPasswordButton from "@/components/ResetPassword.modal";
 // Define the Zod schema for form validation
 const signUpSchema = z
   .object({
@@ -177,7 +182,11 @@ const Page = () => {
 
   return (
     <>
-      <Card isFooterBlurred radius="lg" className="border-none p-6 lg:mx-32  ">
+      <Card
+        isFooterBlurred
+        radius="lg"
+        className="border-none p-6 lg:mx-32 max-w-[500px] lg:w-[500px]   "
+      >
         <div className=" p-6 text-2xl  font-bold">{t("sign up.label")}</div>
         <form
           onKeyDown={(e) => {
@@ -273,9 +282,14 @@ const Page = () => {
           >
             {t("sign in.action")}
           </Link>
-          <Link href="#" underline="always">
+          <ResetPasswordButton></ResetPasswordButton>
+
+          {/* <Link
+            onPress={() => router.push(AUTH_FORGOTPASSWORD())}
+            underline="always"
+          >
             {t("forgotPassword.action")}
-          </Link>
+          </Link> */}
         </div>
       </Card>
     </>
