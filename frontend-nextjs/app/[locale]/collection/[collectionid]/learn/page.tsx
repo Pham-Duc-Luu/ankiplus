@@ -56,6 +56,11 @@ const Page = () => {
     }
   }, [useGetNeedToReviewFlashCardsQueryResult.data]);
 
+  // ! because of the rkt caching behavior we need to refresh the data every time component is mounted
+  useEffect(() => {
+    useGetNeedToReviewFlashCardsQueryResult.refetch();
+  }, []);
+
   const t = useTranslations("review");
 
   const route = useRouter();
@@ -79,7 +84,7 @@ const Page = () => {
   }, []);
 
   // IMPORTANT : member to remove all of the review cards before rendering
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (collection.reviewCardIndex === collection.listReviewCards?.length) {
       dispatch(setListReviewCard_card());
       finish();

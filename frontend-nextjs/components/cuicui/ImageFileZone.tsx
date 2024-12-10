@@ -9,7 +9,10 @@ interface FileWithPreview extends File {
   preview: string;
 }
 
-export function ImageFileZone() {
+interface ImageFileZoneProps {
+  isDisabled?: boolean;
+}
+export function ImageFileZone({ isDisabled = false }: ImageFileZoneProps) {
   const [files, setFiles] = useState<FileWithPreview[]>([]);
   const [isDragActive, setIsDragActive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -72,23 +75,25 @@ export function ImageFileZone() {
             ? "border-blue-500 bg-blue-500/5"
             : "border-neutral-300 hover:border-neutral-400 dark:border-neutral-700 dark:hover:border-neutral-500"
         }`}
-        onClick={handleButtonClick}
-        onDragEnter={handleDragEnter}
-        onDragLeave={handleDragLeave}
-        onDragOver={handleDragOver}
-        onDrop={handleDrop}
+        onClick={!isDisabled ? handleButtonClick : undefined}
+        onDragEnter={!isDisabled ? handleDragEnter : undefined}
+        onDragLeave={!isDisabled ? handleDragLeave : undefined}
+        onDragOver={!isDisabled ? handleDragOver : undefined}
+        onDrop={!isDisabled ? handleDrop : undefined}
         // whileHover={{ scale: 1.01 }}
         // whileTap={{ scale: 0.98 }}
       >
-        <input
-          accept="image/*,application/pdf"
-          className="hidden"
-          multiple={true}
-          onChange={handleFileInputChange}
-          ref={fileInputRef}
-          type="file"
-        />
-        {}
+        {!isDisabled && (
+          <input
+            accept="image/*,application/pdf"
+            className="hidden"
+            multiple={true}
+            onChange={handleFileInputChange}
+            ref={fileInputRef}
+            type="file"
+          />
+        )}
+
         <AnimatePresence>
           {isDragActive ? (
             <motion.div
@@ -113,47 +118,6 @@ export function ImageFileZone() {
           )}
         </AnimatePresence>
       </motion.div>
-
-      {/* <AnimatePresence>
-        {files.length > 0 && (
-          <motion.div
-            animate={{ opacity: 1, height: "auto" }}
-            className="mt-4 space-y-2"
-            exit={{ opacity: 0, height: 0 }}
-            initial={{ opacity: 0, height: 0 }}
-          >
-            {files.map((file) => (
-              <motion.div
-                animate={{ opacity: 1, x: 0 }}
-                className="flex items-center rounded-lg bg-neutral-400/10 p-1"
-                exit={{ opacity: 0, x: 20 }}
-                initial={{ opacity: 0, x: -20 }}
-                key={file.name}
-              >
-                {file.type.startsWith("image/") ? (
-                  <img
-                    alt={file.name}
-                    className="mr-2 size-10 rounded object-cover"
-                    src={file.preview}
-                  />
-                ) : (
-                  <File className="mr-2 size-10 text-neutral-500" />
-                )}
-                <span className="flex-1 truncate text-neutral-600 text-xs tracking-tighter dark:text-neutral-400">
-                  {file.name}
-                </span>
-                <Trash2
-                  className="mr-2 size-5 cursor-pointer text-red-500 transition-colors hover:text-red-600"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeleteFile(file);
-                  }}
-                />
-              </motion.div>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence> */}
     </div>
   );
 }

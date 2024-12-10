@@ -119,7 +119,6 @@ export class UserFlashCardController {
 
             const flashCard = await this.flashCardModel.findOne({
                 _id: new ObjectId(param.flashCardId),
-                inCollection: collection._id,
             });
 
             if (!flashCard) throw new NotFoundException('FlashCard not found');

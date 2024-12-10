@@ -20,6 +20,7 @@ import { UserCollectionService } from './collection/user.collection.service';
 import { MailerService } from './mailer.service';
 import { UserFlashCardService } from './flashcard/user.flashCard.service';
 import { CollectionService } from 'src/collection/collection.service';
+import { FlashCardService } from 'src/service/FlashCard.service';
 
 @Module({
     imports: [
@@ -48,6 +49,7 @@ import { CollectionService } from 'src/collection/collection.service';
         UserCollectionResolver,
         UserCollectionService,
         CollectionService,
+        FlashCardService,
         SRSService,
         MailerService,
         UserFlashCardService,

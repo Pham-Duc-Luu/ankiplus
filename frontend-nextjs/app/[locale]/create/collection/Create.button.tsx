@@ -20,9 +20,6 @@ const CreateButton = ({ ...props }: ButtonProps) => {
     useCreateNewCollectionMutationTrigger,
     useCreateNewCollectionMutationResult,
   ] = useCreateNewCollectionMutation();
-  const mutationtrigger = useAppSelector(
-    (state) => state.collectionApi.mutations["createNewCollectionMutaion"]
-  );
 
   const router = useRouter();
   useEffect(() => {

@@ -121,6 +121,7 @@ export class UserCollectionResolver {
         @Args('collection_id', { type: () => String }) collection_id: string,
     ) {
         await this.collectionService.removeUnexistedFlashCards(collection_id);
+        await this.collectionService.removeDuplicateCardInCollection(collection_id);
 
         const { sub } = context.req.user;
         let sort = {};
@@ -172,7 +173,6 @@ export class UserCollectionResolver {
             let sort = {};
             sort[sortBy] = order;
 
-
             /**
              * check if the collection exist
              */
@@ -195,11 +195,10 @@ export class UserCollectionResolver {
                 await collection.save();
             }
 
-            await this.collectionService.removeDuplicatesInReviewSession(collection_id)
+            await this.collectionService.removeDuplicatesInReviewSession(collection_id);
 
             // * remove cards don't need to be reviewed today
             await this.collectionService.removeNotYetExpiredCardInReviewSession(collection_id);
-
 
             /**
              * find all of the flashcards that need to be reviewed today

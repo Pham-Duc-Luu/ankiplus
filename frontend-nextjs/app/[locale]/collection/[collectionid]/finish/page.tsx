@@ -24,10 +24,13 @@ import { useRouter } from "@/i18n/routing";
 import { useParams } from "next/navigation";
 import { GrLinkNext } from "react-icons/gr";
 import { useGetCollectionDetailQuery } from "@/store/graphql/COLLECTION.modify";
+import { IoCaretBackOutline } from "react-icons/io5";
+import { COLLECTION_DETAILS } from "@/store/route.slice";
 const Page = () => {
   const [value, setValue] = useState(0);
   const t = useTranslations("review");
   const route = useRouter();
+
   const { collectionid } = useParams<{ collectionid: string }>();
   const GetCollectionDetailQuery = useGetCollectionDetailQuery({
     ID: collectionid,
@@ -86,14 +89,22 @@ const Page = () => {
         </div> */}
         <Card isBlurred className="p-4">
           <CardBody className=" flex-row gap-12 justify-between items-center">
-            <div className="">
+            <div className=" text-xl">
               <span>{t("congratulate.title")}</span>
               <span> {t("congratulate.more con")}</span>
             </div>
             <CustomConfettiButton></CustomConfettiButton>
           </CardBody>
+          <CardFooter>
+            <Button
+              onPress={() => route.push(COLLECTION_DETAILS(collectionid))}
+              startContent={<IoCaretBackOutline />}
+            >
+              Back
+            </Button>
+          </CardFooter>
         </Card>
-        <div className=" flex mt-10 gap-10">
+        {/* <div className=" flex mt-10 gap-10">
           <Card className=" flex justify-center items-center">
             <CardHeader>{t("your proccess")}</CardHeader>
             <AnimatedCircularProgressBar
@@ -150,7 +161,7 @@ const Page = () => {
               </Button>
             </CardFooter>
           </Card>
-        </div>
+        </div> */}
       </div>
     </div>
   );

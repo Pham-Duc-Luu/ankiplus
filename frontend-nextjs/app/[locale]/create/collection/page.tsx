@@ -45,10 +45,8 @@ const page = () => {
 
   // IMPORTANT : remove all of collection state before re-use
   useEffect(() => {
-    if (!collection?.cards) {
-      dispatch(resetCollectionState());
-    }
-  }, [collection.cards]);
+    dispatch(resetCollectionState());
+  }, []);
 
   // useEffect(() => {
   //   dispatch(setFlashCards(flashCardItems));

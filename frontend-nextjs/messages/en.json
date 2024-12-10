@@ -68,7 +68,7 @@
       "function": {
         "create": "Create",
         "pending": "The collection is creating...",
-        "import" : "import" 
+        "import": "import"
       },
       "card": {
         "front": {
@@ -95,6 +95,9 @@
       "error": {
         "no cards": "This collection has no cards yet"
       }
+    },
+    "cards": {
+      "encourage sentence": "You've started learning these terms. Keep it up!"
     },
     "edit": {}
   },

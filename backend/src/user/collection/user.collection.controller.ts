@@ -49,6 +49,7 @@ import configuration from ' config/configuration';
 import { jwtPayloadDto } from 'dto/jwt.dto';
 import { UserFlashCardService } from '../flashcard/user.flashCard.service';
 import { CollectionService } from 'src/collection/collection.service';
+import { FlashCardService } from 'src/service/FlashCard.service';
 
 @ApiTags('users/collections')
 @UseGuards(AuthGuard)
@@ -70,6 +71,7 @@ export class UserCollectionController {
         private collectionModel: Model<Collection>,
         private userFlashCardService: UserFlashCardService,
         private collectionService: CollectionService,
+        private flashcardService: FlashCardService,
     ) {}
 
     /**
@@ -316,8 +318,7 @@ export class UserCollectionController {
         }
 
         try {
-            const createFlashCard = await this.flashCardModel.insertMany(flashCards);
-
+            // * create a new collection
             const collection = await this.collectionModel.create({
                 name,
                 description,
@@ -326,6 +327,22 @@ export class UserCollectionController {
                 language,
                 owner: user._id,
             });
+
+            // IMPORTANT NOTE: remove all of the card that do not exist both back and front
+            let validateFlashCard = [];
+            for (let index = 0; index < flashCards.length; index++) {
+                if (
+                    (!flashCards[index].back && !flashCards[index]) ||
+                    (flashCards[index].back === '' && flashCards[index].front === '')
+                ) {
+                    continue;
+                }
+
+                // * push the collection id to the card
+                validateFlashCard.push({ ...flashCards[index], inCollection: collection._id });
+            }
+
+            const createFlashCard = await this.flashCardModel.insertMany(validateFlashCard);
 
             collection.cards = createFlashCard.map((card) => card._id.toString());
             collection.reviewSession = {
@@ -415,6 +432,7 @@ export class UserCollectionController {
     @Delete(':id')
     async deleteCollection(@Request() req: { user: jwtPayloadDto }, @Param() param: { id: string }) {
         try {
+            // * find the collection in the database
             const collection = await this.collectionModel.findOne({
                 _id: new ObjectId(param.id),
                 owner: new ObjectId(req.user.sub),
@@ -423,12 +441,20 @@ export class UserCollectionController {
             if (!collection) {
                 throw new BadRequestException('Collection not found');
             }
+            // * find the user in the database
             const user = await this.userModel.findById(req.user.sub);
 
+            // * remove the collection id from the user's collection array
             _.remove(user.collections, function (o) {
                 return o.toString() === param.id;
             });
 
+            // * remove all of the flashcards that in this collection
+            await Promise.all(
+                collection.cards.map(async (id) => {
+                    await this.flashcardService.deleteFlashCardById(id.toString());
+                }),
+            );
             // await this.collectionModel.deleteOne({ _id: new ObjectId(param.id) });
             await collection.deleteOne();
 
@@ -467,7 +493,14 @@ export class UserCollectionController {
             const newFlashCards = flashCards;
 
             for (let index = 0; index < newFlashCards.length; index++) {
-                newFlashCards[index];
+                //  IMPORTANT NOTE: validate the flash card: must have both back and front
+
+                if (
+                    (!newFlashCards[index].back && !newFlashCards[index].front) ||
+                    (newFlashCards[index].back === '' && newFlashCards[index].front === '')
+                ) {
+                    continue;
+                }
 
                 // * create a new flashcard if the flashcard's id is not already existing or not exist in the collection's card
                 if (!newFlashCards[index].id || _.findIndex(oldCards, newFlashCards[index].id) === -1) {

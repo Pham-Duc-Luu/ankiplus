@@ -32,6 +32,7 @@ import {
 import { useDebounce } from "@uidotdev/usehooks";
 import { useGetFLashCardsInCollectionQuery } from "@/store/graphql/COLLECTION.modify";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 export type TColumnKey = keyof Card | "action";
 
@@ -51,6 +52,8 @@ const CardsTable = ({ cards, refetchCard }: ICardsTableProps) => {
     useGetFLashCardsInCollectionQuery({
       ID: collectionid,
     });
+
+  const t = useTranslations("collection");
 
   const [updateflashCardTrigger, updateFlashCardResults] =
     useUpdateFlashcardInformationMutation();
@@ -137,6 +140,9 @@ const CardsTable = ({ cards, refetchCard }: ICardsTableProps) => {
 
   return (
     <>
+      <div className=" my-4">
+        <span className="text-lg">{t("cards.encourage sentence")}</span>
+      </div>
       <Table
         aria-label="Example static collection table"
         selectionMode="single"

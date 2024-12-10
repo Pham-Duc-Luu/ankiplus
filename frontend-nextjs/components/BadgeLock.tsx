@@ -4,7 +4,13 @@ import { FaLock } from "react-icons/fa";
 
 const BadgeLock = ({ children }: { children: ReactNode }) => {
   return (
-    <Badge isOneChar content={<FaLock />}>
+    <Badge
+      isOneChar
+      content={<FaLock />}
+      onClick={(e) => {
+        e.preventDefault();
+      }}
+    >
       {children}
     </Badge>
   );

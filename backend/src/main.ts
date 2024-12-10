@@ -39,7 +39,7 @@ async function bootstrap() {
 
     // ! this intercepts will perform additional delayed processing
     // IMPORTANT : this is only for debugging and testing purposes
-    app.useGlobalInterceptors(new DelayInterceptor(2000));
+    // app.useGlobalInterceptors(new DelayInterceptor(2000));
     app.useLogger(app.get(NestjsLoggerServiceAdapter));
     app.useGlobalInterceptors(new TimeoutInterceptor(5000)); // 5000ms = 5 seconds
     await app.listen(configService.get('port'));

@@ -86,34 +86,32 @@ const FlipCard = ({
   }, [displaySide]);
 
   return (
-    <div className="flex items-center justify-center  cursor-pointer">
-      <div
-        className="flip-card w-[800px] h-[360px] rounded-md"
-        onClick={(e) => {
-          isFlipByPress && handleFlip();
-          onPress();
+    <div
+      className={cn(className, "flip-card ")}
+      onClick={(e) => {
+        isFlipByPress && handleFlip();
+        onPress();
+      }}
+    >
+      <motion.div
+        className="w-[100%] h-[100%]"
+        initial={false}
+        style={{
+          transformStyle: "preserve-3d",
         }}
+        animate={{ rotateX: isFlipped ? 180 : 360 }}
+        transition={{ duration: 0.4, animationDirection: "normal" }}
+        onAnimationComplete={() => setIsAnimating(false)}
       >
-        <motion.div
-          className="w-[100%] h-[100%]"
-          initial={false}
-          style={{
-            transformStyle: "preserve-3d",
-          }}
-          animate={{ rotateX: isFlipped ? 180 : 360 }}
-          transition={{ duration: 0.4, animationDirection: "normal" }}
-          onAnimationComplete={() => setIsAnimating(false)}
-        >
-          <ExtendCard
-            className="flip-card-front"
-            text={front ? front : "..."}
-          ></ExtendCard>
-          <ExtendCard
-            className="flip-card-back"
-            text={back ? back : "..."}
-          ></ExtendCard>
-        </motion.div>
-      </div>
+        <ExtendCard
+          className="flip-card-front"
+          text={front ? front : "..."}
+        ></ExtendCard>
+        <ExtendCard
+          className="flip-card-back"
+          text={back ? back : "..."}
+        ></ExtendCard>
+      </motion.div>
     </div>
   );
 };

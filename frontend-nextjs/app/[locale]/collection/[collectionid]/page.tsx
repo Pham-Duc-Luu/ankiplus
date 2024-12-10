@@ -1,5 +1,5 @@
 "use client";
-import { Button, Spinner } from "@nextui-org/react";
+import { Button, Divider, Spinner } from "@nextui-org/react";
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
 import React, { useEffect } from "react";
@@ -21,6 +21,10 @@ import _ from "lodash";
 import { IoIosAdd } from "react-icons/io";
 import { COLLECTION_EDIT, COLLECTION_LEARN } from "@/store/route.slice";
 import CardsTable from "./CardTable";
+import { Separator } from "@radix-ui/react-dropdown-menu";
+import { Divide } from "lucide-react";
+import CollectionOptions from "./CollectionOptions";
+import Collectionheader from "./Collectionheader";
 
 const Page = () => {
   const t = useTranslations("collection.info");
@@ -112,8 +116,9 @@ const Page = () => {
   return (
     <div className=" w-full flex flex-col items-center p-6">
       <div className="lg:w-[1200px] w-full">
-        <div className=" m-4 text-2xl font-bold">{collection?.name}</div>
-        <div className="flex gap-4">
+        <Collectionheader></Collectionheader>
+        <Divider className=" my-4"></Divider>
+        {/* <div className="flex gap-4">
           <Button
             onClick={() => {
               route.push(COLLECTION_LEARN(collectionid));
@@ -123,14 +128,8 @@ const Page = () => {
           >
             {t("function.review")}
           </Button>
-          <Button size="lg" startContent={<MdOutlineChangeCircle size={28} />}>
-            {t("function.study")}
-          </Button>
-          <Button size="lg" startContent={<SiSpeedtest size={28} />}>
-            {t("function.test")}
-          </Button>
-        </div>
-        <main className=" my-4">
+        </div> */}
+        <main className=" py-8 px-20  ">
           <AnimatePresence mode="wait">
             <motion.div
               key={collection.selectedCard?._id || 1}
@@ -141,6 +140,7 @@ const Page = () => {
             >
               {collection.selectedCard && (
                 <FlipCard
+                  className=" w-full h-[400px]"
                   front={collection.selectedCard.front}
                   back={collection.selectedCard.back}
                 ></FlipCard>
@@ -149,24 +149,29 @@ const Page = () => {
           </AnimatePresence>
         </main>
 
-        <div className=" flex justify-center items-center gap-8">
-          <Button
-            isIconOnly
-            onClick={() => {
-              prev();
-            }}
-          >
-            <MdNavigateBefore size={28} />
-          </Button>
-          <Button
-            isIconOnly
-            onClick={() => {
-              next();
-            }}
-          >
-            <MdNavigateNext size={28} />
-          </Button>
+        <div className=" flex items-center justify-between my-4">
+          <div className=" flex justify-center items-center gap-8">
+            <Button
+              isIconOnly
+              onClick={() => {
+                prev();
+              }}
+            >
+              <MdNavigateBefore size={28} />
+            </Button>
+            <Button
+              isIconOnly
+              onClick={() => {
+                next();
+              }}
+            >
+              <MdNavigateNext size={28} />
+            </Button>
+          </div>
+          <CollectionOptions></CollectionOptions>
         </div>
+        <Divider className="my-4" />
+        {/* <Divider className=" m-3"> </Divider> */}
         {data && (
           <CardsTable
             cards={data?.getCollectionFlashCards.data.map((item) => ({

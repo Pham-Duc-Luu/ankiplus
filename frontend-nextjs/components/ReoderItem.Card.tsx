@@ -27,6 +27,7 @@ import {
   updateCard_Card,
 } from "@/store/collectionSlice";
 import ImageFileZone from "./cuicui/ImageFileZone";
+import BadgeLock from "./BadgeLock";
 export interface IReoderItemCardProps extends CardProps {
   value: IReoderItemCard;
   order: number;
@@ -132,7 +133,9 @@ const ReoderItemCard = ({ value, className, order }: IReoderItemCardProps) => {
             {/*  
                 IMPORTANT NOTE: This a apply for images upload button
                */}
-            <ImageFileZone></ImageFileZone>
+            <BadgeLock>
+              <ImageFileZone isDisabled={true}></ImageFileZone>
+            </BadgeLock>
             {/* <Button
                 color="warning"
                 variant="bordered"

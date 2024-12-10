@@ -10,6 +10,7 @@ import configuration from ' config/configuration';
 import { FlashCard } from 'schemas/flashCard.schema';
 import * as _ from 'lodash';
 import * as dayjs from 'dayjs';
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class CollectionService {
@@ -42,19 +43,17 @@ export class CollectionService {
     // * remove duplicates cards in review section collection
     async removeDuplicatesInReviewSession(collectionId: string) {
         const collection = await this.collectionModel.findById(collectionId);
-        if (!collection?.reviewSession ||!collection.reviewSession.cards) {
+        if (!collection?.reviewSession || !collection.reviewSession.cards) {
             throw new BadRequestException('Review session not found');
         }
 
+        const duplicatesCards = collection.reviewSession.cards.map((o) => o.toString());
 
-        const duplicatesCards = collection.reviewSession.cards as string[]
+        const setCard = Array.from(new Set(duplicatesCards));
 
-        const setCard =Array.from(new Set(duplicatesCards))
-        
-        collection.reviewSession.cards = setCard
+        collection.reviewSession.cards = setCard;
         await collection.save();
-        
-        
+
         return;
     }
 
@@ -117,5 +116,21 @@ export class CollectionService {
 
         collection.reviewSession.cards = expectCard;
         await collection.save();
+    }
+
+    // * remove duplicates cards in collection
+    async removeDuplicateCardInCollection(collectionId: string) {
+        const collection = await this.collectionModel.findById(collectionId);
+        if (!collection?.cards) {
+            throw new BadRequestException('Card not found');
+        }
+
+        const duplicatesCards = collection.cards.map((o) => o.toString());
+
+        const setCard = Array.from(new Set(duplicatesCards));
+
+        collection.cards = setCard;
+        await collection.save();
+        return;
     }
 }
